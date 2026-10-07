@@ -22,7 +22,7 @@
         "artisan-toolbox/core": "^1.0"
     },
     "require-dev": {
-        "artisan-toolbox/maintainer": "^1.0",
+        "artisan-toolbox/maintainer": "^1.5",
         "driftingly/rector-laravel": "^2.5",
         "larastan/larastan": "^3.9",
         "laravel/pint": "^1.29",
