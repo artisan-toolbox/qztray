@@ -1,0 +1,60 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@artisan-toolbox/qztray",
+  "version": "0.1.0",
+  "description": "Frontend connector for Artisan Toolbox QZ Tray integration.",
+  "keywords": [
+    "artisan-toolbox",
+    "laravel",
+    "qztray"
+  ],
+  "homepage": "https://github.com/artisan-toolbox/qztray",
+  "license": "MIT",
+  "author": {
+    "name": "Allan Mariucci Carvalho"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artisan-toolbox/qztray"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "vp build",
+    "dev": "vp dev",
+    "test": "vp test",
+    "check": "vp check && npm run typecheck",
+    "check:fix": "vp check --fix",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run check && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "typescript": "^5.8.3",
+    "vite-plugin-dts": "^5.1.2",
+    "vite-plus": "^0.3.3"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.18.0 || >=24.11.0"
+  },
+  "packageManager": "npm@11.17.0",
+  "allowScripts": {
+    "fsevents": false
+  }
+}

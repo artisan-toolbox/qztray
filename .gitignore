@@ -9,3 +9,8 @@ composer.lock
 .DS_Store
 .idea
 .vscode
+
+/node_modules
+/dist
+config/maintainer_secrets.php
+/package-lock.json

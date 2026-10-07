@@ -4,20 +4,14 @@ declare(strict_types=1);
 
 namespace ArtisanToolbox\QzTrayConnector\Console\Commands;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
+#[Description('Placeholder Artisan command shipped by the package qztray.')]
+#[Signature('qztray:placeholder')]
 class QzTrayConnectorCommand extends Command
 {
-    /**
-     * The command signature.
-     */
-    protected $signature = 'qztray:placeholder';
-
-    /**
-     * The command description.
-     */
-    protected $description = 'Placeholder Artisan command shipped by the package qztray.';
-
     /**
      * Execute the console command.
      */

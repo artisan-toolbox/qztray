@@ -5,11 +5,11 @@ declare(strict_types=1);
 use ArtisanToolbox\QzTrayConnector\QzTrayConnector;
 
 it('resolves the singleton', function () {
-    expect(app(QzTrayConnector::class))->toBeInstanceOf(QzTrayConnector::class);
+    expect(resolve(QzTrayConnector::class))->toBeInstanceOf(QzTrayConnector::class);
 });
 
 it('returns the same instance from the container', function () {
-    expect(app(QzTrayConnector::class))->toBe(app(QzTrayConnector::class));
+    expect(resolve(QzTrayConnector::class))->toBe(resolve(QzTrayConnector::class));
 });
 
 it('merges the package config', function () {

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ArtisanToolbox\QzTrayConnector;
 
-class QzTrayConnector
+use ArtisanToolbox\Maintainer\Versionable\Contracts\Versionable;
+
+class QzTrayConnector implements Versionable
 {
     //
 }
