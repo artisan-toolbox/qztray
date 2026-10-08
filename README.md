@@ -30,7 +30,7 @@ Publish the credential configuration from your Laravel application's root:
 php artisan vendor:publish --tag=qztray-config
 ```
 
-Set `public_key` to your complete PEM certificate and `private_key` to its matching PEM private key in `config/qztray.php`. See the [credential setup guide](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials) for the full example and configuration cache steps. Printing and request signing are still under development.
+Set `public_key` to your complete PEM certificate and `private_key` to its matching PEM private key in `config/qztray.php`. See the [credential setup guide](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials) for the full example and configuration cache steps. Certificate retrieval and server-side payload signing are implemented; printing integration is still under development.
 
 The frontend package exports a shared connector instance:
 

@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add private frontend `signPayload(payload)` requests and a session-authenticated, CSRF-protected signing endpoint using the configured RSA private key and SHA-512, returning Base64 signatures as plain text while preserving the exact payload.
+- Export `QzTraySigningError` with structured feedback for invalid payloads, private key configuration, signing failures, authentication, and CSRF errors.
 - Cache the public certificate in the shared frontend connector after a successful retrieval, share in-flight requests between concurrent callers, and allow retries after failures.
 - Require the PHP OpenSSL extension and validate the configured public certificate's X.509 format and validity dates on retrieval, returning the PEM content on success and specific JSON errors for missing, malformed, not-yet-valid, or expired certificates.
 - Export `QzTrayCertificateError` with `code` and `status` so applications can distinguish backend certificate configuration errors from unexpected HTTP responses.
@@ -19,6 +21,8 @@
 - Replace the skeleton README with the package overview, requirements, development status, and links to the canonical documentation.
 
 ### Fixed
+
+- Use Laravel's native JSON parsing and string accessor for signing payloads, with a signing-endpoint-only trimming exception to preserve exact bytes without changing other application inputs.
 
 - Replace obsolete scaffold expectations with credential configuration merge, application override, and publish-tag coverage; remove the deleted scaffold database directory from PHPStan's analysis paths.
 - Return the public certificate endpoint with `Content-Type: text/plain; charset=UTF-8` instead of Laravel's default HTML content type.

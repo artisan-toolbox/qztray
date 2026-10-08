@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ArtisanToolbox\QzTrayConnector;
 
 use ArtisanToolbox\QzTrayConnector\Console\Commands\QzTrayConnectorCommand;
+use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
 class QzTrayConnectorServiceProvider extends ServiceProvider
@@ -24,6 +26,9 @@ class QzTrayConnectorServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Global middleware runs before route names are resolved.
+        TrimStrings::skipWhen(static fn (Request $request): bool => $request->isMethod('POST') && $request->is('qztray-connector/sign-payload'));
+
         $this->loadRoutesFrom(__DIR__.'/../routes/qztray.php');
 
         if (! $this->app->runningInConsole()) {
