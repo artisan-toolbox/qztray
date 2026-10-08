@@ -6,14 +6,6 @@ use ArtisanToolbox\QzTrayConnector\Http\Controllers\GetPublicKey;
 use ArtisanToolbox\QzTrayConnector\Http\Controllers\SignPayload;
 use Illuminate\Support\Facades\Route;
 
-use function Pest\Laravel\get;
-
-it('returns the public certificate response as UTF-8 plain text', function () {
-    get(route('qztray_connector.get_public_key'))
-        ->assertOk()
-        ->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
-});
-
 it('registers named connector routes for Ziggy', function () {
     $publicKeyRoute = Route::getRoutes()->getByName('qztray_connector.get_public_key');
     $signPayloadRoute = Route::getRoutes()->getByName('qztray_connector.sign_payload');

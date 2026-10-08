@@ -18,6 +18,7 @@
     ],
     "require": {
         "php": "^8.5",
+        "ext-openssl": "*",
         "illuminate/support": "^13.0",
         "artisan-toolbox/core": "^1.0"
     },

@@ -20,7 +20,7 @@ Once the package is published, install it via Composer:
 composer require artisan-toolbox/qztray
 ```
 
-Requires PHP 8.5 and Laravel 13. The package is under development; a stable integration API is not available yet.
+Requires PHP 8.5 with the OpenSSL extension and Laravel 13. The package is under development; a stable integration API is not available yet.
 
 ## Usage
 
