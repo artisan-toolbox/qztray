@@ -35,10 +35,34 @@ it('preserves application credentials when merging package defaults', function (
 });
 
 it('publishes the credential configuration with the supported tag', function (string $tag) {
-    expect(ServiceProvider::pathsToPublish(QzTrayConnectorServiceProvider::class, $tag))
-        ->toBe([
-            dirname(__DIR__, 2).'/src/../config/qztray.php' => config_path('qztray.php'),
-        ]);
+    $paths = ServiceProvider::pathsToPublish(QzTrayConnectorServiceProvider::class, $tag);
+    $source = dirname(__DIR__, 2).'/config/qztray.php';
+    $destination = config_path('qztray.php');
+
+    expect($paths)->toHaveCount(1)
+        ->and(realpath(array_key_first($paths)))->toBe(realpath($source))
+        ->and(array_values($paths))->toBe([$destination]);
+
+    $original = is_file($destination) ? file_get_contents($destination) : null;
+
+    try {
+        artisan('vendor:publish', [
+            '--provider' => QzTrayConnectorServiceProvider::class,
+            '--tag' => $tag,
+            '--force' => true,
+        ])->assertSuccessful();
+
+        expect(is_file($destination))->toBeTrue()
+            ->and(file_get_contents($destination))->toBe(file_get_contents($source));
+    } finally {
+        if ($original === null) {
+            if (is_file($destination)) {
+                unlink($destination);
+            }
+        } else {
+            file_put_contents($destination, $original);
+        }
+    }
 })->with(['qztray-config', 'qztray']);
 
 it('registers the artisan command', function () {

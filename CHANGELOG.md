@@ -22,6 +22,8 @@
 
 ### Fixed
 
+- Verify credential configuration publishing using resolved source paths and published contents, avoiding false failures caused by Windows path separators.
+
 - Use Laravel's native JSON parsing and string accessor for signing payloads, with a signing-endpoint-only trimming exception to preserve exact bytes without changing other application inputs.
 
 - Replace obsolete scaffold expectations with credential configuration merge, application override, and publish-tag coverage; remove the deleted scaffold database directory from PHPStan's analysis paths.
