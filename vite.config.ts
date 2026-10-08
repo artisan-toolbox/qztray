@@ -4,6 +4,11 @@ import dts from 'vite-plugin-dts';
 
 export default defineConfig({
     build: {
+        rolldownOptions: {
+            output: {
+                exports: 'named',
+            },
+        },
         lib: {
             entry: resolve(import.meta.dirname, 'resources/js/index.ts'),
             formats: ['es', 'cjs', 'iife'],

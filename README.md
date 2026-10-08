@@ -24,7 +24,21 @@ Requires PHP 8.5 and Laravel 13. The package is under development; a stable inte
 
 ## Usage
 
-QZ Tray integration is not implemented yet. A minimal usage example will be added when the public API is available. See the [complete documentation](https://artisantoolbox.wsssoftware.com.br/packages/qztray/) for the package's purpose and current development status.
+Publish the credential configuration from your Laravel application's root:
+
+```bash
+php artisan vendor:publish --tag=qztray-config
+```
+
+Set `public_key` to your complete PEM certificate and `private_key` to its matching PEM private key in `config/qztray.php`. See the [credential setup guide](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials) for the full example and configuration cache steps. Printing and request signing are still under development.
+
+The frontend package exports a shared connector instance:
+
+```ts
+import qztray from '@artisan-toolbox/qztray';
+```
+
+The application must use Ziggy (`tightenco/ziggy` and `ziggy-js`) and expose the connector's named routes to the frontend. See the [frontend setup and instance behavior](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#shared-frontend-connector) and [Ziggy setup](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#ziggy-route-configuration).
 
 ## Resources
 
