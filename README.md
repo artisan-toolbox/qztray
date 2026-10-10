@@ -30,12 +30,15 @@ Publish the credential configuration from your Laravel application's root:
 php artisan vendor:publish --tag=qztray-config
 ```
 
-Set `public_key` to your complete PEM certificate and `private_key` to its matching PEM private key in `config/qztray.php`. See the [credential setup guide](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials) for the full example and configuration cache steps. Certificate retrieval and server-side payload signing are implemented; printing integration is still under development.
+Set `public_key` to your complete PEM certificate and `private_key` to its matching PEM private key in `config/qztray.php`. See the [credential setup guide](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials) for the full example and configuration cache steps. Connection, printer discovery, ESC/POS, ZPL, generic raw, and PDF printing are implemented; the public API is still evolving.
 
-The frontend package exports a shared connector instance:
+The frontend package exports a shared `QzTray` instance:
 
 ```ts
 import qztray from '@artisan-toolbox/qztray';
+
+await qztray.connect();
+console.log(qztray.isConnected());
 ```
 
 The application must use Ziggy (`tightenco/ziggy` and `ziggy-js`) and expose the connector's named routes to the frontend. See the [frontend setup and instance behavior](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#shared-frontend-connector) and [Ziggy setup](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#ziggy-route-configuration).

@@ -1,9 +1,16 @@
-import { QzTrayConnector } from './QzTrayConnector';
+import { QzTray } from './QzTray';
 
-export { QzTrayConnector };
+export { QzTray };
+export { QzTrayConnector } from './QzTrayConnector';
 export { QzTrayCertificateError } from './QzTrayCertificateError';
 export { QzTraySigningError } from './QzTraySigningError';
+export type {
+    QzTrayPrintRequest,
+    QzTrayPrintType,
+    QzTrayPrintOptions,
+    QzTrayPdfDataOptions,
+} from './QzTrayPrintRequest';
 
-export const qztray = QzTrayConnector.getInstance();
+export const qztray = QzTray.getInstance();
 
 export default qztray;

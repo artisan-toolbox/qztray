@@ -22,7 +22,7 @@ export default defineConfig({
             },
         },
     },
-    plugins: [dts({ include: ['resources/js/**/*.ts'], exclude: ['resources/js/**/*.test.ts'] })],
+    plugins: [dts({ include: ['resources/js/**/*.ts'] })],
     fmt: {
         ignorePatterns: [
             '.agents/**',
@@ -40,7 +40,8 @@ export default defineConfig({
             'resources/boost/**',
             'routes/**',
             'src/**',
-            'tests/**',
+            'tests/**/*.php',
+            'tests/Fixtures/**',
             'workbench/**',
         ],
         semi: true,
@@ -54,6 +55,6 @@ export default defineConfig({
         },
     },
     test: {
-        include: ['resources/js/**/*.test.ts'],
+        include: ['tests/Frontend/**/*.test.ts'],
     },
 });

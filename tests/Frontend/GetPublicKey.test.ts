@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
+import { createSecurityCallbacks } from './securityCallbacks';
 import type { Config } from 'ziggy-js';
 
-let qztray: typeof import('./index').default;
-let QzTrayCertificateError: typeof import('./index').QzTrayCertificateError;
+let security: Awaited<ReturnType<typeof createSecurityCallbacks>>;
+let QzTrayCertificateError: typeof import('../../resources/js/index').QzTrayCertificateError;
 
 const certificate = '-----BEGIN CERTIFICATE-----\nexample\n-----END CERTIFICATE-----\n';
 const ziggy: Config = {
@@ -19,26 +20,28 @@ const ziggy: Config = {
 
 beforeEach(async () => {
     vi.resetModules();
-    const connector = await import('./index');
-    qztray = connector.default;
+    const connector = await import('../../resources/js/index');
+    security = await createSecurityCallbacks();
     QzTrayCertificateError = connector.QzTrayCertificateError;
     vi.stubGlobal('Ziggy', ziggy);
 });
 
 afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
 });
 
 test('retrieves the certificate as text from the Ziggy route with session credentials', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    expect(await qztray['getPublicKey']()).toBe(certificate);
+    expect(await security.getPublicKey()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(
         'https://application.test/qztray-connector/get-public-key',
         {
             method: 'GET',
             credentials: 'same-origin',
+            cache: 'no-store',
             headers: { Accept: 'text/plain' },
         },
     );
@@ -50,9 +53,9 @@ test('reuses the cached certificate without resolving routes or fetching again',
         .mockImplementation(async () => new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    expect(await qztray['getPublicKey']()).toBe(certificate);
+    expect(await security.getPublicKey()).toBe(certificate);
     vi.stubGlobal('Ziggy', undefined);
-    expect(await qztray['getPublicKey']()).toBe(certificate);
+    expect(await security.getPublicKey()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 });
 
@@ -62,7 +65,7 @@ test('shares one certificate request across concurrent calls', async () => {
         .mockImplementation(async () => new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    expect(await Promise.all([qztray['getPublicKey'](), qztray['getPublicKey']()])).toEqual([
+    expect(await Promise.all([security.getPublicKey(), security.getPublicKey()])).toEqual([
         certificate,
         certificate,
     ]);
@@ -86,11 +89,11 @@ test('retries after an HTTP failure and caches only the successful result', asyn
         .mockResolvedValueOnce(new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(qztray['getPublicKey']()).rejects.toMatchObject({
+    await expect(security.getPublicKey()).rejects.toMatchObject({
         code: 'qztray.certificate_missing',
     });
-    expect(await qztray['getPublicKey']()).toBe(certificate);
-    expect(await qztray['getPublicKey']()).toBe(certificate);
+    expect(await security.getPublicKey()).toBe(certificate);
+    expect(await security.getPublicKey()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
@@ -102,8 +105,8 @@ test('retries after a network failure', async () => {
         .mockResolvedValueOnce(new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(qztray['getPublicKey']()).rejects.toBe(error);
-    expect(await qztray['getPublicKey']()).toBe(certificate);
+    await expect(security.getPublicKey()).rejects.toBe(error);
+    expect(await security.getPublicKey()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
@@ -115,7 +118,7 @@ test.each([401, 403, 500])(
             vi.fn<typeof fetch>().mockResolvedValue(new Response('Error', { status })),
         );
 
-        await expect(qztray['getPublicKey']()).rejects.toThrow(
+        await expect(security.getPublicKey()).rejects.toThrow(
             `Unable to retrieve the QZ Tray public certificate (HTTP ${status}).`,
         );
     },
@@ -125,7 +128,7 @@ test('propagates network failures', async () => {
     const error = new TypeError('Network request failed');
     vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockRejectedValue(error));
 
-    await expect(qztray['getPublicKey']()).rejects.toBe(error);
+    await expect(security.getPublicKey()).rejects.toBe(error);
 });
 
 test.each([
@@ -142,7 +145,7 @@ test.each([
             .mockResolvedValue(Response.json({ error: { code, message } }, { status: 503 })),
     );
 
-    const request = qztray['getPublicKey']();
+    const request = security.getPublicKey();
     await expect(request).rejects.toBeInstanceOf(QzTrayCertificateError);
     await expect(request).rejects.toMatchObject({
         name: 'QzTrayCertificateError',
@@ -167,7 +170,7 @@ test.each([
         ),
     );
 
-    await expect(qztray['getPublicKey']()).rejects.toMatchObject({
+    await expect(security.getPublicKey()).rejects.toMatchObject({
         code: 'qztray.certificate_request_failed',
         status: 500,
         message: 'Unable to retrieve the QZ Tray public certificate (HTTP 500).',
@@ -188,7 +191,7 @@ test('uses the URL and path supplied by the application through Ziggy', async ()
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
 
-    await qztray['getPublicKey']();
+    await security.getPublicKey();
 
     expect(fetchMock).toHaveBeenCalledWith(
         'https://other-application.test/subdirectory/custom/certificate',
@@ -201,7 +204,7 @@ test('rejects missing Ziggy configuration without sending a request', async () =
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(qztray['getPublicKey']()).rejects.toThrow();
+    await expect(security.getPublicKey()).rejects.toThrow();
     expect(fetchMock).not.toHaveBeenCalled();
 });
 
@@ -210,7 +213,7 @@ test('rejects a missing Ziggy route without sending a request', async () => {
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(qztray['getPublicKey']()).rejects.toThrow(
+    await expect(security.getPublicKey()).rejects.toThrow(
         "Ziggy error: route 'qztray_connector.get_public_key' is not in the route list.",
     );
     expect(fetchMock).not.toHaveBeenCalled();

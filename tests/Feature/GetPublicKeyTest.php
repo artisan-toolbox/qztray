@@ -19,6 +19,7 @@ it('returns the configured certificate unchanged as UTF-8 plain text', function 
     config(['qztray.public_key' => $certificate, 'qztray.private_key' => 'Private key must stay on the server']);
 
     get(route('qztray_connector.get_public_key'))
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertOk()
         ->assertHeader('Content-Type', 'text/plain; charset=UTF-8')
         ->assertContent($certificate);
@@ -27,7 +28,8 @@ it('returns the configured certificate unchanged as UTF-8 plain text', function 
 it('reports a missing certificate', function (?string $certificate) {
     config(['qztray.public_key' => $certificate]);
 
-    get(route('qztray_connector.get_public_key'))->assertServiceUnavailable()
+    get(route('qztray_connector.get_public_key'))->assertHeader('Cache-Control', 'no-store, private')
+        ->assertServiceUnavailable()
         ->assertJsonPath('error.code', 'qztray.certificate_missing')
         ->assertJsonPath('error.message', 'The QZ Tray public certificate is not configured. Set qztray.public_key in config/qztray.php.');
 })->with([null, '', " \n\t "]);
@@ -35,7 +37,8 @@ it('reports a missing certificate', function (?string $certificate) {
 it('reports an invalid certificate without exposing its contents', function (mixed $certificate) {
     config(['qztray.public_key' => $certificate]);
 
-    get(route('qztray_connector.get_public_key'))->assertServiceUnavailable()
+    get(route('qztray_connector.get_public_key'))->assertHeader('Cache-Control', 'no-store, private')
+        ->assertServiceUnavailable()
         ->assertExactJson(['error' => [
             'code' => 'qztray.certificate_invalid',
             'message' => 'The QZ Tray public certificate must be a valid PEM-encoded X.509 certificate.',
@@ -54,7 +57,8 @@ it('rejects a certificate before its validity period', function () {
     Date::setTestNow(Date::createFromTimestamp($details['validFrom_time_t'] - 1));
     config(['qztray.public_key' => $certificate]);
 
-    get(route('qztray_connector.get_public_key'))->assertServiceUnavailable()
+    get(route('qztray_connector.get_public_key'))->assertHeader('Cache-Control', 'no-store, private')
+        ->assertServiceUnavailable()
         ->assertJsonPath('error.code', 'qztray.certificate_not_yet_valid');
 });
 
@@ -64,7 +68,8 @@ it('accepts a certificate at the start of its validity period', function () {
     Date::setTestNow(Date::createFromTimestamp($details['validFrom_time_t']));
     config(['qztray.public_key' => $certificate]);
 
-    get(route('qztray_connector.get_public_key'))->assertOk()->assertContent($certificate);
+    get(route('qztray_connector.get_public_key'))->assertHeader('Cache-Control', 'no-store, private')
+        ->assertOk()->assertContent($certificate);
 });
 
 it('rejects a certificate at or after its expiry time', function (int $offset) {
@@ -73,6 +78,7 @@ it('rejects a certificate at or after its expiry time', function (int $offset) {
     Date::setTestNow(Date::createFromTimestamp($details['validTo_time_t'] + $offset));
     config(['qztray.public_key' => $certificate]);
 
-    get(route('qztray_connector.get_public_key'))->assertServiceUnavailable()
+    get(route('qztray_connector.get_public_key'))->assertHeader('Cache-Control', 'no-store, private')
+        ->assertServiceUnavailable()
         ->assertJsonPath('error.code', 'qztray.certificate_expired');
 })->with([0, 1]);

@@ -4,6 +4,20 @@
 
 ### Added
 
+- Add `QzTray` as the public singleton class and compose internal connection, security, and printer managers while preserving existing printing and lifecycle behavior.
+
+- Add `printEscpos()`, `printZpl()`, `printRaw()`, and `printPdf()` shortcuts accepting a printer, payload, and optional configuration while delegating to the main `print()` method.
+
+- Add public `print()` with typed ESC/POS, ZPL, generic raw, and PDF presets, string or array payloads, per-job QZ configuration overrides, and PDF document options.
+- Default raw driver bypass to enabled on macOS, keep it configurable per job, and support explicit raw flavors and PDF URL or Base64 sources.
+
+- Add public `getPrinters()` to establish or reuse a secure QZ Tray connection and retrieve a fresh array of local printer names, propagating lookup failures.
+
+- Add public `disconnect()` with live socket checks, shared concurrent attempts, coordination with pending connections, and retry support after failure.
+
+- Add public `connect()` with SHA-512 certificate and signature callbacks, concurrent connection sharing, retry support, and certificate failure rejection.
+- Add public `isConnected()` backed by QZ Tray's live WebSocket status instead of a cached connection flag.
+
 - Add private frontend `signPayload(payload)` requests and a session-authenticated, CSRF-protected signing endpoint using the configured RSA private key and SHA-512, returning Base64 signatures as plain text while preserving the exact payload.
 - Export `QzTraySigningError` with structured feedback for invalid payloads, private key configuration, signing failures, authentication, and CSRF errors.
 - Cache the public certificate in the shared frontend connector after a successful retrieval, share in-flight requests between concurrent callers, and allow retries after failures.
@@ -14,13 +28,25 @@
 - Add the frontend library scaffold with Vite Plus, strict TypeScript, an empty entry point, and ESM, CommonJS, and IIFE build outputs.
 - Add an initial frontend smoke test to verify that the empty entry point loads successfully.
 
+### Deprecated
+
+- Deprecate the `QzTrayConnector` class name in favor of `QzTray`, retaining it as an alias of the same class and instance.
+
 ### Documentation
+
+- Organize frontend tests under `tests/Frontend` alongside the PHP suites, retaining discovery, formatting, linting, and TypeScript checks.
 
 - Document the application's Ziggy installation, global route configuration, and required connector route names.
 - Document publishing `config/qztray.php`, setting the matching PEM certificate and private key for future QZ Tray print request authentication, and refreshing Laravel's configuration cache.
 - Replace the skeleton README with the package overview, requirements, development status, and links to the canonical documentation.
 
 ### Fixed
+
+- Disable HTTP caching for certificate and signing requests and controller responses, including errors, while preserving the certificate cache within the frontend connector.
+
+- Default the ESC/POS print preset to CP850 for receipt text, while preserving per-job encoding overrides and the existing ZPL and generic raw defaults.
+
+- Isolate configuration publishing tests in unique temporary directories to prevent races during parallel test execution.
 
 - Verify credential configuration publishing using resolved source paths and published contents, avoiding false failures caused by Windows path separators.
 

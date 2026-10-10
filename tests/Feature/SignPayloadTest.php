@@ -22,6 +22,7 @@ it('returns a Base64 RSA SHA-512 signature as plain text without changing the pa
     config(['qztray.private_key' => $pem]);
 
     $response = postJson(route('qztray_connector.sign_payload'), ['payload' => $payload])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertOk()
         ->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
 
@@ -45,11 +46,13 @@ it('preserves normal input normalization on other application endpoints', functi
 
 it('does not accept a query parameter instead of a JSON payload', function () {
     postJson(route('qztray_connector.sign_payload').'?payload=Print', [])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertUnprocessable()->assertJsonPath('error.code', 'qztray.payload_invalid');
 });
 
 it('reports an invalid payload', function (mixed $payload) {
     postJson(route('qztray_connector.sign_payload'), ['payload' => $payload])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertUnprocessable()
         ->assertJsonPath('error.code', 'qztray.payload_invalid');
 })->with([null, '', 123, [[]]]);
@@ -58,6 +61,7 @@ it('reports a missing private key', function (?string $key) {
     config(['qztray.private_key' => $key]);
 
     postJson(route('qztray_connector.sign_payload'), ['payload' => 'Print'])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertServiceUnavailable()
         ->assertJsonPath('error.code', 'qztray.private_key_missing');
 })->with([null, '', " \n\t "]);
@@ -66,6 +70,7 @@ it('reports an invalid private key without exposing its contents', function (mix
     config(['qztray.private_key' => $key]);
 
     postJson(route('qztray_connector.sign_payload'), ['payload' => 'Print'])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertServiceUnavailable()
         ->assertExactJson(['error' => [
             'code' => 'qztray.private_key_invalid',
@@ -85,6 +90,7 @@ it('rejects a valid non-RSA private key', function () {
     config(['qztray.private_key' => $pem]);
 
     postJson(route('qztray_connector.sign_payload'), ['payload' => 'Print'])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertServiceUnavailable()->assertJsonPath('error.code', 'qztray.private_key_invalid');
 });
 
@@ -94,6 +100,7 @@ it('rejects an encrypted private key because no passphrase is configured', funct
     config(['qztray.private_key' => $pem]);
 
     postJson(route('qztray_connector.sign_payload'), ['payload' => 'Print'])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertServiceUnavailable()->assertJsonPath('error.code', 'qztray.private_key_invalid');
 });
 
@@ -106,7 +113,8 @@ it('requires an authenticated session for signing', function () {
 it('reports malformed JSON as an invalid payload', function () {
     call('POST', route('qztray_connector.sign_payload'), [], [], [], [
         'CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json',
-    ], '{invalid')->assertUnprocessable()->assertJsonPath('error.code', 'qztray.payload_invalid');
+    ], '{invalid')->assertHeader('Cache-Control', 'no-store, private')
+        ->assertUnprocessable()->assertJsonPath('error.code', 'qztray.payload_invalid');
 });
 
 it('reports a real OpenSSL signing failure', function () {
@@ -115,6 +123,7 @@ it('reports a real OpenSSL signing failure', function () {
     config(['qztray.private_key' => $pem]);
 
     postJson(route('qztray_connector.sign_payload'), ['payload' => 'Print'])
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertServiceUnavailable()->assertJsonPath('error.code', 'qztray.signing_failed');
 });
 

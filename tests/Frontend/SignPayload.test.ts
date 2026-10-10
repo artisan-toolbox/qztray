@@ -1,10 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
 
-let connector: typeof import('./index');
+import { createSecurityCallbacks } from './securityCallbacks';
+
+let security: Awaited<ReturnType<typeof createSecurityCallbacks>>;
+let connector: typeof import('../../resources/js/index');
 
 beforeEach(async () => {
     vi.resetModules();
-    connector = await import('./index');
+    connector = await import('../../resources/js/index');
+    security = await createSecurityCallbacks();
     vi.stubGlobal('Ziggy', {
         url: 'https://application.test',
         port: null,
@@ -21,6 +25,7 @@ beforeEach(async () => {
 
 afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
 });
 
 test('posts the exact payload to the Ziggy route and returns a plain-text signature', async () => {
@@ -28,12 +33,13 @@ test('posts the exact payload to the Ziggy route and returns a plain-text signat
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response('c2lnbmF0dXJl'));
     vi.stubGlobal('fetch', fetchMock);
 
-    expect(await connector.qztray['signPayload'](payload)).toBe('c2lnbmF0dXJl');
+    expect(await security.signPayload(payload)).toBe('c2lnbmF0dXJl');
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(
         'https://application.test/qztray-connector/sign-payload',
         {
             method: 'POST',
             credentials: 'same-origin',
+            cache: 'no-store',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
@@ -49,9 +55,9 @@ test('signs each payload without caching and rereads the CSRF cookie', async () 
         .fn<typeof fetch>()
         .mockImplementation(async () => new Response('signature'));
     vi.stubGlobal('fetch', fetchMock);
-    await connector.qztray['signPayload']('first');
+    await security.signPayload('first');
     vi.stubGlobal('document', { cookie: 'XSRF-TOKEN=new-token' });
-    await connector.qztray['signPayload']('second');
+    await security.signPayload('second');
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenLastCalledWith(
         expect.any(String),
@@ -82,7 +88,7 @@ test.each([
             ),
         ),
     );
-    const request = connector.qztray['signPayload']('Print');
+    const request = security.signPayload('Print');
     await expect(request).rejects.toBeInstanceOf(connector.QzTraySigningError);
     await expect(request).rejects.toMatchObject({
         code,
@@ -108,7 +114,7 @@ test.each([
         'fetch',
         vi.fn<typeof fetch>().mockResolvedValue(new Response('Error', { status })),
     );
-    await expect(connector.qztray['signPayload']('Print')).rejects.toMatchObject({
+    await expect(security.signPayload('Print')).rejects.toMatchObject({
         code,
         status,
         message,
@@ -119,7 +125,7 @@ test('sends no request when the CSRF cookie is missing', async () => {
     vi.stubGlobal('document', { cookie: '' });
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
-    await expect(connector.qztray['signPayload']('Print')).rejects.toMatchObject({
+    await expect(security.signPayload('Print')).rejects.toMatchObject({
         code: 'qztray.csrf_token_missing',
         status: 0,
     });
@@ -129,14 +135,14 @@ test('sends no request when the CSRF cookie is missing', async () => {
 test('propagates network errors', async () => {
     const error = new TypeError('Network request failed');
     vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockRejectedValue(error));
-    await expect(connector.qztray['signPayload']('Print')).rejects.toBe(error);
+    await expect(security.signPayload('Print')).rejects.toBe(error);
 });
 
 test('sends no request when the CSRF cookie cannot be decoded', async () => {
     vi.stubGlobal('document', { cookie: 'XSRF-TOKEN=%invalid' });
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
-    await expect(connector.qztray['signPayload']('Print')).rejects.toMatchObject({
+    await expect(security.signPayload('Print')).rejects.toMatchObject({
         code: 'qztray.csrf_token_invalid',
         status: 0,
     });

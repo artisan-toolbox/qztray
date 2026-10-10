@@ -51,6 +51,7 @@ class SignPayload extends Controller
 
         return response(base64_encode($signature), 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
+            'Cache-Control' => 'no-store',
         ]);
     }
 
@@ -66,6 +67,6 @@ class SignPayload extends Controller
 
     private function error(string $code, string $message, int $status): JsonResponse
     {
-        return response()->json(['error' => ['code' => $code, 'message' => $message]], $status);
+        return response()->json(['error' => ['code' => $code, 'message' => $message]], $status, ['Cache-Control' => 'no-store']);
     }
 }

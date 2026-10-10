@@ -40,6 +40,7 @@ class GetPublicKey extends Controller
 
         return response($certificate, 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
+            'Cache-Control' => 'no-store',
         ]);
     }
 
@@ -50,6 +51,6 @@ class GetPublicKey extends Controller
 
     private function error(string $code, string $message): JsonResponse
     {
-        return response()->json(['error' => ['code' => $code, 'message' => $message]], 503);
+        return response()->json(['error' => ['code' => $code, 'message' => $message]], 503, ['Cache-Control' => 'no-store']);
     }
 }
