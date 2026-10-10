@@ -4,6 +4,10 @@
 
 ### Added
 
+- Accept mixed text, byte buffers, and QZ-style Base64 raw images in ESC/POS previews, preserving order and printer state with typed image options, browser decoding, monochrome conversion, and legacy cut support.
+
+- Add standalone `renderEscpos()` PNG previews with lazy loading, CP850 text conversion, preserved control bytes and binary payloads, printable width and character-table mapping options, and typed `renderAll` results separated by receipt cuts.
+
 - Add `renderAll` to `renderZpl()`, defaulting to `false` for a single PNG data URL and returning an ordered array of PNG data URLs with inferred TypeScript types when enabled.
 
 - Add standalone `renderZpl()` PNG previews using the local `zpl-renderer-js` WebAssembly engine, internal asset resolution, shared lazy initialization, and typed dimensions and rendering options.

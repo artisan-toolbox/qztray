@@ -41,6 +41,8 @@
     "prepublishOnly": "npm run check && npm run build"
   },
   "dependencies": {
+    "@point-of-sale/codepage-encoder": "^3.0.2",
+    "@point-of-sale/receipt-printer-renderer": "^1.1.0",
     "@types/qz-tray": "^2.2.2",
     "qz-tray": "^2.3.0",
     "ziggy-js": "^2.6.4",

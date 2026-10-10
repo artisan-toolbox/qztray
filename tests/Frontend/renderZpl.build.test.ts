@@ -65,7 +65,7 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
         );
         writeFileSync(
             resolve(directory, 'main.js'),
-            "import { renderZpl } from './library/index.js'; globalThis.renderLabel = renderZpl;\n",
+            "import { renderZpl, renderEscpos } from './library/index.js'; globalThis.renderLabel = renderZpl; globalThis.renderReceipt = renderEscpos;\n",
         );
         writeFileSync(
             resolve(directory, 'index.html'),
