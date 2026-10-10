@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add `renderAll` to `renderZpl()`, defaulting to `false` for a single PNG data URL and returning an ordered array of PNG data URLs with inferred TypeScript types when enabled.
+
+- Add standalone `renderZpl()` PNG previews using the local `zpl-renderer-js` WebAssembly engine, internal asset resolution, shared lazy initialization, and typed dimensions and rendering options.
+- Ship the renderer WASM as a separate asset that Vite applications discover automatically, keeping it out of JavaScript bundles.
+
 - Add `QzTray` as the public singleton class and compose internal connection, security, and printer managers while preserving existing printing and lifecycle behavior.
 
 - Add `printEscpos()`, `printZpl()`, `printRaw()`, and `printPdf()` shortcuts accepting a printer, payload, and optional configuration while delegating to the main `print()` method.
@@ -41,6 +46,8 @@
 - Replace the skeleton README with the package overview, requirements, development status, and links to the canonical documentation.
 
 ### Fixed
+
+- Document and verify Vite development-server permissions for WASM assets in locally linked packages outside the application workspace.
 
 - Disable HTTP caching for certificate and signing requests and controller responses, including errors, while preserving the certificate cache within the frontend connector.
 

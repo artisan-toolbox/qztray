@@ -43,7 +43,8 @@
   "dependencies": {
     "@types/qz-tray": "^2.2.2",
     "qz-tray": "^2.3.0",
-    "ziggy-js": "^2.6.4"
+    "ziggy-js": "^2.6.4",
+    "zpl-renderer-js": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

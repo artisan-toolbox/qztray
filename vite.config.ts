@@ -3,6 +3,7 @@ import { defineConfig } from 'vite-plus';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+    base: './',
     build: {
         rolldownOptions: {
             output: {
@@ -55,6 +56,7 @@ export default defineConfig({
         },
     },
     test: {
+        server: { deps: { external: [/zpl-renderer-js\/dist\/index\.external\.(esm|cjs)\.js$/] } },
         include: ['tests/Frontend/**/*.test.ts'],
     },
 });
