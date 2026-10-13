@@ -36,6 +36,14 @@ test('accepts string parts without inserting separators or changing control byte
     expect(parts).toEqual([prefix, 'Café\n', cut]);
 });
 
+test('snapshots Buffer inputs instead of keeping a shared-memory slice', async () => {
+    const bytes = new Uint8Array([65, 10]);
+    const source = Buffer.from(bytes);
+    const preview = renderEscpos(source);
+    source.fill(0);
+    expect(await preview).toBe(await renderEscpos(bytes));
+});
+
 test('returns the first receipt by default and all receipts in cut order when requested', async () => {
     const first = `${prefix}First\n${cut}`;
     const second = `${prefix}Second\n\x1dV\x01`;

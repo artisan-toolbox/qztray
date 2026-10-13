@@ -1,7 +1,12 @@
 import qz from 'qz-tray';
 import type { PrinterOptions, PrintData } from 'qz-tray';
 import type { QzTrayConnection } from './QzTrayConnection';
-import type { QzTrayPrintOptions, QzTrayPrintRequest } from './QzTrayPrintRequest';
+import type {
+    QzTrayEscposPrintImage,
+    QzTrayEscposPrintPayload,
+    QzTrayPrintOptions,
+    QzTrayPrintRequest,
+} from './QzTrayPrintRequest';
 import { detectZplEncoding } from './detectZplEncoding';
 
 /** @internal Printer discovery, print preparation, and submission. */
@@ -28,7 +33,7 @@ export class QzTrayPrinters {
 
     public printEscpos(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: QzTrayEscposPrintPayload,
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.print({ printer, type: 'escpos', payload, options });
@@ -36,7 +41,7 @@ export class QzTrayPrinters {
 
     public printZpl(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.print({ printer, type: 'zpl', payload, options });
@@ -44,7 +49,7 @@ export class QzTrayPrinters {
 
     public printRaw(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.print({ printer, type: 'raw', payload, options });
@@ -52,7 +57,7 @@ export class QzTrayPrinters {
 
     public printPdf(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.print({ printer, type: 'pdf', payload, options });
@@ -71,22 +76,62 @@ export class QzTrayPrinters {
             throw new TypeError('Unsupported print type. Use escpos, zpl, raw, or pdf.');
         }
 
-        const payload =
+        const parts: unknown[] =
             typeof request.payload === 'string'
                 ? [request.payload]
                 : Array.isArray(request.payload)
                   ? [...request.payload]
                   : [];
 
-        if (
-            payload.length === 0 ||
-            payload.some((value) => typeof value !== 'string') ||
-            payload.every((value) => value === '')
-        ) {
+        if (parts.every((value) => value === '')) {
             throw new TypeError(
-                'Provide a nonempty print payload as a string or an array of strings.',
+                'Provide a nonempty print payload as a string or an array of supported print parts.',
             );
         }
+
+        const payload = parts.map((value): string | QzTrayEscposPrintImage => {
+            if (typeof value === 'string') {
+                return value;
+            }
+            if (
+                request.type !== 'escpos' ||
+                typeof value !== 'object' ||
+                value === null ||
+                Array.isArray(value)
+            ) {
+                throw new TypeError(
+                    'Print payload parts must be strings or ESC/POS raw image objects.',
+                );
+            }
+            const image = value as QzTrayEscposPrintImage;
+            if (
+                image.type !== 'raw' ||
+                image.format !== 'image' ||
+                !['file', 'base64'].includes(image.flavor) ||
+                typeof image.data !== 'string' ||
+                image.data.trim() === ''
+            ) {
+                throw new TypeError(
+                    'Provide an ESC/POS raw image with file or base64 flavor and nonempty data.',
+                );
+            }
+            if (
+                image.options !== undefined &&
+                (typeof image.options !== 'object' ||
+                    image.options === null ||
+                    Array.isArray(image.options))
+            ) {
+                throw new TypeError('ESC/POS print image options must be an object.');
+            }
+            if (image.options?.language !== undefined && image.options.language !== 'ESCPOS') {
+                throw new TypeError('ESC/POS print images must use language ESCPOS.');
+            }
+            return {
+                ...image,
+                options: { ...image.options, language: image.options?.language ?? 'ESCPOS' },
+            };
+        });
+        const textPayload = payload.filter((value): value is string => typeof value === 'string');
 
         const copies = request.options?.copies;
 
@@ -104,7 +149,7 @@ export class QzTrayPrinters {
             return {
                 printer: request.printer,
                 options: { copies: 1, forceRaw: false, scaleContent: true, ...request.options },
-                data: payload.map((data) => ({
+                data: textPayload.map((data) => ({
                     type: 'pixel',
                     format: 'pdf',
                     flavor,
@@ -124,7 +169,7 @@ export class QzTrayPrinters {
             request.options?.encoding !== undefined
                 ? request.options.encoding
                 : request.type === 'zpl' && flavor === 'plain'
-                  ? detectZplEncoding(payload)
+                  ? detectZplEncoding(textPayload)
                   : { escpos: 'CP850', zpl: 'UTF-8', raw: 'ISO-8859-1' }[request.type];
 
         return {
@@ -135,7 +180,9 @@ export class QzTrayPrinters {
                 ...request.options,
                 encoding,
             },
-            data: payload.map((data) => ({ type: 'raw', format: 'command', flavor, data })),
+            data: payload.map((data) =>
+                typeof data === 'string' ? { type: 'raw', format: 'command', flavor, data } : data,
+            ),
         };
     }
 }

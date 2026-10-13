@@ -8,6 +8,10 @@ export default defineConfig({
         rolldownOptions: {
             output: {
                 exports: 'named',
+                assetFileNames: (asset) =>
+                    asset.names.some((name) => /^LICENSE(?:_\w+)?$/.test(name))
+                        ? '[name].txt'
+                        : '[name].[ext]',
             },
         },
         lib: {

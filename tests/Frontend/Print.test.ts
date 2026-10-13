@@ -1,4 +1,8 @@
 import type { PrinterOptions, PrintData } from 'qz-tray';
+import type {
+    QzTrayEscposPrintImage,
+    QzTrayEscposPrintPayload,
+} from '../../resources/js/QzTrayPrintRequest';
 import { afterEach, beforeEach, expect, expectTypeOf, test, vi } from 'vite-plus/test';
 
 const qz = vi.hoisted(() => ({
@@ -33,6 +37,108 @@ beforeEach(async () => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+test.each(['file', 'base64'] as const)(
+    'prints ESC/POS text and %s images in order without mutating input',
+    async (flavor) => {
+        const image: QzTrayEscposPrintImage = {
+            type: 'raw',
+            format: 'image',
+            flavor,
+            data: flavor === 'file' ? 'https://application.test/logo.png' : 'aW1hZ2U=',
+            options: { language: 'ESCPOS', dotDensity: 'double', imageEncoding: 'gs_v_0' },
+        };
+        const payload = ['\x1B@', '\x1Ba\x01', image, '\nReceipt\n', '\x1Bi'] as const;
+        const original = structuredClone(payload);
+
+        await connector.qztray.print({
+            printer: 'Receipt Printer',
+            type: 'escpos',
+            payload,
+            options: { copies: 2 },
+        });
+
+        expect(qz.print.mock.calls[0][1]).toEqual(
+            payload.map((data) =>
+                typeof data === 'string'
+                    ? { type: 'raw', format: 'command', flavor: 'plain', data }
+                    : image,
+            ),
+        );
+        expect(qz.configs.create.mock.calls[0][1]).toMatchObject({ encoding: 'CP850', copies: 2 });
+        expect(payload).toEqual(original);
+        expect(qz.print.mock.calls[0][1][2]).not.toBe(image);
+        expect(qz.print.mock.calls[0][1][2].options).not.toBe(image.options);
+    },
+);
+
+test.each([undefined, { language: undefined }])(
+    'printEscpos accepts an image-only array and defaults its language with options %j',
+    async (options) => {
+        const image = { type: 'raw', format: 'image', flavor: 'base64', data: 'aW1hZ2U=' } as const;
+        await connector.qztray.printEscpos('Receipt Printer', [{ ...image, options }]);
+        expect(qz.print.mock.calls[0][1]).toEqual([{ ...image, options: { language: 'ESCPOS' } }]);
+    },
+);
+
+test('snapshots ESC/POS image data and options before awaiting connection', async () => {
+    qz.websocket.isActive.mockReturnValue(false);
+    let complete!: () => void;
+    qz.websocket.connect.mockReturnValue(
+        new Promise<void>((resolve) => {
+            complete = resolve;
+        }),
+    );
+    const image: QzTrayEscposPrintImage = {
+        type: 'raw',
+        format: 'image',
+        flavor: 'base64',
+        data: 'original',
+        options: { dotDensity: 'double' },
+    };
+    const pending = connector.qztray.printEscpos('Receipt Printer', [image]);
+    image.data = 'changed';
+    image.options!.dotDensity = 'single';
+    complete();
+    await pending;
+    expect(qz.print.mock.calls[0][1][0]).toMatchObject({
+        data: 'original',
+        options: { language: 'ESCPOS', dotDensity: 'double' },
+    });
+});
+
+test.each([
+    null,
+    {},
+    { type: 'pixel', format: 'image', flavor: 'base64', data: 'data' },
+    { type: 'raw', format: 'image', flavor: 'hex', data: 'data' },
+    { type: 'raw', format: 'image', flavor: 'base64', data: ' ' },
+    { type: 'raw', format: 'image', flavor: 'base64', data: 'data', options: null },
+    { type: 'raw', format: 'image', flavor: 'base64', data: 'data', options: { language: 'ZPL' } },
+])('rejects invalid ESC/POS image parts before connecting: %j', async (image) => {
+    qz.websocket.isActive.mockReturnValue(false);
+    const request = {
+        printer: 'Printer',
+        type: 'escpos',
+        payload: ['text', image],
+    } as unknown as Parameters<typeof connector.qztray.print>[0];
+    await expect(connector.qztray.print(request)).rejects.toBeInstanceOf(TypeError);
+    expect(qz.websocket.connect).not.toHaveBeenCalled();
+    expect(qz.print).not.toHaveBeenCalled();
+});
+
+test.each(['zpl', 'raw', 'pdf'])(
+    'does not accept ESC/POS image objects in %s presets',
+    async (type) => {
+        const request = {
+            printer: 'Printer',
+            type,
+            payload: [{ type: 'raw', format: 'image', flavor: 'base64', data: 'data' }],
+        } as unknown as Parameters<typeof connector.qztray.print>[0];
+        await expect(connector.qztray.print(request)).rejects.toBeInstanceOf(TypeError);
+        expect(qz.print).not.toHaveBeenCalled();
+    },
+);
 
 test('prepares ESC/POS command chunks in order with CP850 encoding', async () => {
     const payload = ['\x1B\x40', ' Café\n ', '\x1D\x56\x00', '\x80\xFF'];
@@ -355,7 +461,7 @@ test.each([0, -1, 1.5])('rejects invalid copies (%s) before accessing QZ', async
 test('exports a typed print request with format-specific flavors', () => {
     expectTypeOf<import('../../resources/js/index').QzTrayPrintRequest>().toExtend<{
         printer: string;
-        payload: string | readonly string[];
+        payload: QzTrayEscposPrintPayload;
     }>();
     expectTypeOf<
         Extract<import('../../resources/js/index').QzTrayPrintRequest, { type: 'pdf' }>['flavor']

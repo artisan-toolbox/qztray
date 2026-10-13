@@ -42,6 +42,41 @@ beforeEach(async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
+test('registers the official local-network helper before opening a browser connection', async () => {
+    const browser: { lna?: typeof import('qz-lna') } = {};
+    vi.stubGlobal('self', browser);
+    qz.websocket.connect.mockImplementation(async () => {
+        expect(browser.lna?.detectLna).toBe((await import('qz-lna')).detectLna);
+        expect(browser.lna?.LnaError).toBe((await import('qz-lna')).LnaError);
+    });
+
+    expect(browser.lna).toBeUndefined();
+    await connector.qztray.connect();
+    expect(qz.websocket.connect).toHaveBeenCalledOnce();
+});
+
+test('preserves an existing application local-network helper', async () => {
+    const existing = { detectLna: vi.fn(), LnaError: Error };
+    const browser = { lna: existing };
+    vi.stubGlobal('self', browser);
+
+    await connector.qztray.connect();
+
+    expect(browser.lna).toBe(existing);
+});
+
+test('replaces an incomplete browser local-network helper', async () => {
+    const browser: { lna: unknown } = { lna: {} };
+    vi.stubGlobal('self', browser);
+
+    await connector.qztray.connect();
+
+    expect(browser.lna).toMatchObject({
+        detectLna: expect.any(Function),
+        LnaError: expect.any(Function),
+    });
+});
+
 function certificateRequest(): Promise<string | undefined> {
     const handler = qz.security.setCertificatePromise.mock.calls[0][0] as PromiseHandler;
     return new Promise(handler);
@@ -121,18 +156,21 @@ test('propagates connection failure to concurrent callers and allows a retry', a
     expect(qz.websocket.connect).toHaveBeenCalledTimes(2);
 });
 
+const certificate = '-----BEGIN CERTIFICATE-----\nexample\n-----END CERTIFICATE-----\n';
+const signature = 'c2lnbmF0dXJl';
+
 test('wires certificate retrieval with caching and signs the exact payload', async () => {
     const fetchMock = vi
         .fn<typeof fetch>()
-        .mockResolvedValueOnce(new Response('Certificate'))
-        .mockResolvedValueOnce(new Response('Signature'));
+        .mockResolvedValueOnce(new Response(certificate))
+        .mockResolvedValueOnce(new Response(signature));
     vi.stubGlobal('fetch', fetchMock);
     await connector.qztray.connect();
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(await certificateRequest()).toBe('Certificate');
-    expect(await certificateRequest()).toBe('Certificate');
+    expect(await certificateRequest()).toBe(certificate);
+    expect(await certificateRequest()).toBe(certificate);
     const payload = ' \nPrint café\n ';
-    expect(await signatureRequest(payload)).toBe('Signature');
+    expect(await signatureRequest(payload)).toBe(signature);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][1]?.body).toBe(JSON.stringify({ payload }));
 });
@@ -174,7 +212,7 @@ test('rejects the connection when QZ requests a certificate that Laravel rejects
                     { status: 503 },
                 ),
             )
-            .mockResolvedValueOnce(new Response('Certificate')),
+            .mockResolvedValueOnce(new Response(certificate)),
     );
     qz.websocket.connect.mockImplementation(async () => {
         await certificateRequest();
@@ -281,17 +319,17 @@ test('propagates disconnection failure to callers and allows a retry', async () 
 });
 
 test('preserves the cached certificate across disconnection and reconnection', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response('Certificate'));
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(certificate));
     vi.stubGlobal('fetch', fetchMock);
     await connector.qztray.connect();
-    expect(await certificateRequest()).toBe('Certificate');
+    expect(await certificateRequest()).toBe(certificate);
     qz.websocket.isActive.mockReturnValue(true);
     qz.websocket.disconnect.mockImplementation(async () => {
         qz.websocket.isActive.mockReturnValue(false);
     });
     await connector.qztray.disconnect();
     await connector.qztray.connect();
-    expect(await certificateRequest()).toBe('Certificate');
+    expect(await certificateRequest()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 });
 

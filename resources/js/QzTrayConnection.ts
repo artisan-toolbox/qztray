@@ -1,4 +1,5 @@
 import qz from 'qz-tray';
+import * as localNetworkAccess from 'qz-lna';
 import { QzTraySecurity } from './QzTraySecurity';
 
 /** @internal Coordinates one shared socket and its security callbacks. */
@@ -26,6 +27,14 @@ export class QzTrayConnection {
 
         if (this.isConnected()) {
             return;
+        }
+
+        // The SDK discovers its optional browser helper through self.lna before trying require().
+        if (typeof self !== 'undefined') {
+            const browser = self as typeof self & { lna?: typeof localNetworkAccess };
+            if (typeof browser.lna?.detectLna !== 'function') {
+                browser.lna = localNetworkAccess;
+            }
         }
 
         this.connectionRequest = qz.websocket.connect();

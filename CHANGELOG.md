@@ -4,6 +4,18 @@
 
 ### Added
 
+- Present the public documentation and README as the 1.x series, with sidebar navigation and a compatibility reference replacing prerelease status notes.
+
+- Accept ordered ESC/POS print arrays containing text commands and QZ raw images with Base64 or file sources, preserve image options, and default omitted image languages to `ESCPOS` in both `print()` and `printEscpos()`.
+
+- Bundle the official `qz-lna` browser helper and register it before connecting, preserving an existing application helper, avoiding the SDK's optional `require('lna')` warning, and retaining local-network permission diagnostics.
+
+- Expand the canonical documentation with an installation quickstart, component and API responsibilities, actual SDK error boundaries, and v1 release readiness notes; replace the bundled Laravel Boost integration skill's placeholders with verified adoption instructions.
+- Run the frontend test suite in `prepublishOnly` before building npm releases.
+- Add frontend CI coverage for the declared Node 20.19 and 22.18 minimum versions on Ubuntu and Windows, and exercise actual QZ SDK signing error wrapping through an emulated transport.
+
+- Add standalone `renderPdf()` PNG previews for URLs, Base64, binary strings, byte buffers, ArrayBuffers, and Blobs, with typed single/all-page results, page selection, scale, rotation, passwords, and configurable downloads. Ship the PDF.js worker and auxiliary font, CMap, WASM, and license assets with lazy rendering and per-document cleanup.
+
 - Infer the encoding of plain ZPL print jobs from supported `^CI` commands when `options.encoding` is omitted, retaining UTF-8 for missing, unsupported, or conflicting declarations and preserving explicit overrides.
 
 - Accept mixed text, byte buffers, and QZ-style Base64 raw images in ESC/POS previews, preserving order and printer state with typed image options, browser decoding, monochrome conversion, and legacy cut support.
@@ -52,6 +64,11 @@
 - Replace the skeleton README with the package overview, requirements, development status, and links to the canonical documentation.
 
 ### Fixed
+
+- Declare Maintainer as a production dependency because the PHP service implements its `Versionable` interface, preserving the existing public contract during installations without development dependencies.
+- Reject malformed successful certificate and signature responses before caching or forwarding them to QZ, and request structured certificate errors with `Accept: application/json` while preserving plain-text successes.
+- Snapshot typed-array subclasses such as Buffer into owned plain bytes for ESC/POS and PDF previews, preventing shared-memory mutation and PDF.js Buffer rejection.
+- Use PDF.js's real legacy distribution in the headless integration test to support Node 20 without changing the browser renderer.
 
 - Resolve the ZPL packaging test's temporary directory to its native canonical path so Vite's filesystem security checks do not reject Windows 8.3 aliases from CI runners.
 

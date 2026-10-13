@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import {
     mkdirSync,
     mkdtempSync,
@@ -33,11 +34,27 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
             logLevel: 'silent',
             build: {
                 outDir: resolve(directory, 'library'),
-                lib: { formats: ['es'] },
+                lib: { formats: ['es', 'cjs'] },
             },
         });
 
         const libraryWasm = readFileSync(resolve(directory, 'library/zebrash.wasm'));
+        writeFileSync(resolve(directory, 'library/package.json'), '{"type":"module"}');
+        for (const entry of ['index.js', 'index.cjs']) {
+            execFileSync(
+                process.execPath,
+                [
+                    resolve(packageRoot, 'tests/Fixtures/lna-browser.mjs'),
+                    resolve(directory, 'library', entry),
+                ],
+                { timeout: 10000 },
+            );
+        }
+        const libraryFiles = readdirSync(resolve(directory, 'library'));
+        expect(libraryFiles.some((name) => name.endsWith('.'))).toBe(false);
+        expect(
+            libraryFiles.some((name) => name.startsWith('LICENSE') && name.endsWith('.txt')),
+        ).toBe(true);
         expect(libraryWasm.subarray(0, 4).toString('hex')).toBe('0061736d');
         const developmentRoot = resolve(directory, 'development-application');
         mkdirSync(developmentRoot);
@@ -82,7 +99,7 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
         );
         writeFileSync(
             resolve(directory, 'main.js'),
-            "import { renderZpl, renderEscpos } from './library/index.js'; globalThis.renderLabel = renderZpl; globalThis.renderReceipt = renderEscpos;\n",
+            "import { renderZpl, renderEscpos, renderPdf } from './library/index.js'; globalThis.renderLabel = renderZpl; globalThis.renderReceipt = renderEscpos; globalThis.renderDocument = renderPdf;\n",
         );
         writeFileSync(
             resolve(directory, 'index.html'),
@@ -99,7 +116,19 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
 
         const assetsDirectory = resolve(directory, 'application/assets');
         const files = readdirSync(assetsDirectory);
-        const wasmFile = files.find((name) => name.endsWith('.wasm'));
+        const wasmFile = files.find(
+            (name) => name.startsWith('zebrash-') && name.endsWith('.wasm'),
+        );
+        const workerFile = files.find(
+            (name) => name.startsWith('pdf.worker.min-') && name.endsWith('.mjs'),
+        );
+        expect(workerFile).toBeDefined();
+        expect(readFileSync(resolve(assetsDirectory, workerFile!))).toEqual(
+            readFileSync(resolve(directory, 'library/pdf.worker.min.mjs')),
+        );
+        expect(files.some((name) => name.endsWith('.bcmap'))).toBe(true);
+        expect(files.some((name) => name.endsWith('.pfb'))).toBe(true);
+        expect(files.some((name) => name.endsWith('.ttf'))).toBe(true);
         expect(wasmFile).toBeDefined();
         expect(readFileSync(resolve(assetsDirectory, wasmFile!))).toEqual(libraryWasm);
         const javascript = files
@@ -107,6 +136,7 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
             .map((name) => readFileSync(resolve(assetsDirectory, name), 'utf8'))
             .join('\n');
         expect(javascript).toContain(`/nested/application/assets/${wasmFile}`);
+        expect(javascript).toContain(`/nested/application/assets/${workerFile}`);
         expect(javascript).not.toContain('data:application/wasm;base64,');
     } finally {
         rmSync(directory, { recursive: true, force: true });

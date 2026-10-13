@@ -13,7 +13,11 @@ export type {
     QzTrayEscposPayload,
 } from './renderEscpos';
 export type { QzTrayEscposImage } from './escposImage';
+export { renderPdf } from './renderPdf';
+export type { QzTrayPdfContent, QzTrayPdfSource, QzTrayRenderPdfOptions } from './renderPdf';
 export type {
+    QzTrayEscposPrintImage,
+    QzTrayEscposPrintPayload,
     QzTrayPrintRequest,
     QzTrayPrintType,
     QzTrayPrintOptions,

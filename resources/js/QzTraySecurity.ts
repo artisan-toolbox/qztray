@@ -46,7 +46,7 @@ export class QzTraySecurity {
             method: 'GET',
             credentials: 'same-origin',
             cache: 'no-store',
-            headers: { Accept: 'text/plain' },
+            headers: { Accept: 'application/json' },
         });
 
         if (!response.ok) {
@@ -59,7 +59,22 @@ export class QzTraySecurity {
             throw new QzTrayCertificateError(message, code, response.status);
         }
 
-        return response.text();
+        const certificate = await response.text();
+        const pem = certificate.trim();
+        if (
+            !pem.startsWith('-----BEGIN CERTIFICATE-----') ||
+            !pem.endsWith('-----END CERTIFICATE-----') ||
+            pem
+                .slice('-----BEGIN CERTIFICATE-----'.length, -'-----END CERTIFICATE-----'.length)
+                .trim() === ''
+        ) {
+            throw new QzTrayCertificateError(
+                'The certificate endpoint did not return a PEM certificate. Check the route and session response.',
+                'qztray.certificate_response_invalid',
+                response.status,
+            );
+        }
+        return certificate;
     }
 
     private async signPayload(payload: string): Promise<string> {
@@ -126,7 +141,18 @@ export class QzTraySecurity {
             throw new QzTraySigningError(message, code, response.status);
         }
 
-        return response.text();
+        const signature = await response.text();
+        if (
+            signature === '' ||
+            !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(signature)
+        ) {
+            throw new QzTraySigningError(
+                'The signing endpoint did not return a Base64 signature. Check the route and session response.',
+                'qztray.signature_response_invalid',
+                response.status,
+            );
+        }
+        return signature;
     }
 
     private async readResponseError(

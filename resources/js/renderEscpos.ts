@@ -87,7 +87,7 @@ export async function renderEscpos(
                 parts.push(part);
             }
         } else if (part instanceof Uint8Array) {
-            parts.push(part.slice());
+            parts.push(new Uint8Array(part));
         } else {
             parts.push(prepareEscposImage(part));
         }

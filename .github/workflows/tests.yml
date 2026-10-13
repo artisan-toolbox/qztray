@@ -15,6 +15,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  frontend-compatibility:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20.19.0', '22.18.0']
+    name: Frontend - Node ${{ matrix.node }} - ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Validate frontend compatibility
+        run: |
+          npm run check
+          npm run test
+          npm run build
+
   tests:
     runs-on: ${{ matrix.os }}
 

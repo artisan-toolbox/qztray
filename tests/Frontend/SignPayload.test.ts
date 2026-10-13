@@ -53,7 +53,7 @@ test('posts the exact payload to the Ziggy route and returns a plain-text signat
 test('signs each payload without caching and rereads the CSRF cookie', async () => {
     const fetchMock = vi
         .fn<typeof fetch>()
-        .mockImplementation(async () => new Response('signature'));
+        .mockImplementation(async () => new Response('c2lnbmF0dXJl'));
     vi.stubGlobal('fetch', fetchMock);
     await security.signPayload('first');
     vi.stubGlobal('document', { cookie: 'XSRF-TOKEN=new-token' });
@@ -148,3 +148,14 @@ test('sends no request when the CSRF cookie cannot be decoded', async () => {
     });
     expect(fetchMock).not.toHaveBeenCalled();
 });
+
+test.each(['', '<html>Sign in</html>', '"c2lnbmF0dXJl"', 'not base64!', 'abc'])(
+    'rejects an invalid successful signature response %s',
+    async (body) => {
+        vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(new Response(body)));
+        await expect(security.signPayload('Print')).rejects.toMatchObject({
+            code: 'qztray.signature_response_invalid',
+            status: 200,
+        });
+    },
+);

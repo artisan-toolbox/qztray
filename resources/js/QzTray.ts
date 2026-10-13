@@ -1,6 +1,10 @@
 import { QzTrayConnection } from './QzTrayConnection';
 import { QzTrayPrinters } from './QzTrayPrinters';
-import type { QzTrayPrintOptions, QzTrayPrintRequest } from './QzTrayPrintRequest';
+import type {
+    QzTrayEscposPrintPayload,
+    QzTrayPrintOptions,
+    QzTrayPrintRequest,
+} from './QzTrayPrintRequest';
 
 export class QzTray {
     static readonly #instance = new QzTray();
@@ -36,7 +40,7 @@ export class QzTray {
 
     public printEscpos(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: QzTrayEscposPrintPayload,
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.printers.printEscpos(printer, payload, options);
@@ -44,7 +48,7 @@ export class QzTray {
 
     public printZpl(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.printers.printZpl(printer, payload, options);
@@ -52,7 +56,7 @@ export class QzTray {
 
     public printRaw(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.printers.printRaw(printer, payload, options);
@@ -60,7 +64,7 @@ export class QzTray {
 
     public printPdf(
         printer: string,
-        payload: QzTrayPrintRequest['payload'],
+        payload: string | readonly string[],
         options?: QzTrayPrintOptions,
     ): Promise<void> {
         return this.printers.printPdf(printer, payload, options);

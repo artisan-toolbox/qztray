@@ -42,7 +42,7 @@ test('retrieves the certificate as text from the Ziggy route with session creden
             method: 'GET',
             credentials: 'same-origin',
             cache: 'no-store',
-            headers: { Accept: 'text/plain' },
+            headers: { Accept: 'application/json' },
         },
     );
 });
@@ -109,6 +109,23 @@ test('retries after a network failure', async () => {
     expect(await security.getPublicKey()).toBe(certificate);
     expect(fetchMock).toHaveBeenCalledTimes(2);
 });
+
+test.each(['', '<html>Sign in</html>', JSON.stringify({ certificate })])(
+    'rejects and never caches an invalid successful certificate response %s',
+    async (body) => {
+        const fetchMock = vi
+            .fn<typeof fetch>()
+            .mockResolvedValueOnce(new Response(body))
+            .mockResolvedValueOnce(new Response(certificate));
+        vi.stubGlobal('fetch', fetchMock);
+        await expect(security.getPublicKey()).rejects.toMatchObject({
+            code: 'qztray.certificate_response_invalid',
+            status: 200,
+        });
+        expect(await security.getPublicKey()).toBe(certificate);
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+    },
+);
 
 test.each([401, 403, 500])(
     'rejects an unsuccessful certificate response with status %i',
