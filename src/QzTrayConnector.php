@@ -16,7 +16,7 @@ class QzTrayConnector implements BeforeVersioning, Versionable
     {
         Process::path(base_path())
             ->forever()
-            ->run(['npm', 'run', 'build'])
+            ->run(['npm run build'])
             ->throw();
     }
 }
