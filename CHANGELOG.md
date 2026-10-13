@@ -119,6 +119,8 @@
 
 ### Fixed
 
+- Run the before-versioning frontend build from the package root with separate npm arguments, preserving build-failure rejection when Maintainer runs from another application directory.
+
 - Allow the real library-and-consumer packaging test two minutes on shared CI runners, avoiding a premature 30-second timeout while retaining asset and SDK integration assertions.
 
 - Declare Maintainer as a production dependency because the PHP service implements its `Versionable` interface, preserving the existing public contract during installations without development dependencies.
