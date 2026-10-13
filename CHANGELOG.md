@@ -1,3 +1,55 @@
+# Changelog
+
+## [1.0.0] - 2026-10-13
+
+### Features
+
+- **Add renderPdf and PDF assets with node/browser compatibility** (`6d8240e`)
+  Added a `renderPdf` capability along with required PDF assets, with explicit compatibility for both Node.js and browser environments. This enables PDF rendering workflows consistently across supported runtimes, improving developer flexibility for generating/previewing PDF output. No breaking changes are implied, but consumers may take advantage of the new renderer and assets where previously only other formats were supported.
+
+- **Infer encoding from CI for plain ZPL prints** (`889ab22`)
+  Enhanced the ZPL printing path for “plain ZPL” to infer character encoding from `^CI`, improving output correctness in continuous integration environments where encoding assumptions may differ. This reduces mis-rendered ZPL text and unexpected character substitutions. Existing consumers should see more consistent ZPL output; no configuration/migration changes are required unless they relied on the previous (incorrect/inconsistent) encoding behavior.
+
+- **Add renderEscpos PNG previews with typed options** (`737c435`)
+  Introduced `renderEscpos` PNG previews and added typed options to define preview behavior more safely. This helps developers generate visual previews of ESC/POS output without printing to hardware, and the typed options improve correctness and IDE/type-checker assistance. User impact is positive (new preview capability); compatibility impact is expected to be additive, with no required migration unless developers want to adopt the new typed options.
+
+- **Add local ZPL rendering with shipped WASM asset support** (`d988edd`)
+  Implemented local ZPL rendering using a shipped WebAssembly (WASM) asset bundle, enabling ZPL to be rendered without relying solely on external services. This improves reliability and potentially performance for rendering workflows and enables offline/controlled-environment rendering. Consumers can now render ZPL locally; compatibility should be additive, but environments must support WASM loading as implemented.
+
+- **Introduce public QzTray singleton with typed printing API** (`1e1c368`)
+  Added a new public `QzTray` singleton with a typed printing API (breaking change, indicated by `feat!`). This centralizes QZ Tray access and provides stronger typing for printing operations, making integration more consistent and reducing runtime errors from malformed payloads. Breaking impact: existing integrations may need to migrate from older construction/patterns to the new singleton-based approach and adapt to updated typed method signatures. Migration likely includes updating how QZ Tray is initialized/accessed and aligning print calls with the typed API.
+
+- **Add private signPayload endpoint with CSRF auth** (`4bbbaf3`)
+  Added a private `signPayload` endpoint secured with CSRF authentication. This allows payload signing via a dedicated endpoint while ensuring requests are protected against CSRF attacks. Security impact is positive by reducing the risk of unauthorized signing. Compatibility impact should be additive; however, consumers/clients must send requests in a way that satisfies CSRF requirements.
+
+- **Cache QZ Tray public certificate and validate config** (`583c71f`)
+  Implemented caching for the QZ Tray public certificate and added configuration validation. This improves performance by reusing certificate material and increases correctness by failing fast when configuration is invalid. User impact is faster and more stable initialization/operation; no explicit migration is required unless users previously had misconfigurations that will now be detected/validated.
+
+- **Add Ziggy connector routes and certificate retrieval** (`2e6db88`)
+  Added Ziggy connector routes and implemented certificate retrieval functionality. This supports route-based integration patterns (via Ziggy) and provides a way to retrieve the needed certificate for connector operations. User impact is improved connectivity/integration ergonomics. Compatibility should be additive, but consumers may need to use the new routes for certificate retrieval if they previously implemented custom retrieval logic.
+
+- **Add Vite-based frontend scaffold and update CI matrix** (`8e7fabe`)
+  Added a Vite-based frontend scaffold and updated the CI matrix to cover the new frontend tooling/runtimes. This enables more modern frontend development workflow (build/preview tooling) and ensures CI validates the frontend checks across intended environments. User impact is primarily for contributors/developers; library runtime behavior is not directly changed, but build/test pipelines are improved. No migration for consumers is expected.
+
+### Fixes
+
+- **Extend CI timeout for real package build test** (`8f08f37`)
+  Increased the CI timeout used for the real package build test to prevent intermittent failures during slower build environments. This improves CI reliability without changing runtime/library behavior. User impact is limited to fewer CI flake-related failures; no compatibility or migration steps are required.
+
+- **Verify credential publish paths and contents on Windows** (`48d2576`)
+  Fixed credential publishing behavior by verifying the publish paths and contents specifically on Windows. This addresses issues where path handling or file contents differed across OSes, leading to failures in credential availability for QZ Tray operations. User impact is improved cross-platform reliability for Windows users; no migration is expected for most users beyond benefiting from the fix.
+
+### Maintenance
+
+- **Bump artisan-toolbox/maintainer to ^1.5** (`845f829`)
+  Upgraded the `artisan-toolbox/maintainer` dependency to `^1.5`. This is a maintenance change that may update linting/quality-check behavior used in CI and developer workflows. User impact is indirect (tooling/CI behavior may change). No code migration is typically required for library consumers.
+
+- **Add package-lock.json and update .gitignore** (`9c8d0ea`)
+  Added `package-lock.json` to the repository and updated `.gitignore` entries accordingly. This improves deterministic Node dependency installs and reduces friction for contributors/CI by keeping lockfile state aligned. User impact is limited to development/build consistency; no runtime API or compatibility changes.
+
+- **Initial commit** (`5792737`)
+  Includes the changes introduced by commit 5792737: Initial commit.
+
 # Release Notes
 
 ## [Unreleased](https://github.com/artisan-toolbox/qztray/compare/v0.1.0...1.x)
