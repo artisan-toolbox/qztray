@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0] - 2026-10-13
+
+### Fixes
+
+- **Run before-versioning npm build reliably** (`8c82e8b`)
+  Updates the before-versioning frontend build process (used during the versioning lifecycle) to run more reliably by adjusting how the npm build command is invoked. This matters because the build must succeed before the project proceeds with versioning; improving reliability reduces CI/developer failures when the maintainer runs versioning from a different directory or with differing process context. User impact: versioning should be less flaky; however, the change still means versioning can fail if required node/npm dependencies or the build environment are not available at version time. Compatibility/migration: no API changes are indicated, but ensure the runtime environment executing versioning has access to frontend build prerequisites.
+
+### Refactoring
+
+- **Update versioning/CI/documentation for bundled frontend distribution** (`63704d5`)
+  Applies the broader 1.1.0 distribution and validation changes: adds a GitHub Actions job to build the frontend and verify tracked dist assets, removes `/dist` from `.gitignore` (so dist artifacts are no longer globally ignored), adds/updates release notes and README/SKILL installation instructions to install a private local vendor frontend package (via composer distribution into `vendor/...`) and then run `npm install ./vendor/artisan-toolbox/qztray` from the Laravel app root instead of using an npm-published package, bumps package/versioning-related metadata, introduces a `scripts/check-distribution.mjs` validator that enforces the tracked `dist/` content matches the Git state (failing CI/release if dist is missing/dirty/untracked), updates `QzTrayConnector` to bump version to 1.1.0 and to implement `BeforeVersioning` that runs `npm run build` from the project root during versioning, adds feature tests for successful/failed before-versioning build behavior, and expands frontend render build tests to validate composer-packaged/tarball distribution includes `dist/*` (including wasm) and sets `package.json` to `{ private: true }`. User impact: frontend assets are now validated in CI and packaged via composer-distributed vendor artifacts rather than an npm registry publish flow; builds execute automatically during before-versioning, so versioning requires a working Node/npm environment. Compatibility/migration: installations/workflows that previously depended on installing `@artisan-toolbox/qztray` from npm-published artifacts must switch to installing from the composer-provided `vendor/artisan-toolbox/qztray` using the documented local-path `npm install ./vendor/artisan-toolbox/qztray`, and deployments must run Composer before npm.
+
+### Maintenance
+
+- **Run npm build via single command string** (`a7033e6`)
+  Refactors the npm build invocation to run via a single command string rather than composing multiple arguments. This matters because it improves the execution semantics of the build process when called from within the backend versioning hook (BeforeVersioning), particularly in environments where argument handling can differ. User impact: more consistent build execution during versioning; it doesn’t change intended functionality besides how the command is dispatched. Compatibility/migration: no migration required, but continue to ensure build prerequisites exist wherever versioning is triggered.
+
 ## [1.0.0] - 2026-10-13
 
 ### Features

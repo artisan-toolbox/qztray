@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Process;
 
 class QzTrayConnector implements BeforeVersioning, Versionable
 {
-    public const string VERSION = '1.0.0';
+    public const string VERSION = '1.1.0';
 
     public static function beforeVersioning(string $current, string $next): void
     {
