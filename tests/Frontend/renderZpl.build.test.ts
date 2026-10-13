@@ -1,4 +1,12 @@
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    readdirSync,
+    realpathSync,
+    rmSync,
+    writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { build, isFileServingAllowed, resolveConfig, searchForWorkspaceRoot } from 'vite-plus';
@@ -7,9 +15,18 @@ import { expect, test } from 'vite-plus/test';
 const packageRoot = resolve(import.meta.dirname, '../..');
 
 test('keeps WASM external and lets a consuming Vite application emit it without configuration', async () => {
-    const directory = mkdtempSync(resolve(tmpdir(), 'qztray-render-build-'));
+    // Vite rejects Windows 8.3 aliases, even when their directory is explicitly allowed.
+    const directory = realpathSync.native(mkdtempSync(resolve(tmpdir(), 'qztray-render-build-')));
 
     try {
+        expect(directory).toBe(realpathSync.native(directory));
+        if (process.platform === 'win32') {
+            expect(
+                directory
+                    .split(/[\\/]/)
+                    .some((part) => /^[^~.]{1,6}~\d+(?:\.[^~.]{0,3})?$/.test(part)),
+            ).toBe(false);
+        }
         await build({
             root: packageRoot,
             configFile: resolve(packageRoot, 'vite.config.ts'),

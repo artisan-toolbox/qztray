@@ -2,6 +2,7 @@ import qz from 'qz-tray';
 import type { PrinterOptions, PrintData } from 'qz-tray';
 import type { QzTrayConnection } from './QzTrayConnection';
 import type { QzTrayPrintOptions, QzTrayPrintRequest } from './QzTrayPrintRequest';
+import { detectZplEncoding } from './detectZplEncoding';
 
 /** @internal Printer discovery, print preparation, and submission. */
 export class QzTrayPrinters {
@@ -119,13 +120,20 @@ export class QzTrayPrinters {
             throw new TypeError('Raw printing supports plain, hex, base64, or file data.');
         }
 
+        const encoding =
+            request.options?.encoding !== undefined
+                ? request.options.encoding
+                : request.type === 'zpl' && flavor === 'plain'
+                  ? detectZplEncoding(payload)
+                  : { escpos: 'CP850', zpl: 'UTF-8', raw: 'ISO-8859-1' }[request.type];
+
         return {
             printer: request.printer,
             options: {
                 copies: 1,
                 forceRaw: typeof navigator !== 'undefined' && navigator.platform.startsWith('Mac'),
-                encoding: { escpos: 'CP850', zpl: 'UTF-8', raw: 'ISO-8859-1' }[request.type],
                 ...request.options,
+                encoding,
             },
             data: payload.map((data) => ({ type: 'raw', format: 'command', flavor, data })),
         };

@@ -68,6 +68,87 @@ test('prints ZPL text with UTF-8 encoding', async () => {
     ]);
 });
 
+test.each([
+    [0, 'CP850'],
+    [12, 'CP850'],
+    [13, 'CP850'],
+    [27, 'windows-1252'],
+    [28, 'UTF-8'],
+    [31, 'windows-1250'],
+    [33, 'windows-1251'],
+    [34, 'windows-1253'],
+    [35, 'windows-1254'],
+    [36, 'windows-1255'],
+] as const)('detects ZPL CI%s as %s without changing the payload', async (code, encoding) => {
+    const payload = `^XA^CI${code}^FDLabel café^FS^XZ`;
+    await connector.qztray.printZpl('Zebra', payload);
+    expect(qz.configs.create.mock.calls[0][1].encoding).toBe(encoding);
+    expect(qz.print.mock.calls[0][1][0].data).toBe(payload);
+});
+
+test('detects commands split across chunks and accepts repeated compatible character tables', async () => {
+    const payload = ['^XA^C', 'I13,65,66^FDLabel^FS^XZ', '^XA^CI0^FDSecond^FS^XZ'];
+    const options = { encoding: undefined, copies: 2 };
+    await connector.qztray.print({ printer: 'Zebra', type: 'zpl', payload, options });
+    expect(qz.configs.create.mock.calls[0][1]).toMatchObject({ encoding: 'CP850', copies: 2 });
+    expect(qz.print.mock.calls[0][1].map((item) => item.data)).toEqual(payload);
+    expect(options).toEqual({ encoding: undefined, copies: 2 });
+});
+
+test.each([
+    '^XA^FDLabel^FS^XZ',
+    '^XA^CI29^FDLabel^FS^XZ',
+    '^XA^CI99^FDLabel^FS^XZ',
+    '^XA^CI13^FDOne^FS^CI28^FDTwo^FS^XZ',
+    '^XA^FDLiteral ^CI13^FS^XZ',
+    '^XA^FVLiteral ^CI27^FS^XZ',
+    '^XA^FXComment ^CI13^FS^FDLabel^FS^XZ',
+    '^XA^CI13invalid^FDLabel^FS^XZ',
+    '^XA^CC! !CI13!FDLabel!FS!XZ',
+])('preserves UTF-8 for undetectable or ambiguous ZPL %s', async (payload) => {
+    await connector.qztray.printZpl('Zebra', payload);
+    expect(qz.configs.create.mock.calls[0][1].encoding).toBe('UTF-8');
+});
+
+test('gives an explicit ZPL encoding priority and keeps later jobs independent', async () => {
+    await connector.qztray.printZpl('Zebra', '^XA^CI13^FDLabel^FS^XZ', { encoding: 'ISO-8859-1' });
+    expect(qz.configs.create.mock.calls[0][1].encoding).toBe('ISO-8859-1');
+    await connector.qztray.printZpl('Zebra', '^XA^CI27^FDLabel^FS^XZ');
+    expect(qz.configs.create.mock.calls[1][1].encoding).toBe('windows-1252');
+});
+
+test('ignores command-like text after a detected encoding', async () => {
+    await connector.qztray.printZpl(
+        'Zebra',
+        '^XA^CI13^FXComment ^CI27^FS^FDLiteral ^CI28 ^CC! ~CC!^FS^XZ',
+    );
+    expect(qz.configs.create.mock.calls[0][1].encoding).toBe('CP850');
+});
+
+test('preserves explicitly supplied QZ encoding objects', async () => {
+    const encoding = { from: 'UTF-8', to: 'windows-1252' };
+    await connector.qztray.printZpl('Zebra', '^XA^CI13^FDLabel^FS^XZ', { encoding });
+    expect(qz.configs.create.mock.calls[0][1].encoding).toBe(encoding);
+});
+
+test.each(['hex', 'base64', 'file'] as const)(
+    'does not inspect non-plain ZPL %s payloads',
+    async (flavor) => {
+        await connector.qztray.print({ printer: 'Zebra', type: 'zpl', flavor, payload: '^CI13' });
+        expect(qz.configs.create.mock.calls[0][1].encoding).toBe('UTF-8');
+    },
+);
+
+test.each(['escpos', 'raw'] as const)(
+    'does not infer ZPL encodings for the %s preset',
+    async (type) => {
+        await connector.qztray.print({ printer: 'Printer', type, payload: '^CI27' });
+        expect(qz.configs.create.mock.calls[0][1].encoding).toBe(
+            type === 'escpos' ? 'CP850' : 'ISO-8859-1',
+        );
+    },
+);
+
 test('prints generic raw commands without appending or translating instructions', async () => {
     await connector.qztray.print({ printer: 'Label Printer', type: 'raw', payload: '\nN\nP1\n' });
     expect(qz.configs.create.mock.calls[0][1].encoding).toBe('ISO-8859-1');

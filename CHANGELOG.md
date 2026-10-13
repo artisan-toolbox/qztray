@@ -4,6 +4,8 @@
 
 ### Added
 
+- Infer the encoding of plain ZPL print jobs from supported `^CI` commands when `options.encoding` is omitted, retaining UTF-8 for missing, unsupported, or conflicting declarations and preserving explicit overrides.
+
 - Accept mixed text, byte buffers, and QZ-style Base64 raw images in ESC/POS previews, preserving order and printer state with typed image options, browser decoding, monochrome conversion, and legacy cut support.
 
 - Add standalone `renderEscpos()` PNG previews with lazy loading, CP850 text conversion, preserved control bytes and binary payloads, printable width and character-table mapping options, and typed `renderAll` results separated by receipt cuts.
@@ -50,6 +52,8 @@
 - Replace the skeleton README with the package overview, requirements, development status, and links to the canonical documentation.
 
 ### Fixed
+
+- Resolve the ZPL packaging test's temporary directory to its native canonical path so Vite's filesystem security checks do not reject Windows 8.3 aliases from CI runners.
 
 - Document and verify Vite development-server permissions for WASM assets in locally linked packages outside the application workspace.
 
