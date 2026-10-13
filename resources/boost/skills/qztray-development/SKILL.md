@@ -24,7 +24,7 @@ Use this skill when a Laravel application needs to integrate the Qz Tray Connect
 
 ### 2. Apply the package's public API
 
-- Install `artisan-toolbox/qztray` and `tightenco/ziggy` in Laravel, and `@artisan-toolbox/qztray` in the frontend when a published npm version is available. For local development, use the workspace Composer path repository and a continuous library build.
+- Install `artisan-toolbox/qztray` and `tightenco/ziggy` through Composer, then run `npm install ./vendor/artisan-toolbox/qztray` from the application root. Composer ships the compiled dist directory; the frontend is not published to npm. Run Composer before npm in deployments. For local package changes, use a Composer path repository and a continuous library build.
 - Require PHP 8.5, Laravel 13, and OpenSSL. Core and Maintainer are runtime dependencies installed by Composer; do not remove Maintainer from production requirements while the PHP service implements its version marker.
 - Run `php artisan vendor:publish --tag=qztray-config`. Set `config/qztray.php` values `public_key` and `private_key` to the matching complete PEM certificate and unencrypted RSA private key. These are contents, not filenames. Rebuild Laravel's configuration cache after changes.
 - Keep the private key server-side. Do not expose it through Inertia props, Ziggy, responses, source control, or frontend bundles.

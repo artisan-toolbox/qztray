@@ -1,0 +1,1 @@
+{"version":3,"file":"QzTraySecurity.d.ts","sourceRoot":"","sources":["../resources/js/QzTraySecurity.ts"],"names":[],"mappings":"AAKA,mEAAmE;AACnE,qBAAa,cAAc;IACvB,OAAO,CAAC,SAAS,CAAuB;IACxC,OAAO,CAAC,gBAAgB,CAAgC;IAEjD,SAAS,IAAI,IAAI;YAaV,YAAY;YAoBZ,cAAc;YAoCd,WAAW;YA8EX,iBAAiB;CA0BlC"}

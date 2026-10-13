@@ -14,12 +14,14 @@
 
 ## Installation
 
-Install the Laravel and frontend packages:
+Install through Composer, then register the bundled frontend package from vendor:
 
 ```bash
 composer require artisan-toolbox/qztray
-npm install @artisan-toolbox/qztray
+npm install ./vendor/artisan-toolbox/qztray
 ```
+
+The Composer distribution includes the compiled frontend and renderer assets; no npm registry publication or library build in the application is required.
 
 Requires PHP 8.5 with OpenSSL and Laravel 13. QZ Tray must run on the user's computer for printing. See the [1.x compatibility and API limits](https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/).
 

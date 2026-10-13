@@ -56,6 +56,8 @@
 
 ### Added
 
+- Distribute the compiled frontend and renderer assets through Composer, install the private local frontend package from `vendor/artisan-toolbox/qztray`, and verify Git archive contents and tracked-build freshness in CI without npm registry publication.
+
 - Present the public documentation and README as the 1.x series, with sidebar navigation and a compatibility reference replacing prerelease status notes.
 
 - Accept ordered ESC/POS print arrays containing text commands and QZ raw images with Base64 or file sources, preserve image options, and default omitted image languages to `ESCPOS` in both `print()` and `printEscpos()`.

@@ -1,15 +1,17 @@
 import { execFileSync } from 'node:child_process';
 import {
+    cpSync,
     mkdirSync,
     mkdtempSync,
     readFileSync,
     readdirSync,
     realpathSync,
     rmSync,
+    symlinkSync,
     writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { build, isFileServingAllowed, resolveConfig, searchForWorkspaceRoot } from 'vite-plus';
 import { expect, test } from 'vite-plus/test';
 
@@ -52,6 +54,42 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
             );
         }
         const libraryFiles = readdirSync(resolve(directory, 'library'));
+        const delivery = resolve(directory, 'composer-package');
+        mkdirSync(delivery);
+        for (const file of ['.gitignore', '.gitattributes', 'composer.json', 'package.json']) {
+            cpSync(resolve(packageRoot, file), resolve(delivery, file));
+        }
+        cpSync(resolve(directory, 'library'), resolve(delivery, 'dist'), { recursive: true });
+        mkdirSync(resolve(delivery, 'tests'));
+        writeFileSync(resolve(delivery, 'tests/excluded.txt'), 'Not distributed');
+        execFileSync('git', ['init', '--quiet'], { cwd: delivery });
+        execFileSync('git', ['add', '.'], { cwd: delivery });
+        const tree = execFileSync('git', ['write-tree'], {
+            cwd: delivery,
+            encoding: 'utf8',
+        }).trim();
+        const archive = execFileSync('git', ['archive', '--format=tar', tree], {
+            cwd: delivery,
+            maxBuffer: 32 * 1024 * 1024,
+        });
+        const entries = new Map<string, Buffer>();
+        for (let offset = 0; offset < archive.length && archive[offset] !== 0;) {
+            const name = archive.toString('utf8', offset, offset + 100).split('\0')[0];
+            const size =
+                Number.parseInt(archive.toString('ascii', offset + 124, offset + 136), 8) || 0;
+            entries.set(name, archive.subarray(offset + 512, offset + 512 + size));
+            offset += 512 + Math.ceil(size / 512) * 512;
+        }
+        for (const name of libraryFiles) {
+            expect(entries.has(`dist/${name}`)).toBe(true);
+        }
+        expect(entries.get('dist/zebrash.wasm')).toEqual(libraryWasm);
+        expect(entries.has('composer.json')).toBe(true);
+        expect(entries.has('package.json')).toBe(true);
+        expect(entries.has('tests/excluded.txt')).toBe(false);
+        expect(
+            JSON.parse(entries.get('package.json')!.toString()) as { private: boolean },
+        ).toMatchObject({ private: true });
         expect(libraryFiles.some((name) => name.endsWith('.'))).toBe(false);
         expect(
             libraryFiles.some((name) => name.startsWith('LICENSE') && name.endsWith('.txt')),
@@ -98,9 +136,34 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
         expect(readFileSync(resolve(directory, 'library/index.js'), 'utf8')).toContain(
             'new URL("zebrash.wasm", import.meta.url)',
         );
+        const vendorPackage = resolve(directory, 'vendor/artisan-toolbox/qztray');
+        for (const [name, content] of entries) {
+            if (name.endsWith('/')) continue;
+            const target = resolve(vendorPackage, name);
+            mkdirSync(dirname(target), { recursive: true });
+            writeFileSync(target, content);
+        }
+        const scope = resolve(directory, 'node_modules/@artisan-toolbox');
+        mkdirSync(scope, { recursive: true });
+        symlinkSync(vendorPackage, resolve(scope, 'qztray'), 'junction');
+        writeFileSync(
+            resolve(directory, 'package.json'),
+            JSON.stringify({
+                private: true,
+                type: 'module',
+                dependencies: { '@artisan-toolbox/qztray': 'file:vendor/artisan-toolbox/qztray' },
+            }),
+        );
+        const vendorServer = await resolveConfig(
+            { root: directory, configFile: false, logLevel: 'silent' },
+            'serve',
+        );
+        expect(
+            isFileServingAllowed(vendorServer, resolve(vendorPackage, 'dist/zebrash.wasm')),
+        ).toBe(true);
         writeFileSync(
             resolve(directory, 'main.js'),
-            "import { renderZpl, renderEscpos, renderPdf } from './library/index.js'; globalThis.renderLabel = renderZpl; globalThis.renderReceipt = renderEscpos; globalThis.renderDocument = renderPdf;\n",
+            "import { renderZpl, renderEscpos, renderPdf } from '@artisan-toolbox/qztray'; globalThis.renderLabel = renderZpl; globalThis.renderReceipt = renderEscpos; globalThis.renderDocument = renderPdf;\n",
         );
         writeFileSync(
             resolve(directory, 'index.html'),

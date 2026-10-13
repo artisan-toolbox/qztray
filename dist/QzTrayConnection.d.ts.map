@@ -1,0 +1,1 @@
+{"version":3,"file":"QzTrayConnection.d.ts","sourceRoot":"","sources":["../resources/js/QzTrayConnection.ts"],"names":[],"mappings":"AAIA,0EAA0E;AAC1E,qBAAa,gBAAgB;IACzB,OAAO,CAAC,QAAQ,CAAC,QAAQ,CAAwB;IACjD,OAAO,CAAC,iBAAiB,CAA8B;IACvD,OAAO,CAAC,oBAAoB,CAA8B;IAEnD,WAAW,IAAI,OAAO;IAIhB,OAAO,IAAI,OAAO,CAAC,IAAI,CAAC;IAkCxB,UAAU,IAAI,OAAO,CAAC,IAAI,CAAC;YAc1B,eAAe;CAUhC"}
