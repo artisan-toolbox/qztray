@@ -65,6 +65,8 @@
 
 ### Fixed
 
+- Allow the real library-and-consumer packaging test two minutes on shared CI runners, avoiding a premature 30-second timeout while retaining asset and SDK integration assertions.
+
 - Declare Maintainer as a production dependency because the PHP service implements its `Versionable` interface, preserving the existing public contract during installations without development dependencies.
 - Reject malformed successful certificate and signature responses before caching or forwarding them to QZ, and request structured certificate errors with `Accept: application/json` while preserving plain-text successes.
 - Snapshot typed-array subclasses such as Buffer into owned plain bytes for ESC/POS and PDF previews, preventing shared-memory mutation and PDF.js Buffer rejection.

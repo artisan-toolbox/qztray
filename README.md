@@ -21,7 +21,7 @@ composer require artisan-toolbox/qztray
 npm install @artisan-toolbox/qztray
 ```
 
-Requires PHP 8.5 with OpenSSL and Laravel 13. QZ Tray must run on the user's computer for printing. See the [1.x compatibility and API limits](https://artisantoolbox.wsssoftware.com.br/packages/qztray/v1-readiness/).
+Requires PHP 8.5 with OpenSSL and Laravel 13. QZ Tray must run on the user's computer for printing. See the [1.x compatibility and API limits](https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/).
 
 ## Usage
 

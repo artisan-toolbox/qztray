@@ -15,6 +15,7 @@ import { expect, test } from 'vite-plus/test';
 
 const packageRoot = resolve(import.meta.dirname, '../..');
 
+// Real library and consumer builds include PDF assets and declaration generation on shared CI runners.
 test('keeps WASM external and lets a consuming Vite application emit it without configuration', async () => {
     // Vite rejects Windows 8.3 aliases, even when their directory is explicitly allowed.
     const directory = realpathSync.native(mkdtempSync(resolve(tmpdir(), 'qztray-render-build-')));
@@ -141,4 +142,4 @@ test('keeps WASM external and lets a consuming Vite application emit it without 
     } finally {
         rmSync(directory, { recursive: true, force: true });
     }
-}, 30000);
+}, 120000);
