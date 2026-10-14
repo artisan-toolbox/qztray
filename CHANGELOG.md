@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Maintenance
+
+- Point the GitHub Actions test workflow at `1.x` instead of the retired `main` branch, while retaining CI for other version branches and pull requests.
+
 ## [1.1.0] - 2026-10-13
 
 ### Fixes
