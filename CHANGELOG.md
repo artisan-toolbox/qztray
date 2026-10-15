@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1] - 2026-10-15
+
+### Fixes
+
+- **fix(renderPdf): use bundled standard fonts for previews** (`da19968`)
+  Updates the PDF preview rendering configuration to use bundled standard fonts instead of system fonts. In `resources/js/renderPdf.ts`, the PDF/font rendering library initialization now explicitly sets `useSystemFonts: false` (alongside existing options like `useWorkerFetch: false` and `isEvalSupported: false`). This prevents missing-font warnings such as `Helvetica-Bold` on machines where those system fonts are not installed, improving reliability and consistency of rendered previews. User impact: PDF previews should render without missing-font warnings and with consistent font availability across environments. Compatibility/migration: no public API changes are indicated, but environments that previously depended on system font availability for preview rendering will no longer use system fonts; bundled fonts will be used instead. Additionally, adds/locks this behavior with a frontend unit test (`tests/Frontend/renderPdf.test.ts`) that asserts the engine configuration includes `StandardFontDataFactory` from the bundled assets and `useSystemFonts: false`.
+
+- **fix(ci): point tests workflow to 1.x branch** (`2ad0803`)
+  Modifies the GitHub Actions `tests` workflow trigger/target so that pushes run only on the `1.x` branch pattern (and `*.x`) rather than `main`, while leaving the existing `pull_request` trigger unchanged. File updated: `.github/workflows/tests.yml`. Why it matters: it aligns CI coverage with the active release line after `main` is no longer the appropriate reference for versioned branches. User impact: automated test runs on push events for `main` may decrease or stop, whereas pushes to version branches matching `1.x`/`*.x` will continue to be tested. Compatibility/migration: no code-level compatibility changes, but repository/branch strategy should account for the fact that push-based CI now keys off `1.x` branches instead of `main`.
+
 ## [Unreleased]
 
 ### Fixes
