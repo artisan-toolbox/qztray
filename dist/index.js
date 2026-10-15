@@ -3665,6 +3665,7 @@ async function Dt(e, t = {}) {
 		CMapReaderFactory: l.PdfCMapReader,
 		StandardFontDataFactory: l.PdfFontReader,
 		WasmFactory: l.PdfWasmReader,
+		useSystemFonts: !1,
 		useWorkerFetch: !1,
 		isEvalSupported: !1
 	});

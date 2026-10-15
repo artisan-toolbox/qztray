@@ -87,6 +87,18 @@ test.each([
     expect(bytes).toEqual(new TextEncoder().encode('%PDF-1.7\nTest'));
 });
 
+test('uses bundled standard fonts without looking up system fonts', async () => {
+    await renderPdf(bytes);
+    const assets = await import('../../resources/js/pdfAssets');
+    expect(engine.getDocument).toHaveBeenCalledWith(
+        expect.objectContaining({
+            StandardFontDataFactory: assets.PdfFontReader,
+            useSystemFonts: false,
+            useWorkerFetch: false,
+        }),
+    );
+});
+
 test('accepts explicit URLs and forwards download, password, scale, and rotation options', async () => {
     const requestInit = {
         headers: { Authorization: 'Bearer test' },

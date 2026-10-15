@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixes
+
+- Render PDF previews with bundled standard fonts instead of looking up system fonts, avoiding missing-font warnings such as `Helvetica-Bold` on computers without those fonts installed.
+
 ### Maintenance
 
 - Point the GitHub Actions test workflow at `1.x` instead of the retired `main` branch, while retaining CI for other version branches and pull requests.

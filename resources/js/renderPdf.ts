@@ -155,6 +155,7 @@ export async function renderPdf(
         CMapReaderFactory: assets.PdfCMapReader,
         StandardFontDataFactory: assets.PdfFontReader,
         WasmFactory: assets.PdfWasmReader,
+        useSystemFonts: false,
         useWorkerFetch: false,
         isEvalSupported: false,
     });
