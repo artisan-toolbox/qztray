@@ -5,9 +5,12 @@
 </div>
 
 <p id="maintainer-badges" align="center">
-<a href="https://github.com/artisan-toolbox/qztray/releases"><img src="https://img.shields.io/badge/version-1.1.1-blue?style=flat-square" alt="version"></a>
-<a href="https://packagist.org/packages/artisan-toolbox/qztray"><img src="https://img.shields.io/packagist/php-v/artisan-toolbox/qztray.svg?style=flat-square" alt="PHP from Packagist"></a>
-<a href="https://github.com/artisan-toolbox/qztray/actions"><img src="https://img.shields.io/github/actions/workflow/status/artisan-toolbox/qztray/tests.yml?branch=1.x&amp;label=Tests&amp;style=flat-square" alt="Tests"></a>
+<a href="https://github.com/artisan-toolbox/qztray/releases"><img src="https://img.shields.io/github/v/release/artisan-toolbox/qztray?label=Release&amp;style=flat-square" alt="Release"></a>
+<a href="https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/"><img src="https://img.shields.io/badge/PHP-%5E8.5-777BB4?style=flat-square" alt="PHP"></a>
+<a href="https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/"><img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square" alt="Laravel"></a>
+<a href="https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/"><img src="https://img.shields.io/badge/Node.js-%5E20.19.0%20%7C%7C%20%5E22.18.0%20%7C%7C%20%3E%3D24.11.0-339933?style=flat-square" alt="Node.js"></a>
+<a href="https://github.com/artisan-toolbox/qztray/actions/workflows/tests.yml?query=branch%3A1.x"><img src="https://img.shields.io/github/actions/workflow/status/artisan-toolbox/qztray/tests.yml?branch=1.x&amp;label=Tests&amp;style=flat-square" alt="Tests"></a>
+<a href="https://artisantoolbox.wsssoftware.com.br/packages/qztray/"><img src="https://img.shields.io/badge/Docs-Read-blue?style=flat-square" alt="Docs"></a>
 </p>
 
 <p id="maintainer-description" align="center">

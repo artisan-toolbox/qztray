@@ -8,6 +8,7 @@
 
 ### Documentation
 
+- Standardize README badges for release status, compatibility, CI, and documentation.
 - Document the Vite TypeScript configuration, correct the Composer frontend installation instructions, and clarify printing errors and PDF previews.
 
 ## [1.1.1] - 2026-10-15
