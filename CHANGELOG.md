@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.2.0] - 2026-11-04
+
+### Fixes
+
+- **Bump artisan-toolbox/maintainer to 1.10.0** (`326379e`)
+  Raises the `artisan-toolbox/maintainer` dependency to `1.10.0` under Composer. This is a behavior change sourced from the maintainer package (not from the application code directly), and it can affect generated documentation/README header content and any tooling-driven outputs that depend on the maintainer. Since this is a dependency constraint change, users should ensure the new maintainer requirements remain compatible with their environment; no direct public API changes are described beyond maintainer-driven behavior.
+
+### Build
+
+- **Merge dependabot update for setup-php to v2.40.0** (`0f8684f`)
+  Merges a Dependabot-driven pull request updating `shivammathur/setup-php` GitHub Action from `2.37.2` to `2.40.0` (used in CI setup). This improves CI reliability/security posture by moving to a newer pinned action revision while keeping the overall workflow logic and PHP matrix/extension configuration unchanged. User impact is limited to CI; no application code behavior changes are described. No migration is required for end users.
+
+### Maintenance
+
+- **Update changelog, README head, and maintainer tooling** (`990e593`)
+  Refreshes release documentation and maintainer-related tooling outputs. The changelog is updated for the upcoming release with revised structure/positioning for Unreleased content (moving earlier notes into historical sections), and README head content is regenerated/adjusted using the maintainer tooling. User impact is documentation/release-notes presentation only; no runtime code changes are indicated.
+
+- **Add phpstan/phpstan as a dev dependency** (`6e1f463`)
+  Adds `phpstan/phpstan` to `require-dev` to enable PHP static analysis via PHPStan. This matters for development quality by introducing stricter analysis coverage and potentially surfacing issues earlier. User impact is limited to contributors/CI/development workflows; it should not affect production runtime behavior. For compatibility, developers may need to ensure their local tooling/config matches the new PHPStan version.
+
+- **Update maintainer implementation details** (`e6bd4dd`)
+  Applies improvements related to the maintainer setup. Based on the consolidated summary, this aligns with documentation/badge generation and/or maintainer-driven README head behavior. User impact is primarily documentation/tooling output; no runtime/API changes are indicated.
+
+- **Bump shivammathur/setup-php to 2.40.0** (`803f0b4`)
+  Updates the `shivammathur/setup-php` GitHub Action version used by CI from `2.37.2` to `2.40.0`. The change is confined to the CI environment provisioning step (workflow logic, PHP version matrix, and extension list are not changed). User impact is limited to development/CI runs; no application behavior or compatibility changes are introduced by this commit.
+
+- **Standardize README badges and update documentation** (`3980403`)
+  Includes the changes introduced by commit 3980403: chore: standardize README badges and update documentation.
+
 ## [Unreleased]
 
 ### Maintenance
