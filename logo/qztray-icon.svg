@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">QZ Tray Connector icon</title>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#20252B"/>
+  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="13.25" fill="none" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="1.5"/>
+  <path d="M9 24h12" fill="none" stroke="#FFD076" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="11" y="21" width="7" height="6" rx="1.5" fill="#FFD076"/>
+  <path d="M20 22a6 6 0 0 1 6-6h19a6 6 0 0 1 6 6v11a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4Z" fill="#FFF7EF"/>
+  <circle cx="44.5" cy="22.5" r="1.5" fill="#20252B"/>
+  <rect x="24" y="27.5" width="23" height="4" rx="2" fill="#20252B"/>
+  <path d="M26.5 30h18v18.5l-3-2-3 2-3-2-3 2-3-2-3 2Z" fill="#FFD076"/>
+  <path d="M30.5 34.5h2v8h-2zm3.5 0h1.5v8H34zm3 0h2.5v8H37zm4 0h1v8h-1z" fill="#20252B"/>
+</svg>

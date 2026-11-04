@@ -1,29 +1,32 @@
-<div align="center">
+<!-- MAINTAINER:README_HEAD:START -->
+<div id="maintainer-title" align="center">
+    <img src="logo/qztray-icon.svg" alt="" width="88">
     <h1>QZ Tray Connector</h1>
 </div>
 
-<p align="center">
-    <a href="https://packagist.org/packages/artisan-toolbox/qztray"><img src="https://img.shields.io/packagist/v/artisan-toolbox/qztray.svg?style=flat-square" alt="Packagist"></a>
-    <a href="https://packagist.org/packages/artisan-toolbox/qztray"><img src="https://img.shields.io/packagist/php-v/artisan-toolbox/qztray.svg?style=flat-square" alt="PHP from Packagist"></a>
-    <a href="https://github.com/artisan-toolbox/qztray/actions"><img src="https://github.com/artisan-toolbox/qztray/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+<p id="maintainer-badges" align="center">
+<a href="https://github.com/artisan-toolbox/qztray/releases"><img src="https://img.shields.io/badge/version-1.1.1-blue?style=flat-square" alt="version"></a>
+<a href="https://packagist.org/packages/artisan-toolbox/qztray"><img src="https://img.shields.io/packagist/php-v/artisan-toolbox/qztray.svg?style=flat-square" alt="PHP from Packagist"></a>
+<a href="https://github.com/artisan-toolbox/qztray/actions"><img src="https://img.shields.io/github/actions/workflow/status/artisan-toolbox/qztray/tests.yml?branch=1.x&amp;label=Tests&amp;style=flat-square" alt="Tests"></a>
 </p>
 
-<p align="center">
-    QZ Tray Connector bridges Laravel and your frontend through a unified abstraction for QZ Tray integration.
+<p id="maintainer-description" align="center">
+    Connect Laravel applications to local printers and preview ZPL labels, ESC/POS receipts, and PDFs.
 </p>
+<!-- MAINTAINER:README_HEAD:END -->
 
 ## Installation
 
-Install through Composer, then register the bundled frontend package from vendor:
+Install the connector and Ziggy through Composer. Then install the frontend package from the Composer vendor directory.
 
 ```bash
-composer require artisan-toolbox/qztray
+composer require artisan-toolbox/qztray tightenco/ziggy:^2.0
 npm install ./vendor/artisan-toolbox/qztray
 ```
 
 The Composer distribution includes the compiled frontend and renderer assets; no npm registry publication or library build in the application is required.
 
-Requires PHP 8.5 with OpenSSL and Laravel 13. QZ Tray must run on the user's computer for printing. See the [1.x compatibility and API limits](https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/).
+Requires PHP 8.5 with OpenSSL and Laravel 13. TypeScript applications use Vite with `"moduleResolution": "bundler"`. QZ Tray must run on the user's computer for printing. See the [1.x compatibility and API limits](https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/).
 
 ## Usage
 

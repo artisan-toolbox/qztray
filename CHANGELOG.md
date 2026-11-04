@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Maintenance
+
+- Raise the minimum Artisan Toolbox Maintainer version from 1.5 to 1.9 and use it to generate the README header with the package logo and badges.
+
+### Documentation
+
+- Document the Vite TypeScript configuration, correct the Composer frontend installation instructions, and clarify printing errors and PDF previews.
+
 ## [1.1.1] - 2026-10-15
 
 ### Fixes
@@ -9,16 +19,6 @@
 
 - **fix(ci): point tests workflow to 1.x branch** (`2ad0803`)
   Modifies the GitHub Actions `tests` workflow trigger/target so that pushes run only on the `1.x` branch pattern (and `*.x`) rather than `main`, while leaving the existing `pull_request` trigger unchanged. File updated: `.github/workflows/tests.yml`. Why it matters: it aligns CI coverage with the active release line after `main` is no longer the appropriate reference for versioned branches. User impact: automated test runs on push events for `main` may decrease or stop, whereas pushes to version branches matching `1.x`/`*.x` will continue to be tested. Compatibility/migration: no code-level compatibility changes, but repository/branch strategy should account for the fact that push-based CI now keys off `1.x` branches instead of `main`.
-
-## [Unreleased]
-
-### Fixes
-
-- Render PDF previews with bundled standard fonts instead of looking up system fonts, avoiding missing-font warnings such as `Helvetica-Bold` on computers without those fonts installed.
-
-### Maintenance
-
-- Point the GitHub Actions test workflow at `1.x` instead of the retired `main` branch, while retaining CI for other version branches and pull requests.
 
 ## [1.1.0] - 2026-10-13
 
@@ -87,9 +87,9 @@
 - **Initial commit** (`5792737`)
   Includes the changes introduced by commit 5792737: Initial commit.
 
-# Release Notes
+# Historical release notes
 
-## [Unreleased](https://github.com/artisan-toolbox/qztray/compare/v0.1.0...1.x)
+## Early development
 
 ### Added
 

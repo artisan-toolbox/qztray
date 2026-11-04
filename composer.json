@@ -21,7 +21,7 @@
         "ext-openssl": "*",
         "illuminate/support": "^13.0",
         "artisan-toolbox/core": "^1.0",
-        "artisan-toolbox/maintainer": "^1.5"
+        "artisan-toolbox/maintainer": "^1.9.0"
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.5",
