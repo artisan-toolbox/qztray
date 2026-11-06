@@ -1236,8 +1236,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	}
 	function d(e, t) {
 		let { length: n } = e;
-		if (t > n) return !1;
-		let r = n - t;
+		if (t >= n) return !1;
+		let r = n - t - 1;
 		return e.substring(r, r + 1) === "1";
 	}
 })), h = /* @__PURE__ */ o(((e) => {
@@ -2101,7 +2101,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		parse(e) {
 			e = this.parse4in6(e);
 			let t = e.match(o.RE_BAD_CHARACTERS);
-			if (t) throw new u.AddressError(`Bad character${t.length > 1 ? "s" : ""} detected in address: ${t.join("")}`, e.replace(o.RE_BAD_CHARACTERS, "<span class=\"parse-error\">$1</span>"));
+			if (t) throw new u.AddressError(`Bad character${t.length > 1 ? "s" : ""} detected in address: ${t.join("")}`, e.replace(o.RE_BAD_CHARACTERS, (e) => `<span class="parse-error">${s.escapeHtml(e)}</span>`));
 			let n = e.match(o.RE_BAD_ADDRESS);
 			if (n) throw new u.AddressError(`Address failed regex: ${n.join("")}`, e.replace(o.RE_BAD_ADDRESS, "<span class=\"parse-error\">$1</span>"));
 			let r = [], i = e.split("::");
@@ -2714,14 +2714,14 @@ var U = function(e) {
 	}
 	var a = [].concat(e, t);
 	return a.length > n ? Ee(ke(a, { plainObjects: r }), a.length - 1) : a;
-}, K = function(e, t) {
+}, Le = function(e, t) {
 	if (B(e)) {
 		let n = [];
 		for (let r = 0; r < e.length; r += 1) n.push(t(e[r]));
 		return n;
 	}
 	return t(e);
-}, Le = Object.prototype.hasOwnProperty, Re = {
+}, Re = Object.prototype.hasOwnProperty, ze = {
 	brackets: function(e) {
 		return e + "[]";
 	},
@@ -2732,9 +2732,9 @@ var U = function(e) {
 	repeat: function(e) {
 		return e;
 	}
-}, q = Array.isArray, ze = Array.prototype.push, Be = function(e, t) {
-	ze.apply(e, q(t) ? t : [t]);
-}, Ve = Date.prototype.toISOString, He = Te, J = {
+}, K = Array.isArray, Be = Array.prototype.push, Ve = function(e, t) {
+	Be.apply(e, K(t) ? t : [t]);
+}, He = Date.prototype.toISOString, Ue = Te, q = {
 	addQueryPrefix: !1,
 	allowDots: !1,
 	allowEmptyArrays: !1,
@@ -2746,110 +2746,110 @@ var U = function(e) {
 	encodeDotInKeys: !1,
 	encoder: Me,
 	encodeValuesOnly: !1,
-	format: He,
-	formatter: R[He],
+	format: Ue,
+	formatter: R[Ue],
 	indices: !1,
 	serializeDate: function(e) {
-		return Ve.call(e);
+		return He.call(e);
 	},
 	skipNulls: !1,
 	strictNullHandling: !1
-}, Ue = function(e) {
+}, We = function(e) {
 	return typeof e == "string" || typeof e == "number" || typeof e == "boolean" || typeof e == "symbol" || typeof e == "bigint";
-}, Y = {}, We = function(e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _) {
+}, Ge = {}, Ke = function(e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _) {
 	let v = e, y = _, b = 0, x = !1;
-	for (; (y = y.get(Y)) !== void 0 && !x;) {
+	for (; (y = y.get(Ge)) !== void 0 && !x;) {
 		let t = y.get(e);
 		if (b += 1, t !== void 0) {
 			if (t === b) throw RangeError("Cyclic object value");
 			x = !0;
 		}
-		y.get(Y) === void 0 && (b = 0);
+		y.get(Ge) === void 0 && (b = 0);
 	}
-	if (typeof l == "function" ? v = l(t, v) : v instanceof Date ? v = f(v) : n === "comma" && q(v) && (v = K(v, function(e) {
+	if (typeof l == "function" ? v = l(t, v) : v instanceof Date ? v = f(v) : n === "comma" && K(v) && (v = Le(v, function(e) {
 		return e instanceof Date ? f(e) : e;
 	})), v === null) {
-		if (a) return c && !h ? c(t, J.encoder, g, "key", p) : t;
+		if (a) return c && !h ? c(t, q.encoder, g, "key", p) : t;
 		v = "";
 	}
-	if (Ue(v) || Fe(v)) return c ? [m(h ? t : c(t, J.encoder, g, "key", p)) + "=" + m(c(v, J.encoder, g, "value", p))] : [m(t) + "=" + m(String(v))];
+	if (We(v) || Fe(v)) return c ? [m(h ? t : c(t, q.encoder, g, "key", p)) + "=" + m(c(v, q.encoder, g, "value", p))] : [m(t) + "=" + m(String(v))];
 	let S = [];
 	if (v === void 0) return S;
 	let C;
-	if (n === "comma" && q(v)) h && c && (v = K(v, c)), C = [{ value: v.length > 0 ? v.join(",") || null : void 0 }];
-	else if (q(l)) C = l;
+	if (n === "comma" && K(v)) h && c && (v = Le(v, c)), C = [{ value: v.length > 0 ? v.join(",") || null : void 0 }];
+	else if (K(l)) C = l;
 	else {
 		let e = Object.keys(v);
 		C = u ? e.sort(u) : e;
 	}
-	let w = s ? t.replace(/\./g, "%2E") : t, T = r && q(v) && v.length === 1 ? w + "[]" : w;
-	if (i && q(v) && v.length === 0) return T + "[]";
+	let w = s ? t.replace(/\./g, "%2E") : t, T = r && K(v) && v.length === 1 ? w + "[]" : w;
+	if (i && K(v) && v.length === 0) return T + "[]";
 	for (let t = 0; t < C.length; ++t) {
 		let y = C[t], x = typeof y == "object" && y.value !== void 0 ? y.value : v[y];
 		if (o && x === null) continue;
-		let w = d && s ? y.replace(/\./g, "%2E") : y, E = q(v) ? typeof n == "function" ? n(T, w) : T : T + (d ? "." + w : "[" + w + "]");
+		let w = d && s ? y.replace(/\./g, "%2E") : y, E = K(v) ? typeof n == "function" ? n(T, w) : T : T + (d ? "." + w : "[" + w + "]");
 		_.set(e, b);
 		let D = /* @__PURE__ */ new WeakMap();
-		D.set(Y, _), Be(S, We(x, E, n, r, i, a, o, s, n === "comma" && h && q(v) ? null : c, l, u, d, f, p, m, h, g, D));
+		D.set(Ge, _), Ve(S, Ke(x, E, n, r, i, a, o, s, n === "comma" && h && K(v) ? null : c, l, u, d, f, p, m, h, g, D));
 	}
 	return S;
-}, Ge = function(e) {
-	if (!e) return J;
+}, qe = function(e) {
+	if (!e) return q;
 	if (e.allowEmptyArrays !== void 0 && typeof e.allowEmptyArrays != "boolean") throw TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
 	if (e.encodeDotInKeys !== void 0 && typeof e.encodeDotInKeys != "boolean") throw TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
 	if (e.encoder !== null && e.encoder !== void 0 && typeof e.encoder != "function") throw TypeError("Encoder has to be a function.");
-	let t = e.charset || J.charset;
+	let t = e.charset || q.charset;
 	if (e.charset !== void 0 && e.charset !== "utf-8" && e.charset !== "iso-8859-1") throw TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
 	let n = Te;
 	if (e.format !== void 0) {
-		if (!Le.call(R, e.format)) throw TypeError("Unknown format option provided.");
+		if (!Re.call(R, e.format)) throw TypeError("Unknown format option provided.");
 		n = e.format;
 	}
-	let r = R[n], i = J.filter;
-	(typeof e.filter == "function" || q(e.filter)) && (i = e.filter);
+	let r = R[n], i = q.filter;
+	(typeof e.filter == "function" || K(e.filter)) && (i = e.filter);
 	let a;
-	if (a = e.arrayFormat in Re ? e.arrayFormat : "indices" in e ? e.indices ? "indices" : "repeat" : J.arrayFormat, "commaRoundTrip" in e && typeof e.commaRoundTrip != "boolean") throw TypeError("`commaRoundTrip` must be a boolean, or absent");
-	let o = e.allowDots === void 0 ? e.encodeDotInKeys === !0 || J.allowDots : !!e.allowDots;
+	if (a = e.arrayFormat in ze ? e.arrayFormat : "indices" in e ? e.indices ? "indices" : "repeat" : q.arrayFormat, "commaRoundTrip" in e && typeof e.commaRoundTrip != "boolean") throw TypeError("`commaRoundTrip` must be a boolean, or absent");
+	let o = e.allowDots === void 0 ? e.encodeDotInKeys === !0 || q.allowDots : !!e.allowDots;
 	return {
-		addQueryPrefix: typeof e.addQueryPrefix == "boolean" ? e.addQueryPrefix : J.addQueryPrefix,
+		addQueryPrefix: typeof e.addQueryPrefix == "boolean" ? e.addQueryPrefix : q.addQueryPrefix,
 		allowDots: o,
-		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : J.allowEmptyArrays,
+		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : q.allowEmptyArrays,
 		arrayFormat: a,
 		charset: t,
-		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : J.charsetSentinel,
+		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : q.charsetSentinel,
 		commaRoundTrip: e.commaRoundTrip,
-		delimiter: e.delimiter === void 0 ? J.delimiter : e.delimiter,
-		encode: typeof e.encode == "boolean" ? e.encode : J.encode,
-		encodeDotInKeys: typeof e.encodeDotInKeys == "boolean" ? e.encodeDotInKeys : J.encodeDotInKeys,
-		encoder: typeof e.encoder == "function" ? e.encoder : J.encoder,
-		encodeValuesOnly: typeof e.encodeValuesOnly == "boolean" ? e.encodeValuesOnly : J.encodeValuesOnly,
+		delimiter: e.delimiter === void 0 ? q.delimiter : e.delimiter,
+		encode: typeof e.encode == "boolean" ? e.encode : q.encode,
+		encodeDotInKeys: typeof e.encodeDotInKeys == "boolean" ? e.encodeDotInKeys : q.encodeDotInKeys,
+		encoder: typeof e.encoder == "function" ? e.encoder : q.encoder,
+		encodeValuesOnly: typeof e.encodeValuesOnly == "boolean" ? e.encodeValuesOnly : q.encodeValuesOnly,
 		filter: i,
 		format: n,
 		formatter: r,
-		serializeDate: typeof e.serializeDate == "function" ? e.serializeDate : J.serializeDate,
-		skipNulls: typeof e.skipNulls == "boolean" ? e.skipNulls : J.skipNulls,
+		serializeDate: typeof e.serializeDate == "function" ? e.serializeDate : q.serializeDate,
+		skipNulls: typeof e.skipNulls == "boolean" ? e.skipNulls : q.skipNulls,
 		sort: typeof e.sort == "function" ? e.sort : null,
-		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : J.strictNullHandling
+		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : q.strictNullHandling
 	};
 };
-function Ke(e, t) {
-	let n = e, r = Ge(t), i, a;
-	typeof r.filter == "function" ? (a = r.filter, n = a("", n)) : q(r.filter) && (a = r.filter, i = a);
+function Je(e, t) {
+	let n = e, r = qe(t), i, a;
+	typeof r.filter == "function" ? (a = r.filter, n = a("", n)) : K(r.filter) && (a = r.filter, i = a);
 	let o = [];
 	if (typeof n != "object" || !n) return "";
-	let s = Re[r.arrayFormat], c = s === "comma" && r.commaRoundTrip;
+	let s = ze[r.arrayFormat], c = s === "comma" && r.commaRoundTrip;
 	i ||= Object.keys(n), r.sort && i.sort(r.sort);
 	let l = /* @__PURE__ */ new WeakMap();
 	for (let e = 0; e < i.length; ++e) {
 		let t = i[e];
-		r.skipNulls && n[t] === null || Be(o, We(n[t], t, s, c, r.allowEmptyArrays, r.strictNullHandling, r.skipNulls, r.encodeDotInKeys, r.encode ? r.encoder : null, r.filter, r.sort, r.allowDots, r.serializeDate, r.format, r.formatter, r.encodeValuesOnly, r.charset, l));
+		r.skipNulls && n[t] === null || Ve(o, Ke(n[t], t, s, c, r.allowEmptyArrays, r.strictNullHandling, r.skipNulls, r.encodeDotInKeys, r.encode ? r.encoder : null, r.filter, r.sort, r.allowDots, r.serializeDate, r.format, r.formatter, r.encodeValuesOnly, r.charset, l));
 	}
 	let u = o.join(r.delimiter), d = r.addQueryPrefix === !0 ? "?" : "";
 	return r.charsetSentinel && (r.charset === "iso-8859-1" ? d += "utf8=%26%2310003%3B&" : d += "utf8=%E2%9C%93&"), u.length > 0 ? d + u : "";
 }
 //#endregion
 //#region node_modules/qs-esm/lib/parse.js
-var X = Object.prototype.hasOwnProperty, qe = Array.isArray, Z = {
+var Ye = Object.prototype.hasOwnProperty, Xe = Array.isArray, J = {
 	allowDots: !1,
 	allowEmptyArrays: !1,
 	allowPrototypes: !1,
@@ -2869,27 +2869,27 @@ var X = Object.prototype.hasOwnProperty, qe = Array.isArray, Z = {
 	parseArrays: !0,
 	plainObjects: !1,
 	strictNullHandling: !1
-}, Je = function(e) {
+}, Ze = function(e) {
 	return e.replace(/&#(\d+);/g, function(e, t) {
 		return String.fromCharCode(parseInt(t, 10));
 	});
-}, Ye = function(e, t) {
+}, Qe = function(e, t) {
 	return e && typeof e == "string" && t.comma && e.indexOf(",") > -1 ? e.split(",") : e;
-}, Xe = "utf8=%26%2310003%3B", Ze = "utf8=%E2%9C%93", Qe = function(e, t) {
+}, $e = "utf8=%26%2310003%3B", et = "utf8=%E2%9C%93", tt = function(e, t) {
 	let n = { __proto__: null }, r = t.ignoreQueryPrefix ? e.replace(/^\?/, "") : e, i = t.parameterLimit === Infinity ? void 0 : t.parameterLimit, a = r.split(t.delimiter, i), o = -1, s, c = t.charset;
-	if (t.charsetSentinel) for (s = 0; s < a.length; ++s) a[s].indexOf("utf8=") === 0 && (a[s] === Ze ? c = "utf-8" : a[s] === Xe && (c = "iso-8859-1"), o = s, s = a.length);
+	if (t.charsetSentinel) for (s = 0; s < a.length; ++s) a[s].indexOf("utf8=") === 0 && (a[s] === et ? c = "utf-8" : a[s] === $e && (c = "iso-8859-1"), o = s, s = a.length);
 	for (s = 0; s < a.length; ++s) {
 		if (s === o) continue;
 		let e = a[s], r = e.indexOf("]="), i = r === -1 ? e.indexOf("=") : r + 1, l, u;
-		i === -1 ? (l = t.decoder(e, Z.decoder, c, "key"), u = t.strictNullHandling ? null : "") : (l = t.decoder(e.slice(0, i), Z.decoder, c, "key"), u = K(Ye(e.slice(i + 1), t), function(e) {
-			return t.decoder(e, Z.decoder, c, "value");
-		})), u && t.interpretNumericEntities && c === "iso-8859-1" && (u = Je(u)), e.indexOf("[]=") > -1 && (u = qe(u) ? [u] : u);
-		let d = X.call(n, l);
+		i === -1 ? (l = t.decoder(e, J.decoder, c, "key"), u = t.strictNullHandling ? null : "") : (l = t.decoder(e.slice(0, i), J.decoder, c, "key"), u = Le(Qe(e.slice(i + 1), t), function(e) {
+			return t.decoder(e, J.decoder, c, "value");
+		})), u && t.interpretNumericEntities && c === "iso-8859-1" && (u = Ze(u)), e.indexOf("[]=") > -1 && (u = Xe(u) ? [u] : u);
+		let d = Ye.call(n, l);
 		d && t.duplicates === "combine" ? n[l] = Ie(n[l], u, t.arrayLimit, t.plainObjects) : (!d || t.duplicates === "last") && (n[l] = u);
 	}
 	return n;
-}, $e = function(e, t, n, r) {
-	let i = r ? t : Ye(t, n);
+}, nt = function(e, t, n, r) {
+	let i = r ? t : Qe(t, n);
 	for (let t = e.length - 1; t >= 0; --t) {
 		let r, a = e[t];
 		if (a === "[]" && n.parseArrays) r = H(i) ? i : n.allowEmptyArrays && (i === "" || n.strictNullHandling && i === null) ? [] : Ie([], i, n.arrayLimit, n.plainObjects);
@@ -2901,71 +2901,62 @@ var X = Object.prototype.hasOwnProperty, qe = Array.isArray, Z = {
 		i = r;
 	}
 	return i;
-}, et = function(e, t, n, r) {
+}, rt = function(e, t, n, r) {
 	if (!e) return;
 	let i = n.allowDots ? e.replace(/\.([^.[]+)/g, "[$1]") : e, a = /(\[[^[\]]*])/, o = /(\[[^[\]]*])/g, s = n.depth > 0 && a.exec(i), c = s ? i.slice(0, s.index) : i, l = [];
 	if (c) {
-		if (!n.plainObjects && X.call(Object.prototype, c) && !n.allowPrototypes) return;
+		if (!n.plainObjects && Ye.call(Object.prototype, c) && !n.allowPrototypes) return;
 		l.push(c);
 	}
 	let u = 0;
 	for (; n.depth > 0 && (s = o.exec(i)) !== null && u < n.depth;) {
-		if (u += 1, !n.plainObjects && X.call(Object.prototype, s[1].slice(1, -1)) && !n.allowPrototypes) return;
+		if (u += 1, !n.plainObjects && Ye.call(Object.prototype, s[1].slice(1, -1)) && !n.allowPrototypes) return;
 		l.push(s[1]);
 	}
-	return s && l.push("[" + i.slice(s.index) + "]"), $e(l, t, n, r);
-}, tt = function(e) {
-	if (!e) return Z;
+	return s && l.push("[" + i.slice(s.index) + "]"), nt(l, t, n, r);
+}, it = function(e) {
+	if (!e) return J;
 	if (e.allowEmptyArrays !== void 0 && typeof e.allowEmptyArrays != "boolean") throw TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
 	if (e.decodeDotInKeys !== void 0 && typeof e.decodeDotInKeys != "boolean") throw TypeError("`decodeDotInKeys` option can only be `true` or `false`, when provided");
 	if (e.decoder !== null && e.decoder !== void 0 && typeof e.decoder != "function") throw TypeError("Decoder has to be a function.");
 	if (e.charset !== void 0 && e.charset !== "utf-8" && e.charset !== "iso-8859-1") throw TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
-	let t = e.charset === void 0 ? Z.charset : e.charset, n = e.duplicates === void 0 ? Z.duplicates : e.duplicates;
+	let t = e.charset === void 0 ? J.charset : e.charset, n = e.duplicates === void 0 ? J.duplicates : e.duplicates;
 	if (n !== "combine" && n !== "first" && n !== "last") throw TypeError("The duplicates option must be either combine, first, or last");
 	return {
-		allowDots: e.allowDots === void 0 ? e.decodeDotInKeys === !0 || Z.allowDots : !!e.allowDots,
-		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : Z.allowEmptyArrays,
-		allowPrototypes: typeof e.allowPrototypes == "boolean" ? e.allowPrototypes : Z.allowPrototypes,
-		allowSparse: typeof e.allowSparse == "boolean" ? e.allowSparse : Z.allowSparse,
-		arrayLimit: typeof e.arrayLimit == "number" ? e.arrayLimit : Z.arrayLimit,
+		allowDots: e.allowDots === void 0 ? e.decodeDotInKeys === !0 || J.allowDots : !!e.allowDots,
+		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : J.allowEmptyArrays,
+		allowPrototypes: typeof e.allowPrototypes == "boolean" ? e.allowPrototypes : J.allowPrototypes,
+		allowSparse: typeof e.allowSparse == "boolean" ? e.allowSparse : J.allowSparse,
+		arrayLimit: typeof e.arrayLimit == "number" ? e.arrayLimit : J.arrayLimit,
 		charset: t,
-		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : Z.charsetSentinel,
-		comma: typeof e.comma == "boolean" ? e.comma : Z.comma,
-		decodeDotInKeys: typeof e.decodeDotInKeys == "boolean" ? e.decodeDotInKeys : Z.decodeDotInKeys,
-		decoder: typeof e.decoder == "function" ? e.decoder : Z.decoder,
-		delimiter: typeof e.delimiter == "string" || Pe(e.delimiter) ? e.delimiter : Z.delimiter,
-		depth: typeof e.depth == "number" || e.depth === !1 ? +e.depth : Z.depth,
+		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : J.charsetSentinel,
+		comma: typeof e.comma == "boolean" ? e.comma : J.comma,
+		decodeDotInKeys: typeof e.decodeDotInKeys == "boolean" ? e.decodeDotInKeys : J.decodeDotInKeys,
+		decoder: typeof e.decoder == "function" ? e.decoder : J.decoder,
+		delimiter: typeof e.delimiter == "string" || Pe(e.delimiter) ? e.delimiter : J.delimiter,
+		depth: typeof e.depth == "number" || e.depth === !1 ? +e.depth : J.depth,
 		duplicates: n,
 		ignoreQueryPrefix: e.ignoreQueryPrefix === !0,
-		interpretNumericEntities: typeof e.interpretNumericEntities == "boolean" ? e.interpretNumericEntities : Z.interpretNumericEntities,
-		parameterLimit: typeof e.parameterLimit == "number" ? e.parameterLimit : Z.parameterLimit,
+		interpretNumericEntities: typeof e.interpretNumericEntities == "boolean" ? e.interpretNumericEntities : J.interpretNumericEntities,
+		parameterLimit: typeof e.parameterLimit == "number" ? e.parameterLimit : J.parameterLimit,
 		parseArrays: e.parseArrays !== !1,
-		plainObjects: typeof e.plainObjects == "boolean" ? e.plainObjects : Z.plainObjects,
-		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : Z.strictNullHandling
+		plainObjects: typeof e.plainObjects == "boolean" ? e.plainObjects : J.plainObjects,
+		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : J.strictNullHandling
 	};
 };
-function nt(e, t) {
-	let n = tt(t);
+function at(e, t) {
+	let n = it(t);
 	if (e === "" || e == null) return n.plainObjects ? Object.create(null) : {};
-	let r = typeof e == "string" ? Qe(e, n) : e, i = n.plainObjects ? Object.create(null) : {}, a = Object.keys(r);
+	let r = typeof e == "string" ? tt(e, n) : e, i = n.plainObjects ? Object.create(null) : {}, a = Object.keys(r);
 	for (let t = 0; t < a.length; ++t) {
-		let o = a[t], s = et(o, r[o], n, typeof e == "string");
+		let o = a[t], s = rt(o, r[o], n, typeof e == "string");
 		i = Ae(i, s, n);
 	}
 	return n.allowSparse === !0 ? i : Ne(i);
 }
 //#endregion
 //#region node_modules/ziggy-js/dist/index.js
-function Q() {
-	return Q = Object.assign ? Object.assign.bind() : function(e) {
-		for (var t = 1; t < arguments.length; t++) {
-			var n = arguments[t];
-			for (var r in n) ({}).hasOwnProperty.call(n, r) && (e[r] = n[r]);
-		}
-		return e;
-	}, Q.apply(null, arguments);
-}
-var rt = class {
+var ot = class {
 	constructor(e, t, n) {
 		this.name = e, this.definition = t, this.bindings = t.bindings ?? {}, this.wheres = t.wheres ?? {}, this.config = n;
 	}
@@ -2992,7 +2983,7 @@ var rt = class {
 			for (let e in i.groups) i.groups[e] = typeof i.groups[e] == "string" ? decodeURIComponent(i.groups[e]) : i.groups[e];
 			return {
 				params: i.groups,
-				query: nt(r)
+				query: at(r)
 			};
 		}
 		return !1;
@@ -3004,16 +2995,68 @@ var rt = class {
 			return encodeURI(e[n] ?? "").replace(/%7C/g, "|").replace(/%25/g, "%").replace(/\$/g, "%24");
 		}).replace(this.config.absolute ? /(\.[^/]+?)(\/\/)/ : /(^)(\/\/)/, "$1/").replace(/\/+$/, "") : this.template;
 	}
-}, it = class extends String {
+};
+function Y(e) {
+	"@babel/helpers - typeof";
+	return Y = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
+		return typeof e;
+	} : function(e) {
+		return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
+	}, Y(e);
+}
+function st(e, t) {
+	if (Y(e) != "object" || !e) return e;
+	var n = e[Symbol.toPrimitive];
+	if (n !== void 0) {
+		var r = n.call(e, t || "default");
+		if (Y(r) != "object") return r;
+		throw TypeError("@@toPrimitive must return a primitive value.");
+	}
+	return (t === "string" ? String : Number)(e);
+}
+function ct(e) {
+	var t = st(e, "string");
+	return Y(t) == "symbol" ? t : t + "";
+}
+function lt(e, t, n) {
+	return (t = ct(t)) in e ? Object.defineProperty(e, t, {
+		value: n,
+		enumerable: !0,
+		configurable: !0,
+		writable: !0
+	}) : e[t] = n, e;
+}
+function ut(e, t) {
+	var n = Object.keys(e);
+	if (Object.getOwnPropertySymbols) {
+		var r = Object.getOwnPropertySymbols(e);
+		t && (r = r.filter(function(t) {
+			return Object.getOwnPropertyDescriptor(e, t).enumerable;
+		})), n.push.apply(n, r);
+	}
+	return n;
+}
+function X(e) {
+	for (var t = 1; t < arguments.length; t++) {
+		var n = arguments[t] == null ? {} : arguments[t];
+		t % 2 ? ut(Object(n), !0).forEach(function(t) {
+			lt(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : ut(Object(n)).forEach(function(t) {
+			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
+		});
+	}
+	return e;
+}
+var dt = class extends String {
 	constructor(e, t, n = !0, r) {
-		if (super(), this.t = r ?? (typeof Ziggy < "u" ? Ziggy : globalThis == null ? void 0 : globalThis.Ziggy), !this.t && typeof document < "u" && document.getElementById("ziggy-routes-json") && (globalThis.Ziggy = JSON.parse(document.getElementById("ziggy-routes-json").textContent), this.t = globalThis.Ziggy), this.t = Q({}, this.t, { absolute: n }), e) {
-			if (!this.t.routes[e]) throw Error(`Ziggy error: route '${e}' is not in the route list.`);
-			this.i = new rt(e, this.t.routes[e], this.t), this.o = this.u(t);
+		if (super(), this._config = r ?? (typeof Ziggy < "u" ? Ziggy : globalThis?.Ziggy), !this._config && typeof document < "u" && document.getElementById("ziggy-routes-json") && (globalThis.Ziggy = JSON.parse(document.getElementById("ziggy-routes-json").textContent), this._config = globalThis.Ziggy), this._config = X(X({}, this._config), {}, { absolute: n }), e) {
+			if (!this._config.routes[e]) throw Error(`Ziggy error: route '${e}' is not in the route list.`);
+			this._route = new ot(e, this._config.routes[e], this._config), this._params = this._parse(t);
 		}
 	}
 	toString() {
-		let e = Object.keys(this.o).filter((e) => !this.i.parameterSegments.some(({ name: t }) => t === e)).filter((e) => e !== "_query").reduce((e, t) => Q({}, e, { [t]: this.o[t] }), {});
-		return this.i.compile(this.o) + Ke(Q({}, e, this.o._query), {
+		let e = Object.keys(this._params).filter((e) => !this._route.parameterSegments.some(({ name: t }) => t === e)).filter((e) => e !== "_query").reduce((e, t) => X(X({}, e), {}, { [t]: this._params[t] }), {});
+		return this._route.compile(this._params) + Je(X(X({}, e), this._params._query), {
 			addQueryPrefix: !0,
 			arrayFormat: "indices",
 			encodeValuesOnly: !0,
@@ -3021,87 +3064,87 @@ var rt = class {
 			encoder: (e, t) => typeof e == "boolean" ? Number(e) : t(e)
 		});
 	}
-	h(e) {
-		e ? this.t.absolute && e.startsWith("/") && (e = this.l().host + e) : e = this.m();
-		let t = {}, [n, r] = Object.entries(this.t.routes).find(([n, r]) => t = new rt(n, r, this.t).matchesUrl(e)) || [void 0, void 0];
-		return Q({ name: n }, t, { route: r });
+	_unresolve(e) {
+		e ? this._config.absolute && e.startsWith("/") && (e = this._location().host + e) : e = this._currentUrl();
+		let t = {}, [n, r] = Object.entries(this._config.routes).find(([n, r]) => t = new ot(n, r, this._config).matchesUrl(e)) || [void 0, void 0];
+		return X(X({ name: n }, t), {}, { route: r });
 	}
-	m() {
-		let { host: e, pathname: t, search: n } = this.l();
-		return (this.t.absolute ? e + t : t.replace(this.t.url.replace(/^\w*:\/\/[^/]+/, ""), "").replace(/^\/+/, "/")) + n;
+	_currentUrl() {
+		let { host: e, pathname: t, search: n } = this._location();
+		return (this._config.absolute ? e + t : t.replace(this._config.url.replace(/^\w*:\/\/[^/]+/, ""), "").replace(/^\/+/, "/")) + n;
 	}
 	current(e, t) {
-		let { name: n, params: r, query: i, route: a } = this.h();
+		let { name: n, params: r, query: i, route: a } = this._unresolve();
 		if (!e) return n;
 		let o = RegExp(`^${e.replace(/\./g, "\\.").replace(/\*/g, ".*")}$`).test(n);
 		if ([null, void 0].includes(t) || !o) return o;
-		let s = new rt(n, a, this.t);
-		t = this.u(t, s);
-		let c = Q({}, r, i);
+		let s = new ot(n, a, this._config);
+		t = this._parse(t, s);
+		let c = X(X({}, r), i);
 		if (Object.values(t).every((e) => !e) && !Object.values(c).some((e) => e !== void 0)) return !0;
 		let l = (e, t) => Object.entries(e).every(([e, n]) => Array.isArray(n) && Array.isArray(t[e]) ? n.every((n) => t[e].includes(n) || t[e].includes(decodeURIComponent(n))) : typeof n == "object" && typeof t[e] == "object" && n !== null && t[e] !== null ? l(n, t[e]) : t[e] == n || t[e] == decodeURIComponent(n));
 		return l(t, c);
 	}
-	l() {
+	_location() {
 		let { host: e = "", pathname: t = "", search: n = "" } = typeof window < "u" ? window.location : {};
 		return {
-			host: this.t.location?.host ?? e,
-			pathname: this.t.location?.pathname ?? t,
-			search: this.t.location?.search ?? n
+			host: this._config.location?.host ?? e,
+			pathname: this._config.location?.pathname ?? t,
+			search: this._config.location?.search ?? n
 		};
 	}
 	get params() {
-		let { params: e, query: t } = this.h();
-		return Q({}, e, t);
+		let { params: e, query: t } = this._unresolve();
+		return X(X({}, e), t);
 	}
 	get routeParams() {
-		return this.h().params;
+		return this._unresolve().params;
 	}
 	get queryParams() {
-		return this.h().query;
+		return this._unresolve().query;
 	}
 	has(e) {
-		return this.t.routes.hasOwnProperty(e);
+		return this._config.routes.hasOwnProperty(e);
 	}
-	u(e = {}, t = this.i) {
+	_parse(e = {}, t = this._route) {
 		e ??= {}, e = ["string", "number"].includes(typeof e) ? [e] : e;
-		let n = t.parameterSegments.filter(({ name: e }) => !this.t.defaults[e]);
-		return Array.isArray(e) ? e = e.reduce((e, t, r) => Q({}, e, n[r] ? { [n[r].name]: t } : typeof t == "object" ? t : { [t]: "" }), {}) : n.length !== 1 || e.hasOwnProperty(n[0].name) || !e.hasOwnProperty(Object.values(t.bindings)[0]) && !e.hasOwnProperty("id") || (e = { [n[0].name]: e }), Q({}, this.p(t), this.$(e, t));
+		let n = t.parameterSegments.filter(({ name: e }) => !this._config.defaults[e]);
+		return Array.isArray(e) ? e = e.reduce((e, t, r) => n[r] ? X(X({}, e), {}, { [n[r].name]: t }) : typeof t == "object" ? X(X({}, e), t) : X(X({}, e), {}, { [t]: "" }), {}) : n.length === 1 && !e.hasOwnProperty(n[0].name) && (e.hasOwnProperty(Object.values(t.bindings)[0]) || e.hasOwnProperty("id")) && (e = { [n[0].name]: e }), X(X({}, this._defaults(t)), this._substituteBindings(e, t));
 	}
-	p(e) {
-		return e.parameterSegments.filter(({ name: e }) => this.t.defaults[e]).reduce((e, { name: t }, n) => Q({}, e, { [t]: this.t.defaults[t] }), {});
+	_defaults(e) {
+		return e.parameterSegments.filter(({ name: e }) => this._config.defaults[e]).reduce((e, { name: t }, n) => X(X({}, e), {}, { [t]: this._config.defaults[t] }), {});
 	}
-	$(e, { bindings: t, parameterSegments: n }) {
+	_substituteBindings(e, { bindings: t, parameterSegments: n }) {
 		return Object.entries(e).reduce((e, [r, i]) => {
-			if (!i || typeof i != "object" || Array.isArray(i) || !n.some(({ name: e }) => e === r)) return Q({}, e, { [r]: i });
+			if (!i || typeof i != "object" || Array.isArray(i) || !n.some(({ name: e }) => e === r)) return X(X({}, e), {}, { [r]: i });
 			let a = i.hasOwnProperty(t[r]) ? t[r] : i.hasOwnProperty("id") ? "id" : void 0;
 			if (a === void 0) throw Error(`Ziggy error: object passed as '${r}' parameter is missing route model binding key '${t[r]}'.`);
-			return Q({}, e, { [r]: i[a] });
+			return X(X({}, e), {}, { [r]: i[a] });
 		}, {});
 	}
 	valueOf() {
 		return this.toString();
 	}
 };
-function at(e, t, n, r) {
-	let i = new it(e, t, n, r);
+function ft(e, t, n, r) {
+	let i = new dt(e, t, n, r);
 	return e ? i.toString() : i;
 }
 //#endregion
 //#region resources/js/QzTrayCertificateError.ts
-var ot = class extends Error {
+var pt = class extends Error {
 	code;
 	status;
 	constructor(e, t, n) {
 		super(e), this.name = "QzTrayCertificateError", this.code = t, this.status = n;
 	}
-}, $ = class extends Error {
+}, Z = class extends Error {
 	code;
 	status;
 	constructor(e, t, n) {
 		super(e), this.name = "QzTraySigningError", this.code = t, this.status = n;
 	}
-}, st = class {
+}, mt = class {
 	publicKey = null;
 	publicKeyRequest = null;
 	configure() {
@@ -3122,7 +3165,7 @@ var ot = class extends Error {
 		}
 	}
 	async fetchPublicKey() {
-		let e = await fetch(at("qztray_connector.get_public_key"), {
+		let e = await fetch(ft("qztray_connector.get_public_key"), {
 			method: "GET",
 			credentials: "same-origin",
 			cache: "no-store",
@@ -3130,22 +3173,22 @@ var ot = class extends Error {
 		});
 		if (!e.ok) {
 			let { code: t, message: n } = await this.readResponseError(e, "qztray.certificate_request_failed", `Unable to retrieve the QZ Tray public certificate (HTTP ${e.status}).`);
-			throw new ot(n, t, e.status);
+			throw new pt(n, t, e.status);
 		}
 		let t = await e.text(), n = t.trim();
-		if (!n.startsWith("-----BEGIN CERTIFICATE-----") || !n.endsWith("-----END CERTIFICATE-----") || n.slice(27, -25).trim() === "") throw new ot("The certificate endpoint did not return a PEM certificate. Check the route and session response.", "qztray.certificate_response_invalid", e.status);
+		if (!n.startsWith("-----BEGIN CERTIFICATE-----") || !n.endsWith("-----END CERTIFICATE-----") || n.slice(27, -25).trim() === "") throw new pt("The certificate endpoint did not return a PEM certificate. Check the route and session response.", "qztray.certificate_response_invalid", e.status);
 		return t;
 	}
 	async signPayload(e) {
 		let t = (typeof document > "u" ? void 0 : document.cookie.split(";").map((e) => e.trim()).find((e) => e.startsWith("XSRF-TOKEN=")))?.slice(11);
-		if (!t) throw new $("The Laravel CSRF cookie is missing. Reload the page before signing a QZ Tray payload.", "qztray.csrf_token_missing", 0);
+		if (!t) throw new Z("The Laravel CSRF cookie is missing. Reload the page before signing a QZ Tray payload.", "qztray.csrf_token_missing", 0);
 		let n;
 		try {
 			n = decodeURIComponent(t);
 		} catch {
-			throw new $("The Laravel CSRF cookie is invalid. Reload the page before signing a QZ Tray payload.", "qztray.csrf_token_invalid", 0);
+			throw new Z("The Laravel CSRF cookie is invalid. Reload the page before signing a QZ Tray payload.", "qztray.csrf_token_invalid", 0);
 		}
-		let r = await fetch(at("qztray_connector.sign_payload"), {
+		let r = await fetch(ft("qztray_connector.sign_payload"), {
 			method: "POST",
 			credentials: "same-origin",
 			cache: "no-store",
@@ -3160,10 +3203,10 @@ var ot = class extends Error {
 			let e = "qztray.signing_request_failed", t = `Unable to sign the QZ Tray payload (HTTP ${r.status}).`;
 			r.status === 401 ? (e = "qztray.authentication_required", t = "Sign in to the application before signing a QZ Tray payload.") : r.status === 419 && (e = "qztray.csrf_token_mismatch", t = "The Laravel session or CSRF token has expired. Reload the page before signing a QZ Tray payload.");
 			let { code: n, message: i } = await this.readResponseError(r, e, t);
-			throw new $(i, n, r.status);
+			throw new Z(i, n, r.status);
 		}
 		let i = await r.text();
-		if (i === "" || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(i)) throw new $("The signing endpoint did not return a Base64 signature. Check the route and session response.", "qztray.signature_response_invalid", r.status);
+		if (i === "" || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(i)) throw new Z("The signing endpoint did not return a Base64 signature. Check the route and session response.", "qztray.signature_response_invalid", r.status);
 		return i;
 	}
 	async readResponseError(e, t, n) {
@@ -3182,8 +3225,8 @@ var ot = class extends Error {
 			message: n
 		};
 	}
-}, ct = class {
-	security = new st();
+}, ht = class {
+	security = new mt();
 	connectionRequest = null;
 	disconnectionRequest = null;
 	isConnected() {
@@ -3220,7 +3263,7 @@ var ot = class extends Error {
 };
 //#endregion
 //#region resources/js/detectZplEncoding.ts
-function lt(e) {
+function gt(e) {
 	let t = e.join(""), n = {
 		27: "windows-1252",
 		28: "UTF-8",
@@ -3241,7 +3284,7 @@ function lt(e) {
 }
 //#endregion
 //#region resources/js/QzTrayPrinters.ts
-var ut = class {
+var _t = class {
 	connection;
 	constructor(e) {
 		this.connection = e;
@@ -3342,7 +3385,7 @@ var ut = class {
 			"base64",
 			"file"
 		].includes(a)) throw TypeError("Raw printing supports plain, hex, base64, or file data.");
-		let o = e.options?.encoding === void 0 ? e.type === "zpl" && a === "plain" ? lt(r) : {
+		let o = e.options?.encoding === void 0 ? e.type === "zpl" && a === "plain" ? gt(r) : {
 			escpos: "CP850",
 			zpl: "UTF-8",
 			raw: "ISO-8859-1"
@@ -3363,10 +3406,10 @@ var ut = class {
 			} : e)
 		};
 	}
-}, dt = class e {
+}, vt = class e {
 	static #e = new e();
-	connection = new ct();
-	printers = new ut(this.connection);
+	connection = new ht();
+	printers = new _t(this.connection);
 	constructor() {}
 	static getInstance() {
 		return e.#e;
@@ -3398,12 +3441,12 @@ var ut = class {
 	printPdf(e, t, n) {
 		return this.printers.printPdf(e, t, n);
 	}
-}, ft = new URL("zebrash.wasm", import.meta.url).href, pt = null, mt = null;
-async function ht(e, t = {}) {
+}, yt = new URL("zebrash.wasm", import.meta.url).href, bt = null, xt = null;
+async function St(e, t = {}) {
 	if (typeof e != "string" || e.trim() === "") throw TypeError("Provide a nonempty ZPL string to render.");
-	let n = t.wasmUrl ?? ft;
+	let n = t.wasmUrl ?? yt;
 	if (typeof n != "string" || n.trim() === "") throw TypeError("Provide the ZPL renderer WASM asset URL.");
-	if (mt !== null && mt !== n) throw Error("The ZPL renderer is already initialized with a different WASM asset URL.");
+	if (xt !== null && xt !== n) throw Error("The ZPL renderer is already initialized with a different WASM asset URL.");
 	let { widthMm: r = 101.6, heightMm: i = 203.2, dpmm: a = 8 } = t;
 	for (let [e, t] of Object.entries({
 		widthMm: r,
@@ -3413,8 +3456,8 @@ async function ht(e, t = {}) {
 	if (!Number.isInteger(a)) throw RangeError("dpmm must be a positive integer.");
 	let { renderAll: o = !1, grayscaleOutput: s = !1, enableInvertedLabels: c = !1 } = t;
 	if (typeof o != "boolean" || typeof s != "boolean" || typeof c != "boolean") throw TypeError("ZPL rendering flags must be boolean values.");
-	pt === null && (mt = n, pt = import("./index.external.esm-Bcwt_wNA.js").then(({ init: e }) => e({ wasmUrl: n })));
-	let l = await pt, u = {
+	bt === null && (xt = n, bt = import("./index.external.esm-Bcwt_wNA.js").then(({ init: e }) => e({ wasmUrl: n })));
+	let l = await bt, u = {
 		grayscaleOutput: s,
 		enableInvertedLabels: c
 	};
@@ -3429,7 +3472,7 @@ async function ht(e, t = {}) {
 }
 //#endregion
 //#region resources/js/escposImage.ts
-function gt(e) {
+function Ct(e) {
 	if (typeof e != "object" || !e) throw TypeError("ESC/POS payload parts must be strings, bytes, or Base64 raw images.");
 	let t = e;
 	if (t.type !== "raw" || t.format !== "image" || t.flavor !== "base64") throw TypeError("ESC/POS previews support only raw Base64 image objects.");
@@ -3468,7 +3511,7 @@ function gt(e) {
 		options: { ...n }
 	};
 }
-async function _t(e) {
+async function wt(e) {
 	let t = e.data.replace(/^data:image\/(?:png|jpeg);base64,/i, "").replace(/\s/g, ""), n;
 	try {
 		n = atob(t);
@@ -3545,41 +3588,41 @@ async function _t(e) {
 }
 //#endregion
 //#region resources/js/renderEscpos.ts
-var vt = {
+var Tt = {
 	CP850: "cp850",
 	CP437: "cp437",
 	"ISO-8859-1": "iso8859-1",
 	"Windows-1252": "windows1252"
 };
-function yt() {
+function Et() {
 	return Promise.all([import("./receipt-printer-renderer.esm-BEpqN9y1.js"), import("./codepage-encoder-DUs3fjHS.js")]);
 }
-var bt = null;
-async function xt(e, t = {}) {
+var Q = null;
+async function Dt(e, t = {}) {
 	let { widthDots: n = 384, encoding: r = "CP850", codepageMapping: i = "epson", renderAll: a = !1 } = t;
 	if (!Number.isSafeInteger(n) || n <= 0 || n % 8 != 0) throw RangeError("widthDots must be a positive integer multiple of eight.");
 	if (typeof a != "boolean") throw TypeError("renderAll must be a boolean value.");
-	if (typeof r != "string" || !Object.hasOwn(vt, r)) throw TypeError("Provide a supported ESC/POS text encoding.");
+	if (typeof r != "string" || !Object.hasOwn(Tt, r)) throw TypeError("Provide a supported ESC/POS text encoding.");
 	if (typeof i != "string" || i.trim() === "") throw TypeError("Provide a nonempty ESC/POS codepage mapping.");
 	if (typeof e != "string" && !(e instanceof Uint8Array) && !Array.isArray(e)) throw TypeError("Provide ESC/POS text, bytes, or an array of text, bytes, and raw images.");
 	let o = [];
 	for (let t of Array.isArray(e) ? e : [e]) if (typeof t == "string") {
 		let e = o.at(-1);
 		typeof e == "string" ? o[o.length - 1] = e + t : o.push(t);
-	} else t instanceof Uint8Array ? o.push(new Uint8Array(t)) : o.push(gt(t));
+	} else t instanceof Uint8Array ? o.push(new Uint8Array(t)) : o.push(Ct(t));
 	if (o.every((e) => typeof e == "string" || e instanceof Uint8Array ? e.length === 0 : !1)) throw TypeError("Provide a nonempty ESC/POS payload to render.");
-	bt ??= yt().catch((e) => {
-		throw bt = null, e;
+	Q ??= Et().catch((e) => {
+		throw Q = null, e;
 	});
-	let [{ EscPosRenderer: s, stitch: c, toPng: l }, { default: u }] = await bt, d = [];
+	let [{ EscPosRenderer: s, stitch: c, toPng: l }, { default: u }] = await Q, d = [];
 	for (let e of o) if (typeof e == "string") {
-		let t = u.encode(e, vt[r]);
+		let t = u.encode(e, Tt[r]);
 		for (let n = 0; n < e.length; n++) {
 			let r = e.charCodeAt(n);
 			r < 128 && (t[n] = r);
 		}
 		d.push(t);
-	} else d.push(e instanceof Uint8Array ? e : await _t(e));
+	} else d.push(e instanceof Uint8Array ? e : await wt(e));
 	let f = new Uint8Array(d.reduce((e, t) => e + t.length, 0)), p = 0;
 	for (let e of d) f.set(e, p), p += e.length;
 	let m = new s({
@@ -3599,17 +3642,17 @@ async function xt(e, t = {}) {
 }
 //#endregion
 //#region node_modules/pdfjs-dist/build/pdf.worker.min.mjs?url&no-inline
-var St = new URL("pdf.worker.min.mjs", import.meta.url).href;
+var Ot = new URL("pdf.worker.min.mjs", import.meta.url).href;
 //#endregion
 //#region resources/js/renderPdf.ts
-function Ct() {
-	return Promise.all([import("./pdf-CT97BrCZ.js"), import("./pdfAssets-J30hfZGN.js")]).then(([e, t]) => (e.GlobalWorkerOptions.workerSrc = St, {
+function kt() {
+	return Promise.all([import("./pdf-CT97BrCZ.js"), import("./pdfAssets-J30hfZGN.js")]).then(([e, t]) => (e.GlobalWorkerOptions.workerSrc = Ot, {
 		pdfjs: e,
 		assets: t
 	}));
 }
-var wt = null;
-function Tt(e) {
+var $ = null;
+function At(e) {
 	if (e.startsWith("%PDF-")) {
 		for (let t = 0; t < e.length; t++) if (e.charCodeAt(t) > 255) throw TypeError("PDF binary strings must contain only byte-valued characters.");
 		return Uint8Array.from(e, (e) => e.charCodeAt(0));
@@ -3621,7 +3664,7 @@ function Tt(e) {
 		throw TypeError("Provide valid PDF Base64 content or a PDF binary string.");
 	}
 }
-async function Et(e, t) {
+async function jt(e, t) {
 	let n, r;
 	if (typeof e == "object" && e && "url" in e ? (r = e.url, n = "") : typeof e == "object" && e && "data" in e ? n = e.data : (n = e, (e instanceof URL || typeof e == "string" && !/^(%PDF-|JVBER|data:application\/pdf;base64,)/i.test(e)) && (r = e)), r !== void 0) {
 		if (!(r instanceof URL) && (typeof r != "string" || r.trim() === "")) throw TypeError("Provide a nonempty PDF URL.");
@@ -3638,11 +3681,11 @@ async function Et(e, t) {
 		if (!i.ok) throw Error(`Could not download the PDF: HTTP ${i.status}.`);
 		n = await i.arrayBuffer();
 	}
-	let i = typeof n == "string" ? Tt(n) : n instanceof Uint8Array ? new Uint8Array(n) : n instanceof ArrayBuffer ? new Uint8Array(n.slice(0)) : n instanceof Blob ? new Uint8Array(await n.arrayBuffer()) : null;
+	let i = typeof n == "string" ? At(n) : n instanceof Uint8Array ? new Uint8Array(n) : n instanceof ArrayBuffer ? new Uint8Array(n.slice(0)) : n instanceof Blob ? new Uint8Array(await n.arrayBuffer()) : null;
 	if (i === null || i.length === 0) throw TypeError("Provide nonempty PDF content as Base64, bytes, an ArrayBuffer, or a Blob.");
 	return i;
 }
-async function Dt(e, t = {}) {
+async function Mt(e, t = {}) {
 	let { renderAll: n = !1, pageNumber: r = 1, scale: i = 1.5, rotation: a, password: o } = t;
 	if (typeof n != "boolean" || o !== void 0 && typeof o != "string") throw TypeError("Provide a boolean renderAll flag and a string PDF password.");
 	if (!Number.isSafeInteger(r) || r < 1) throw RangeError("PDF pageNumber must be a positive integer.");
@@ -3655,11 +3698,11 @@ async function Dt(e, t = {}) {
 	].includes(a)) throw RangeError("PDF rotation must be 0, 90, 180, or 270 degrees.");
 	if (n && t.pageNumber !== void 0) throw TypeError("Choose pageNumber or renderAll, rather than both.");
 	if (typeof document > "u") throw Error("PDF previews require browser document and canvas APIs.");
-	let s = await Et(e, t.requestInit);
-	wt ??= Ct().catch((e) => {
-		throw wt = null, e;
+	let s = await jt(e, t.requestInit);
+	$ ??= kt().catch((e) => {
+		throw $ = null, e;
 	});
-	let { pdfjs: c, assets: l } = await wt, u = c.getDocument({
+	let { pdfjs: c, assets: l } = await $, u = c.getDocument({
 		data: s,
 		password: o,
 		CMapReaderFactory: l.PdfCMapReader,
@@ -3702,6 +3745,6 @@ async function Dt(e, t = {}) {
 }
 //#endregion
 //#region resources/js/index.ts
-var Ot = dt.getInstance();
+var Nt = vt.getInstance();
 //#endregion
-export { dt as QzTray, dt as QzTrayConnector, ot as QzTrayCertificateError, $ as QzTraySigningError, Ot as default, Ot as qztray, xt as renderEscpos, Dt as renderPdf, ht as renderZpl };
+export { vt as QzTray, vt as QzTrayConnector, pt as QzTrayCertificateError, Z as QzTraySigningError, Nt as default, Nt as qztray, Dt as renderEscpos, Mt as renderPdf, St as renderZpl };

@@ -40,10 +40,10 @@ Use this skill when a Laravel application needs to integrate the Qz Tray Connect
 
 Read before executing:
 
-- [Canonical documentation](https://artisantoolbox.wsssoftware.com.br/packages/qztray/)
-- [Credential setup](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#configure-printing-credentials)
-- [Ziggy setup](https://artisantoolbox.wsssoftware.com.br/packages/qztray/#ziggy-route-configuration)
-- [Release readiness](https://artisantoolbox.wsssoftware.com.br/packages/qztray/v1-readiness/)
+- [Canonical documentation](https://atb.dev.br/packages/qztray/)
+- [Credential setup](https://atb.dev.br/packages/qztray/#configure-printing-credentials)
+- [Ziggy setup](https://atb.dev.br/packages/qztray/#ziggy-route-configuration)
+- [Release readiness](https://atb.dev.br/packages/qztray/v1-readiness/)
 
 ## Examples
 

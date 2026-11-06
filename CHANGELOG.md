@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Dependencies
+
+- Require Artisan Toolbox Core 1.1 or later and Maintainer 1.11 or later within their 1.x series.
+- Refresh locked frontend dependencies and regenerate the Composer-delivered bundles and renderer chunks.
+
+### Documentation
+
+- Update documentation links and managed README badges to `https://atb.dev.br`, and use `contact@atb.dev.br` for public package contact metadata.
+
 ## [1.2.0] - 2026-11-04
 
 ### Fixes

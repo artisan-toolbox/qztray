@@ -27,17 +27,17 @@ class QzTrayConnector implements BeforeVersioning, Versionable, WithReadmeHead
                 imgAlt: 'Release',
             ))
             ->addBadge(Badge::make(
-                link: 'https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/',
+                link: 'https://atb.dev.br/packages/qztray/compatibility/',
                 imgSrc: 'https://img.shields.io/badge/PHP-%5E8.5-777BB4?style=flat-square',
                 imgAlt: 'PHP',
             ))
             ->addBadge(Badge::make(
-                link: 'https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/',
+                link: 'https://atb.dev.br/packages/qztray/compatibility/',
                 imgSrc: 'https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square',
                 imgAlt: 'Laravel',
             ))
             ->addBadge(Badge::make(
-                link: 'https://artisantoolbox.wsssoftware.com.br/packages/qztray/compatibility/',
+                link: 'https://atb.dev.br/packages/qztray/compatibility/',
                 imgSrc: 'https://img.shields.io/badge/Node.js-%5E20.19.0%20%7C%7C%20%5E22.18.0%20%7C%7C%20%3E%3D24.11.0-339933?style=flat-square',
                 imgAlt: 'Node.js',
             ))
@@ -47,7 +47,7 @@ class QzTrayConnector implements BeforeVersioning, Versionable, WithReadmeHead
                 imgAlt: 'Tests',
             ))
             ->addBadge(Badge::make(
-                link: 'https://artisantoolbox.wsssoftware.com.br/packages/qztray/',
+                link: 'https://atb.dev.br/packages/qztray/',
                 imgSrc: 'https://img.shields.io/badge/Docs-Read-blue?style=flat-square',
                 imgAlt: 'Docs',
             ));
