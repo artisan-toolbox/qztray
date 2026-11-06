@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 2026-11-06
+
+### Maintenance
+
+- **Update maintainer contact email and documentation links** (`1d075e2`)
+  Updated maintainer/contact information across the repository documentation, including changing the security vulnerability reporting email in .github/SECURITY.md from allan@wss.group to contact@atb.dev.br, and refreshing related public documentation/badge links to use the atb.dev.br domain. This is a metadata/documentation-only change intended to ensure users and security reporters reach the correct contact channel and to keep URLs current; it does not introduce application behavior or API changes.
+
 ## [Unreleased]
 
 ### Dependencies

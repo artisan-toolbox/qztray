@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Process;
 
 class QzTrayConnector implements BeforeVersioning, Versionable, WithReadmeHead
 {
-    public const string VERSION = '1.2.0';
+    public const string VERSION = '1.3.0';
 
     public function readmeHead(): Head
     {
