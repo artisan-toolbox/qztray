@@ -9,6 +9,27 @@ it('loads its PHP service with only declared production dependency autoloaders',
     $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php']);
     $process->run();
 
-    expect($process->isSuccessful())->toBeTrue($process->getErrorOutput())
+    expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
         ->and($process->getOutput())->toBe(QzTrayConnector::class);
+});
+
+it('loads declared support helpers without framework helpers or optional dependencies', function () {
+    $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php', 'helpers']);
+    $process->run();
+
+    expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
+        ->and($process->getOutput())->toBe(json_encode([
+            'throw_if' => true,
+            'throw_unless' => true,
+            'app' => false,
+            'escpos' => false,
+        ], JSON_THROW_ON_ERROR));
+});
+
+it('explains the optional dependency when generating ESC/POS without it', function () {
+    $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php', 'escpos']);
+    $process->run();
+
+    expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
+        ->and($process->getOutput())->toContain('composer require mike42/escpos-php:^5.0');
 });

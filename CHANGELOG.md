@@ -9,8 +9,24 @@
 
 ## [Unreleased]
 
+### Features
+
+- Generate ESC/POS receipts on the server with the memory-only `Escpos` writer, configurable columns, page motion units, and capability profiles. Fluent layout, image, style, page, QR, feed, and cut helpers expose exact bytes or Base64 snapshots. Access the complete upstream printer API through a callback.
+- Preview the same printer-independent `QzTrayPrintDocument` passed to printing with `renderPrintRequest`. Normalize PDF, ESC/POS, and ZPL file, Base64, hexadecimal, text, and supported mixed image payloads into local PNG pages. Explain raw-language and unsupported PDF transformation limits.
+- Select PDF preview pages with `pageRanges` and preserve source document order.
+- Snapshot browser-accessible file payloads and mixed ESC/POS images as Base64 with `preparePrintDocument` before preview and submission. Preserve payload order and printer options without connecting to QZ Tray.
+
+### Fixes
+
+- Honor Composer-declared helper files and Illuminate components replaced by Laravel Framework in production-dependency isolation tests. Keep optional ESC/POS and undeclared Foundation helpers absent while verifying the installation hint, and include subprocess output in failure diagnostics.
+
+- Derive document ESC/POS preview encoding only from its print options. Reject preview encoding overrides and PDF passwords, printer bounds, rotation, or page-range syntax that cannot match QZ printing. Standalone renderers retain their own options.
+- Retry ZPL previews after WASM download or compilation failures without retaining the failed initialization.
+- Reject ESC/POS images whose byte-padded width exceeds the 16-bit command limit before appending any image bytes.
+
 ### Dependencies
 
+- Suggest optional `mike42/escpos-php:^5.0` for PHP receipt generation and install it for package tests. PDF-only installations remain independent of the ESC/POS library.
 - Require Artisan Toolbox Core 1.1 or later and Maintainer 1.11 or later within their 1.x series.
 - Refresh locked frontend dependencies and regenerate the Composer-delivered bundles and renderer chunks.
 

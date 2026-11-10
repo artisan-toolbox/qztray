@@ -9,6 +9,8 @@ export type QzTrayRenderPdfOptions = {
     renderAll?: boolean;
     /** One-based page number. Defaults to 1; cannot be combined with renderAll. */
     pageNumber?: number;
+    /** Comma-separated one-based pages or ranges, such as 1,3-5. Requires renderAll. */
+    pageRanges?: string;
     /** Scale relative to PDF points at 72 DPI. Defaults to 1.5. */
     scale?: number;
     /** Override the document's page rotation with 0, 90, 180, or 270 degrees. */

@@ -1,4 +1,5 @@
 import defaultWasmUrl from 'zpl-renderer-js/wasm?url&no-inline';
+import { downloadPrintFile } from './printDocumentFiles';
 import type { ZplApi } from 'zpl-renderer-js/external';
 
 export type QzTrayRenderZplOptions = {
@@ -74,7 +75,17 @@ export async function renderZpl(
 
     if (rendererRequest === null) {
         rendererWasmUrl = wasmUrl;
-        rendererRequest = import('zpl-renderer-js/external').then(({ init }) => init({ wasmUrl }));
+        rendererRequest = import('zpl-renderer-js/external')
+            .then(async ({ init }) => {
+                const bytes = await downloadPrintFile(wasmUrl);
+                const wasmModule = await WebAssembly.compile(bytes);
+                return init({ wasmModule });
+            })
+            .catch((error: unknown) => {
+                rendererRequest = null;
+                rendererWasmUrl = null;
+                throw error;
+            });
     }
     const renderer = await rendererRequest;
     const renderOptions = { grayscaleOutput, enableInvertedLabels };

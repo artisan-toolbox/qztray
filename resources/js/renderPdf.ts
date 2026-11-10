@@ -14,6 +14,8 @@ export type QzTrayRenderPdfOptions = {
     renderAll?: boolean;
     /** One-based page number. Defaults to 1; cannot be combined with renderAll. */
     pageNumber?: number;
+    /** Comma-separated one-based pages or ranges, such as 1,3-5. Requires renderAll. */
+    pageRanges?: string;
     /** Scale relative to PDF points at 72 DPI. Defaults to 1.5. */
     scale?: number;
     /** Override the document's page rotation with 0, 90, 180, or 270 degrees. */
@@ -121,7 +123,24 @@ export async function renderPdf(
     source: QzTrayPdfSource,
     options: QzTrayRenderPdfOptions = {},
 ): Promise<string | string[]> {
-    const { renderAll = false, pageNumber = 1, scale = 1.5, rotation, password } = options;
+    const {
+        renderAll = false,
+        pageNumber = 1,
+        scale = 1.5,
+        rotation,
+        password,
+        pageRanges,
+    } = options;
+    if (
+        pageRanges !== undefined &&
+        (!renderAll ||
+            typeof pageRanges !== 'string' ||
+            !/^\s*\d+(?:\s*-\s*\d+)?(?:\s*,\s*\d+(?:\s*-\s*\d+)?)*\s*$/.test(pageRanges))
+    ) {
+        throw new TypeError(
+            'PDF pageRanges must contain pages or ranges such as 1,3-5 and requires renderAll.',
+        );
+    }
     if (
         typeof renderAll !== 'boolean' ||
         (password !== undefined && typeof password !== 'string')
@@ -164,9 +183,28 @@ export async function renderPdf(
         if (pageNumber > pdf.numPages) {
             throw new RangeError(`PDF pageNumber exceeds the document's ${pdf.numPages} pages.`);
         }
-        const pages = renderAll
+        let pages = renderAll
             ? Array.from({ length: pdf.numPages }, (_, index) => index + 1)
             : [pageNumber];
+        if (pageRanges !== undefined) {
+            const selected = new Set<number>();
+            for (const range of pageRanges.split(',')) {
+                const [start, end = start] = range.split('-').map(Number);
+                if (
+                    !Number.isSafeInteger(start) ||
+                    !Number.isSafeInteger(end) ||
+                    start < 1 ||
+                    end < start ||
+                    end > pdf.numPages
+                ) {
+                    throw new RangeError(
+                        `PDF pageRanges must be within the document's ${pdf.numPages} pages.`,
+                    );
+                }
+                for (let page = start; page <= end; page++) selected.add(page);
+            }
+            pages = pages.filter((page) => selected.has(page));
+        }
         const images: string[] = [];
         for (const number of pages) {
             const page = await pdf.getPage(number);

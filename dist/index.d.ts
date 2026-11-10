@@ -10,7 +10,11 @@ export type { QzTrayRenderEscposOptions, QzTrayEscposEncoding, QzTrayEscposPaylo
 export type { QzTrayEscposImage } from './escposImage';
 export { renderPdf } from './renderPdf';
 export type { QzTrayPdfContent, QzTrayPdfSource, QzTrayRenderPdfOptions } from './renderPdf';
-export type { QzTrayEscposPrintImage, QzTrayEscposPrintPayload, QzTrayPrintRequest, QzTrayPrintType, QzTrayPrintOptions, QzTrayPdfDataOptions, } from './QzTrayPrintRequest';
+export type { QzTrayEscposPrintImage, QzTrayEscposPrintPayload, QzTrayPrintRequest, QzTrayPrintDocument, QzTrayPrintType, QzTrayPrintOptions, QzTrayPdfDataOptions, } from './QzTrayPrintRequest';
 export declare const qztray: QzTray;
 export default qztray;
+export { renderPrintRequest } from './renderPrintRequest';
+export type { QzTrayRenderPrintRequestOptions } from './renderPrintRequest';
+export { preparePrintDocument } from './preparePrintDocument';
+export type { QzTrayPreparePrintDocumentOptions } from './preparePrintDocument';
 //# sourceMappingURL=index.d.ts.map

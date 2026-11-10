@@ -211,3 +211,13 @@ test('requires browser canvas APIs and infers renderAll return types', async () 
     vi.stubGlobal('document', undefined);
     await expect(renderPdf(bytes)).rejects.toThrow('require browser document and canvas APIs');
 });
+
+test('renders selected ranges once in source-page order', async () => {
+    expect(await renderPdf(bytes, { renderAll: true, pageRanges: '3, 1-2,2' })).toHaveLength(3);
+    expect(getPage.mock.calls.map(([page]) => page)).toEqual([1, 2, 3]);
+});
+
+test.each(['0', '2-1', '4', '1-', 'one'])('rejects invalid page range %s', async (pageRanges) => {
+    await expect(renderPdf(bytes, { renderAll: true, pageRanges })).rejects.toThrow(/pageRanges/);
+    expect(getPage).not.toHaveBeenCalled();
+});

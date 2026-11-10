@@ -48,3 +48,10 @@ export type QzTrayPrintRequest = PrintRequestBase &
     );
 
 export type QzTrayPrintType = QzTrayPrintRequest['type'];
+
+/** A printable document before selecting the destination printer. */
+export type QzTrayPrintDocument = QzTrayPrintRequest extends infer Request
+    ? Request extends QzTrayPrintRequest
+        ? Omit<Request, 'printer'>
+        : never
+    : never;

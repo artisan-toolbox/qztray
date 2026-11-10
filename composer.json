@@ -26,8 +26,9 @@
     "require-dev": {
         "driftingly/rector-laravel": "^2.5",
         "larastan/larastan": "^3.9",
-        "laravel/pint": "^1.29",
         "laravel/pao": "^1.0",
+        "laravel/pint": "^1.29",
+        "mike42/escpos-php": "^5.0",
         "orchestra/testbench": "^11.0",
         "pestphp/pest": "^5.0",
         "pestphp/pest-plugin-laravel": "^5.0",
@@ -108,5 +109,8 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "suggest": {
+        "mike42/escpos-php": "Required for server-side ESC/POS receipt generation with Escpos (^5.0)."
+    }
 }

@@ -19,6 +19,7 @@ export type {
     QzTrayEscposPrintImage,
     QzTrayEscposPrintPayload,
     QzTrayPrintRequest,
+    QzTrayPrintDocument,
     QzTrayPrintType,
     QzTrayPrintOptions,
     QzTrayPdfDataOptions,
@@ -27,3 +28,9 @@ export type {
 export const qztray = QzTray.getInstance();
 
 export default qztray;
+
+export { renderPrintRequest } from './renderPrintRequest';
+export type { QzTrayRenderPrintRequestOptions } from './renderPrintRequest';
+
+export { preparePrintDocument } from './preparePrintDocument';
+export type { QzTrayPreparePrintDocumentOptions } from './preparePrintDocument';

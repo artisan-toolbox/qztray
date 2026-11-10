@@ -20,6 +20,11 @@ let renderZpl: typeof import('../../resources/js/index').renderZpl;
 beforeEach(async () => {
     vi.resetModules();
     vi.resetAllMocks();
+    vi.stubGlobal('document', { baseURI: 'https://application.test/' });
+    vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]))),
+    );
     renderer.render.mockResolvedValue('cG5n');
     renderer.renderAll.mockResolvedValue(['b25l', 'dHdv']);
     renderer.initialize.mockImplementation(async () => ({
@@ -36,7 +41,9 @@ test('loads the external renderer only when a preview is requested', async () =>
     const zpl = ' \n^XA^FO20,20^FDHello^FS^XZ\n ';
     expect(await renderZpl(zpl, { wasmUrl })).toBe('data:image/png;base64,cG5n');
     expect(renderer.initialize).toHaveBeenCalledTimes(1);
-    expect(renderer.initialize).toHaveBeenCalledWith({ wasmUrl });
+    expect(renderer.initialize).toHaveBeenCalledWith({
+        wasmModule: expect.any(WebAssembly.Module),
+    });
     expect(renderer.render).toHaveBeenCalledExactlyOnceWith(zpl, 101.6, 203.2, 8, {
         grayscaleOutput: false,
         enableInvertedLabels: false,
@@ -115,12 +122,19 @@ test.each(['renderAll', 'grayscaleOutput', 'enableInvertedLabels'] as const)(
     },
 );
 
-test('propagates initialization failures consistently without starting another runtime', async () => {
-    const error = new Error('WebAssembly initialization failed');
-    renderer.initialize.mockRejectedValue(error);
-    await expect(renderZpl('^XA^XZ', { wasmUrl })).rejects.toBe(error);
-    await expect(renderZpl('^XA^XZ', { wasmUrl })).rejects.toBe(error);
+test('retries initialization after a transient failure and retains the successful asset guard', async () => {
+    const error = new Error('WebAssembly download failed');
+    renderer.initialize.mockRejectedValueOnce(error);
+    const first = renderZpl('^XA^XZ', { wasmUrl });
+    const concurrent = renderZpl('^XA^XZ', { wasmUrl });
+    await expect(first).rejects.toBe(error);
+    await expect(concurrent).rejects.toBe(error);
     expect(renderer.initialize).toHaveBeenCalledTimes(1);
+    expect(await renderZpl('^XA^XZ', { wasmUrl: '/restored.wasm' })).toBe(
+        'data:image/png;base64,cG5n',
+    );
+    expect(renderer.initialize).toHaveBeenCalledTimes(2);
+    await expect(renderZpl('^XA^XZ', { wasmUrl })).rejects.toThrow('different WASM asset URL');
 });
 
 test('propagates rendering failures and permits another preview with the initialized engine', async () => {
@@ -143,9 +157,10 @@ test.each(['', '   ', 123])('rejects an invalid WASM URL override: %j', async (w
 
 test('uses the internally imported WASM asset URL without configuration', async () => {
     expect(await renderZpl('^XA^XZ')).toBe('data:image/png;base64,cG5n');
-    expect(renderer.initialize).toHaveBeenCalledWith({
-        wasmUrl: expect.stringContaining('zebrash.wasm'),
-    });
+    expect(fetch).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: expect.stringContaining('zebrash.wasm') }),
+        { credentials: 'same-origin' },
+    );
 });
 
 test('rejects switching WASM assets after initialization', async () => {

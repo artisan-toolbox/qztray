@@ -18,6 +18,10 @@ test('renders a real PNG with the shipped WASM engine and reuses it for another 
     );
     vi.stubGlobal('fetch', fetchMock);
 
+    const failure = new Error('Temporary WASM download failure');
+    fetchMock.mockRejectedValueOnce(failure);
+    await expect(renderZpl('^XA^XZ', { wasmUrl })).rejects.toBe(failure);
+
     const image = await renderZpl('^XA^FO10,10^A0N,24,24^FDHello^FS^XZ', {
         wasmUrl,
         widthMm: 50,
@@ -59,5 +63,6 @@ test('renders a real PNG with the shipped WASM engine and reuses it for another 
     }
     expect(await renderZpl(zpl, { wasmUrl, widthMm: 50, heightMm: 30, dpmm: 8 })).toBe(image);
     await expect(renderZpl('not ZPL', { wasmUrl, renderAll: true })).rejects.toThrow();
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(wasmUrl);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenLastCalledWith(new URL(wasmUrl), { credentials: 'same-origin' });
 }, 20000);
