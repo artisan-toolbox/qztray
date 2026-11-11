@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.4.0] - 2026-11-11
+
+### Features
+
+- **Add print document preparation and request previews** (`573f9be`)
+  Introduces a new end-to-end print document preparation and local preview workflow for QZ Tray printing.
+
+Key changes:
+- Adds new TypeScript document modeling for printing without a destination printer via `QzTrayPrintDocument` (omits the `printer` field), plus exports for this type and new public functions.
+- Implements `preparePrintDocument(document, options?)` to clone a print document and convert file-based payloads (including PDF/ESC-POS/ZPL sources) into Base64 by downloading referenced resources and snapshotting bytes in-order. This enables previewing/submission without connecting to QZ Tray.
+- Adds `renderPrintRequest()` to generate local PNG page previews from prepared print documents. It supports `pdf`, `escpos`, and `zpl` (rejects `raw`), validates option compatibility (notably for PDF options), and supports `pageRanges`-driven page selection while keeping source document order.
+- Adds supporting utilities: `downloadPrintFile()` (safe URL validation and fetch with same-origin credentials) and `printBytesToBase64()`.
+- Extends PDF rendering with `pageRanges` validation (`renderPdf` now throws on invalid formats or out-of-bounds ranges, and enforces compatibility with `renderAll`).
+- Updates ZPL rendering initialization to download the WASM binary bytes first and initialize the renderer with the downloaded module, improving runtime behavior in environments where direct WASM URL passing isn’t sufficient.
+- Adds a PHP `Escpos` helper implementing in-memory ESC/POS receipt generation (columns/motionUnits validation, fluent commands, image handling, and grapheme/UTF-8 aware text helpers). This enables server-side receipt generation and byte/Base64 snapshots.
+
+Why it matters / user impact:
+- Developers can now prepare print documents server-side or client-side, snapshot the exact payload bytes, and render local previews (PNG) without requiring a live QZ Tray connection.
+- This significantly improves debugging and UX (preview-first flows), supports printer-independent document handling, and expands both JS and PHP capabilities for receipt generation.
+
+Compatibility and migration:
+- New functionality is largely additive (new exports/modules/types).
+- There is a behavioral change for PDF `pageRanges`: invalid range strings, out-of-bounds pages, or using `pageRanges` without compatible `renderAll` will now throw instead of proceeding.
+- Preview generation introduces explicit limitations/errors for unsupported options/transforms for PDF payloads; callers should adhere to supported options and handle thrown errors for unsupported transforms/raw types.
+
+### Fixes
+
+- **Use PNG fixture and native decoder for ESC/POS image tests** (`227e1ea`)
+  Updates the ESC/POS image test approach to use a PNG fixture and a native decoder. This improves determinism and correctness of how image payloads are interpreted during tests, reducing false failures caused by mismatched decoding paths or fixture formats. User impact is indirect: it hardens test coverage around server-side/ESC-POS image handling without changing the public runtime API.
+
+- **Validate ESC/POS image width and preserve receipt on errors** (`ed96adf`)
+  Adds stricter validation for ESC/POS image width handling and updates error behavior so a receipt is preserved even when errors occur. This matters because malformed or unsupported image dimensions can previously interrupt generation; the new behavior ensures the system fails more safely (validation) while still retaining usable output (receipt preservation) for troubleshooting and partial recovery. Compatibility impact should be limited to error scenarios and edge cases (previously failing/undefined behavior should now validate earlier and preserve output).
+
 ## [1.3.0] - 2026-11-06
 
 ### Maintenance
