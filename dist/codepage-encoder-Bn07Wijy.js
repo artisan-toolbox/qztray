@@ -1,4 +1,4 @@
-//#region node_modules/@point-of-sale/codepage-encoder/dist/codepage-encoder.mjs
+// node_modules/@point-of-sale/codepage-encoder/dist/codepage-encoder.mjs
 var e = {
 	ascii: {
 		name: "ASCII",
@@ -8112,5 +8112,4 @@ var e = {
 		return r;
 	}
 };
-//#endregion
 export { r as default };

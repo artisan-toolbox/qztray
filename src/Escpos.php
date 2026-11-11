@@ -176,10 +176,16 @@ final class Escpos
 
     public function image(string $path): self
     {
+        $dimensions = is_file($path) && is_readable($path) ? @getimagesize($path) : false;
+
+        if ($dimensions !== false) {
+            $this->validateImageWidth((int) ceil($dimensions[0] / 8) * 8);
+        }
+
         $image = EscposImage::load($path, false);
         $strips = $image->toColumnFormat(true);
         $width = $image->getWidthBytes() * 8;
-        throw_if($width < 1 || $width > 65535, InvalidArgumentException::class, 'The padded image width must be between 1 and 65535 dots.');
+        $this->validateImageWidth($width);
 
         $header = "\x1b*\x21".pack('v', $width);
 
@@ -188,6 +194,11 @@ final class Escpos
         }
 
         return $this;
+    }
+
+    private function validateImageWidth(int $width): void
+    {
+        throw_if($width < 1 || $width > 65535, InvalidArgumentException::class, 'The padded image width must be between 1 and 65535 dots.');
     }
 
     public function horizontalRule(int $width, int $thickness = 6): self

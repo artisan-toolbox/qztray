@@ -96,7 +96,16 @@ it('encodes QZ-compatible image strips and horizontal rules', function () {
 
 it('rejects images whose padded width exceeds the ESC/POS command limit without appending bytes', function (int $width) {
     $path = tempnam(sys_get_temp_dir(), 'qz-image-width-');
-    file_put_contents($path, "P4\n{$width} 1\n".str_repeat("\xff", (int) ceil($width / 8)));
+    $chunk = static fn (string $type, string $data): string => pack('N', strlen($data)).$type.$data.pack('N', crc32($type.$data));
+    file_put_contents($path, "\x89PNG\r\n\x1a\n"
+        .$chunk('IHDR', pack('NNCCCCC', $width, 1, 8, 0, 0, 0, 0))
+        .$chunk('IDAT', gzcompress("\0".str_repeat("\0", $width)))
+        .$chunk('IEND', ''));
+    $widthLimit = extension_loaded('imagick') ? Imagick::getResourceLimit(Imagick::RESOURCETYPE_WIDTH) : null;
+
+    if ($widthLimit !== null) {
+        Imagick::setResourceLimit(Imagick::RESOURCETYPE_WIDTH, 32000);
+    }
 
     try {
         $receipt = Escpos::create()->text('Before');
@@ -104,6 +113,29 @@ it('rejects images whose padded width exceeds the ESC/POS command limit without 
         expect(fn () => $receipt->image($path))->toThrow(InvalidArgumentException::class, 'padded image width')
             ->and($receipt->bytes())->toBe($before);
     } finally {
+        if ($widthLimit !== null) {
+            Imagick::setResourceLimit(Imagick::RESOURCETYPE_WIDTH, $widthLimit);
+        }
+
         File::delete($path);
     }
 })->with([65529, 65536]);
+
+it('preserves the receipt when an image cannot be decoded', function (bool $exists) {
+    $path = tempnam(sys_get_temp_dir(), 'qz-image-invalid-');
+    file_put_contents($path, 'invalid image');
+
+    if (! $exists) {
+        File::delete($path);
+    }
+
+    try {
+        $receipt = Escpos::create()->text('Before');
+        $before = $receipt->bytes();
+
+        expect(fn () => $receipt->image($path))->toThrow(Exception::class)
+            ->and($receipt->bytes())->toBe($before);
+    } finally {
+        File::delete($path);
+    }
+})->with(['unreadable image' => false, 'invalid image' => true]);

@@ -32,6 +32,14 @@ jobs:
         run: |
           npm run build
           npm run check:dist
+      - name: Set up consumer Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20.19.0'
+      - name: Verify distributed entry points on Node.js 20
+        run: |
+          node tests/Fixtures/lna-browser.mjs dist/index.js
+          node tests/Fixtures/lna-browser.mjs dist/index.cjs
 
   frontend-compatibility:
     runs-on: ${{ matrix.os }}
@@ -39,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20.19.0', '22.18.0']
+        node: ['22.18.0', '24.11.0']
     name: Frontend - Node ${{ matrix.node }} - ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -88,7 +96,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "artisan-toolbox/core:1.x-dev" "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require "artisan-toolbox/core:1.x-dev" --no-interaction --no-update
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
 

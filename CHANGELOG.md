@@ -18,6 +18,9 @@
 
 ### Fixes
 
+- Keep Laravel Framework and Testbench in development requirements when preparing CI dependency lanes, preserving production-autoload isolation.
+- Validate image header widths before decoding supported formats, so oversized ESC/POS images produce the package validation error even under stricter ImageMagick resource limits. Preserve the receipt buffer after invalid or missing image files.
+
 - Honor Composer-declared helper files and Illuminate components replaced by Laravel Framework in production-dependency isolation tests. Keep optional ESC/POS and undeclared Foundation helpers absent while verifying the installation hint, and include subprocess output in failure diagnostics.
 
 - Derive document ESC/POS preview encoding only from its print options. Reject preview encoding overrides and PDF passwords, printer bounds, rotation, or page-range syntax that cannot match QZ printing. Standalone renderers retain their own options.
@@ -25,6 +28,8 @@
 - Reject ESC/POS images whose byte-padded width exceeds the 16-bit command limit before appending any image bytes.
 
 ### Dependencies
+
+- Upgrade Vite Plus and its Vite core alias together to 1.6.0, remove the obsolete Vitest override, and use the bundled Vitest 5.1.0 family. Source validation requires Node 22.18+, 24.11+, or 26+ in the toolchain's supported release lines; the distributed package retains its existing consumer Node requirement.
 
 - Suggest optional `mike42/escpos-php:^5.0` for PHP receipt generation and install it for package tests. PDF-only installations remain independent of the ESC/POS library.
 - Require Artisan Toolbox Core 1.1 or later and Maintainer 1.11 or later within their 1.x series.

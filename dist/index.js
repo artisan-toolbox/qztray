@@ -1,5 +1,5 @@
-//#region \0rolldown/runtime.js
-var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t.exports), s = (e, n) => {
+// \0rolldown/runtime.js
+var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, n) => {
 	let r = {};
 	for (var i in e) t(r, i, {
 		get: e[i],
@@ -29,7 +29,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}), Array.from || (Array.from = function(e) {
 			return [].slice.call(e);
 		}), String.prototype.padStart || (String.prototype.padStart = function(e, t) {
-			if (e >>= 0, t = String(t === void 0 ? " " : t), this.length >= e) return String(this);
+			if (e |= 0, t = String(t === void 0 ? " " : t), this.length >= e) return String(this);
 			for (var n = e - this.length, r = ""; r.length < n;) r += t;
 			return r.slice(0, n) + String(this);
 		});
@@ -120,51 +120,42 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 						});
 					},
 					findConnection: function(e, n, r) {
-						if (t.websocket.shutdown) {
-							r(/* @__PURE__ */ Error("Connection attempt cancelled by user"));
-							return;
-						}
-						if (e.port.secure.length) !e.port.insecure.length && !e.usingSecure && (t.log.trace("No insecure ports specified - forcing secure connection"), e.usingSecure = !0);
-						else if (e.port.insecure.length) e.usingSecure &&= (t.log.error("No secure ports specified - forcing insecure connection"), !1);
+						if (t.websocket.shutdown) r(/* @__PURE__ */ Error("Connection attempt cancelled by user"));
 						else {
-							r(/* @__PURE__ */ Error("No ports have been specified to connect over"));
-							return;
-						}
-						var i = function(i) {
-							if (t.websocket.shutdown) {
-								r(/* @__PURE__ */ Error("Connection attempt cancelled by user"));
+							if (e.port.secure.length) !e.port.insecure.length && !e.usingSecure && (t.log.trace("No insecure ports specified - forcing secure connection"), e.usingSecure = !0);
+							else if (e.port.insecure.length) e.usingSecure &&= (t.log.error("No secure ports specified - forcing insecure connection"), !1);
+							else {
+								r(/* @__PURE__ */ Error("No ports have been specified to connect over"));
 								return;
 							}
-							if (i.denied) {
-								r(i);
-								return;
-							}
-							if (e.port.portIndex++, e.usingSecure && e.port.portIndex >= e.port.secure.length || !e.usingSecure && e.port.portIndex >= e.port.insecure.length) {
-								if (e.hostIndex >= e.host.length - 1) {
-									r(i);
-									return;
-								}
-								e.hostIndex++, e.port.portIndex = 0;
-							}
-							t.websocket.setup.findConnection(e, n, r);
-						}, a = e.usingSecure ? e.protocol.secure + e.host[e.hostIndex] + ":" + e.port.secure[e.port.portIndex] : e.protocol.insecure + e.host[e.hostIndex] + ":" + e.port.insecure[e.port.portIndex];
-						t.websocket.setup.connectToAddress(a).then(function() {
-							if (t.log.info("Established connection with " + t.TITLE + " on " + a), t.websocket.setup.openConnection({
-								resolve: n,
-								reject: r
-							}), e.keepAlive > 0) {
-								var i = setInterval(function() {
-									if (!t.tools.isActive() || t.websocket.connection.interval !== i) {
-										clearInterval(i);
-										return;
+							var i = function(i) {
+								if (t.websocket.shutdown) r(/* @__PURE__ */ Error("Connection attempt cancelled by user"));
+								else if (i.denied) r(i);
+								else {
+									if (e.port.portIndex++, e.usingSecure && e.port.portIndex >= e.port.secure.length || !e.usingSecure && e.port.portIndex >= e.port.insecure.length) {
+										if (e.hostIndex >= e.host.length - 1) {
+											r(i);
+											return;
+										}
+										e.hostIndex++, e.port.portIndex = 0;
 									}
-									t.websocket.connection.send("ping");
-								}, e.keepAlive * 1e3);
-								t.websocket.connection.interval = i;
-							}
-						}, function(e) {
-							t.log.trace(e), i(e);
-						});
+									t.websocket.setup.findConnection(e, n, r);
+								}
+							}, a = e.usingSecure ? e.protocol.secure + e.host[e.hostIndex] + ":" + e.port.secure[e.port.portIndex] : e.protocol.insecure + e.host[e.hostIndex] + ":" + e.port.insecure[e.port.portIndex];
+							t.websocket.setup.connectToAddress(a).then(function() {
+								if (t.log.info("Established connection with " + t.TITLE + " on " + a), t.websocket.setup.openConnection({
+									resolve: n,
+									reject: r
+								}), e.keepAlive > 0) {
+									var i = setInterval(function() {
+										!t.tools.isActive() || t.websocket.connection.interval !== i ? clearInterval(i) : t.websocket.connection.send("ping");
+									}, e.keepAlive * 1e3);
+									t.websocket.connection.interval = i;
+								}
+							}, function(e) {
+								t.log.trace(e), i(e);
+							});
+						}
 					},
 					openConnection: function(e) {
 						t.websocket.connection.onclose = function(e) {
@@ -229,11 +220,11 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 										break;
 									default: t.log.allay("Cannot determine stream type for callback", n);
 								}
-								return;
+							} else {
+								t.log.trace("Received response from websocket", n);
+								var r = t.websocket.pendingCalls[n.uid];
+								r == null ? t.log.allay("No promise found for returned response") : n.error == null ? r.resolve(n.result) : r.reject(Error(n.error)), delete t.websocket.pendingCalls[n.uid];
 							}
-							t.log.trace("Received response from websocket", n);
-							var r = t.websocket.pendingCalls[n.uid];
-							r == null ? t.log.allay("No promise found for returned response") : n.error == null ? r.resolve(n.result) : r.reject(Error(n.error)), delete t.websocket.pendingCalls[n.uid];
 						};
 						function n(n) {
 							n === void 0 && (n = null), r.api.getVersion().then(function(e) {
@@ -262,7 +253,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					},
 					newUID: function() {
 						var e = 6;
-						return (Array(e + 1).join("0") + (Math.random() * 36 ** e << 0).toString(36)).slice(-e);
+						return (Array(e + 1).join("0") + (Math.random() * 36 ** e | 0).toString(36)).slice(-e);
 					}
 				},
 				dataPromise: function(e, n, r, i) {
@@ -634,16 +625,16 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 						o[s] = Array(16);
 						for (var c = 0; c < 16; c++) o[s][c] = e.charCodeAt(s * 64 + c * 4) << 24 | e.charCodeAt(s * 64 + c * 4 + 1) << 16 | e.charCodeAt(s * 64 + c * 4 + 2) << 8 | e.charCodeAt(s * 64 + c * 4 + 3);
 					}
-					o[a - 1][14] = (e.length - 1) * 8 / 2 ** 32, o[a - 1][14] = Math.floor(o[a - 1][14]), o[a - 1][15] = (e.length - 1) * 8 & 4294967295;
+					o[a - 1][14] = (e.length - 1) * 8 / 2 ** 32, o[a - 1][14] = Math.floor(o[a - 1][14]), o[a - 1][15] = (e.length - 1) * 8 | 0;
 					for (var l = Array(64), u, d, f, p, m, h, g, _, s = 0; s < a; s++) {
 						for (var v = 0; v < 16; v++) l[v] = o[s][v];
-						for (var v = 16; v < 64; v++) l[v] = t.SHA._dev1(l[v - 2]) + l[v - 7] + t.SHA._dev0(l[v - 15]) + l[v - 16] & 4294967295;
+						for (var v = 16; v < 64; v++) l[v] = t.SHA._dev1(l[v - 2]) + l[v - 7] + t.SHA._dev0(l[v - 15]) + l[v - 16] | 0;
 						u = r[0], d = r[1], f = r[2], p = r[3], m = r[4], h = r[5], g = r[6], _ = r[7];
 						for (var v = 0; v < 64; v++) {
 							var y = _ + t.SHA._sig1(m) + t.SHA._ch(m, h, g) + n[v] + l[v], b = t.SHA._sig0(u) + t.SHA._maj(u, d, f);
-							_ = g, g = h, h = m, m = p + y & 4294967295, p = f, f = d, d = u, u = y + b & 4294967295;
+							_ = g, g = h, h = m, m = p + y | 0, p = f, f = d, d = u, u = y + b | 0;
 						}
-						r[0] = r[0] + u & 4294967295, r[1] = r[1] + d & 4294967295, r[2] = r[2] + f & 4294967295, r[3] = r[3] + p & 4294967295, r[4] = r[4] + m & 4294967295, r[5] = r[5] + h & 4294967295, r[6] = r[6] + g & 4294967295, r[7] = r[7] + _ & 4294967295;
+						r[0] = r[0] + u | 0, r[1] = r[1] + d | 0, r[2] = r[2] + f | 0, r[3] = r[3] + p | 0, r[4] = r[4] + m | 0, r[5] = r[5] + h | 0, r[6] = r[6] + g | 0, r[7] = r[7] + _ | 0;
 					}
 					return t.SHA._hexStr(r[0]) + t.SHA._hexStr(r[1]) + t.SHA._hexStr(r[2]) + t.SHA._hexStr(r[3]) + t.SHA._hexStr(r[4]) + t.SHA._hexStr(r[5]) + t.SHA._hexStr(r[6]) + t.SHA._hexStr(r[7]);
 				},
@@ -721,26 +712,22 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 								return;
 							}
 						}
-						if (!t.tools.ws) {
-							r(/* @__PURE__ */ Error("WebSocket not supported by this browser"));
-							return;
-						}
-						if (!t.tools.ws.CLOSED || t.tools.ws.CLOSED == 2) {
-							r(/* @__PURE__ */ Error("Unsupported WebSocket version detected: HyBi-00/Hixie-76"));
-							return;
-						}
-						if (e ??= {}, (typeof location > "u" || location.protocol !== "https:") && e.usingSecure === void 0 && (t.log.trace("Disabling secure ports due to insecure page"), e.usingSecure = !1), e.host !== void 0 && !Array.isArray(e.host) && (e.host = [e.host], t.websocket.connectConfig.usingSurf)) for (var i = 0; i < e.host.length; i++) e.host[i] = t.tools.appendSurf(e.host[i]);
-						t.websocket.shutdown = !1;
-						var a = function(i) {
-							var o = !1, s = function() {
-								o || (o = !0, e && i < e.retries ? a(i + 1) : (t.websocket.connection = null, r.apply(null, arguments)));
-							}, c = function() {
-								var r = t.tools.extend({}, t.websocket.connectConfig, e);
-								t.websocket.setup.findConnection(r, n, s);
+						if (!t.tools.ws) r(/* @__PURE__ */ Error("WebSocket not supported by this browser"));
+						else if (!t.tools.ws.CLOSED || t.tools.ws.CLOSED == 2) r(/* @__PURE__ */ Error("Unsupported WebSocket version detected: HyBi-00/Hixie-76"));
+						else {
+							if (e ??= {}, (typeof location > "u" || location.protocol !== "https:") && e.usingSecure === void 0 && (t.log.trace("Disabling secure ports due to insecure page"), e.usingSecure = !1), e.host !== void 0 && !Array.isArray(e.host) && (e.host = [e.host], t.websocket.connectConfig.usingSurf)) for (var i = 0; i < e.host.length; i++) e.host[i] = t.tools.appendSurf(e.host[i]);
+							t.websocket.shutdown = !1;
+							var a = function(i) {
+								var o = !1, s = function() {
+									o || (o = !0, e && i < e.retries ? a(i + 1) : (t.websocket.connection = null, r.apply(null, arguments)));
+								}, c = function() {
+									var r = t.tools.extend({}, t.websocket.connectConfig, e);
+									t.websocket.setup.findConnection(r, n, s);
+								};
+								i == 0 ? c() : setTimeout(c, e.delay * 1e3);
 							};
-							i == 0 ? c() : setTimeout(c, e.delay * 1e3);
-						};
-						a(0);
+							a(0);
+						}
 					});
 				},
 				disconnect: function() {
@@ -1373,8 +1360,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			!1
 		]
 	];
-})), g = /* @__PURE__ */ o(((e) => {
-	var t = e && e.__createBinding || (Object.create ? (function(e, t, n, r) {
+})), g = /* @__PURE__ */ o(((e, t, n) => {
+	var r = n && n.__createBinding || (Object.create ? (function(e, t, n, r) {
 		r === void 0 && (r = n);
 		var i = Object.getOwnPropertyDescriptor(t, n);
 		(!i || ("get" in i ? !t.__esModule : i.writable || i.configurable)) && (i = {
@@ -1385,30 +1372,30 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}), Object.defineProperty(e, r, i);
 	}) : (function(e, t, n, r) {
 		r === void 0 && (r = n), e[r] = t[n];
-	})), n = e && e.__setModuleDefault || (Object.create ? (function(e, t) {
+	})), i = n && n.__setModuleDefault || (Object.create ? (function(e, t) {
 		Object.defineProperty(e, "default", {
 			enumerable: !0,
 			value: t
 		});
 	}) : function(e, t) {
 		e.default = t;
-	}), r = e && e.__importStar || function(e) {
+	}), a = n && n.__importStar || function(e) {
 		if (e && e.__esModule) return e;
-		var r = {};
-		if (e != null) for (var i in e) i !== "default" && Object.prototype.hasOwnProperty.call(e, i) && t(r, e, i);
-		return n(r, e), r;
+		var t = {};
+		if (e != null) for (var n in e) n !== "default" && Object.prototype.hasOwnProperty.call(e, n) && r(t, e, n);
+		return i(t, e), t;
 	};
 	Object.defineProperty(e, "__esModule", { value: !0 }), e.Address4 = void 0;
-	var i = r(m()), a = r(h()), o = p(), s = i.isCorrect(a.BITS), c = class e {
+	var o = a(m()), s = a(h()), c = p(), l = o.isCorrect(s.BITS), u = class e {
 		constructor(e) {
-			this.addressMinusSuffix = "", this.groups = a.GROUPS, this.parsedAddress = [], this.parsedSubnet = "", this.subnet = "/32", this.subnetMask = 32, this.v4 = !0, this.isCorrect = s, this.isInSubnet = i.isInSubnet, this.isHostInSubnet = i.isHostInSubnet, this.address = e;
-			let t = a.RE_SUBNET_STRING.exec(e);
+			this.addressMinusSuffix = "", this.groups = s.GROUPS, this.parsedAddress = [], this.parsedSubnet = "", this.subnet = "/32", this.subnetMask = 32, this.v4 = !0, this.isCorrect = l, this.isInSubnet = o.isInSubnet, this.isHostInSubnet = o.isHostInSubnet, this.address = e;
+			let t = s.RE_SUBNET_STRING.exec(e);
 			if (t) {
-				if (this.parsedSubnet = t[0].replace("/", ""), this.subnetMask = parseInt(this.parsedSubnet, 10), this.subnet = `/${this.subnetMask}`, this.subnetMask < 0 || this.subnetMask > a.BITS) throw new o.AddressError("Invalid subnet mask.");
-				e = e.replace(a.RE_SUBNET_STRING, "");
+				if (this.parsedSubnet = t[0].replace("/", ""), this.subnetMask = parseInt(this.parsedSubnet, 10), this.subnet = `/${this.subnetMask}`, this.subnetMask < 0 || this.subnetMask > s.BITS) throw new c.AddressError("Invalid subnet mask.");
+				e = e.replace(s.RE_SUBNET_STRING, "");
 			}
-			let n = a.GROUPS * 4 - 1;
-			if (e.length > n) throw new o.AddressError(`IPv4 addresses are at most ${n} characters.`);
+			let n = s.GROUPS * 4 - 1;
+			if (e.length > n) throw new c.AddressError(`IPv4 addresses are at most ${n} characters.`);
 			this.addressMinusSuffix = e, this.parsedAddress = this.parse(e);
 		}
 		static isValid(t) {
@@ -1420,63 +1407,63 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 		parse(e) {
 			let t = e.split(".");
-			if (t.some((e) => /^0\d/.test(e))) throw new o.AddressError("IPv4 addresses can't have leading zeroes.");
-			if (!e.match(a.RE_ADDRESS)) throw new o.AddressError("Invalid IPv4 address.");
+			if (t.some((e) => /^0\d/.test(e))) throw new c.AddressError("IPv4 addresses can't have leading zeroes.");
+			if (!e.match(s.RE_ADDRESS)) throw new c.AddressError("Invalid IPv4 address.");
 			return t;
 		}
 		correctForm() {
 			return this.parsedAddress.map((e) => parseInt(e, 10)).join(".");
 		}
 		static fromAddressAndMask(t, n) {
-			let r = i.prefixLengthFromMask(new e(n).bigInt(), a.BITS);
+			let r = o.prefixLengthFromMask(new e(n).bigInt(), s.BITS);
 			return new e(`${t}/${r}`);
 		}
 		static fromAddressAndWildcardMask(t, n) {
-			let r = new e(n).bigInt() ^ (BigInt(1) << BigInt(a.BITS)) - BigInt(1), o = i.prefixLengthFromMask(r, a.BITS);
-			return new e(`${t}/${o}`);
+			let r = new e(n).bigInt() ^ (BigInt(1) << BigInt(s.BITS)) - BigInt(1), i = o.prefixLengthFromMask(r, s.BITS);
+			return new e(`${t}/${i}`);
 		}
 		static fromWildcard(t) {
 			let n = t.split(".");
-			if (n.length !== a.GROUPS) throw new o.AddressError("Wildcard pattern must have 4 octets");
+			if (n.length !== s.GROUPS) throw new c.AddressError("Wildcard pattern must have 4 octets");
 			let r = -1;
 			for (let e = 0; e < n.length; e++) if (n[e] === "*") r === -1 && (r = e);
-			else if (r !== -1) throw new o.AddressError("Wildcard `*` must only appear in trailing octets (e.g. `192.168.0.*`)");
-			let i = r === -1 ? 0 : n.length - r, s = n.map((e) => e === "*" ? "0" : e), c = a.BITS - i * 8;
-			return new e(`${s.join(".")}/${c}`);
+			else if (r !== -1) throw new c.AddressError("Wildcard `*` must only appear in trailing octets (e.g. `192.168.0.*`)");
+			let i = r === -1 ? 0 : n.length - r, a = n.map((e) => e === "*" ? "0" : e), o = s.BITS - i * 8;
+			return new e(`${a.join(".")}/${o}`);
 		}
 		static fromHex(t) {
 			let n = t.replace(/:/g, "");
-			if (!/^[0-9a-fA-F]{8}$/.test(n)) throw new o.AddressError("IPv4 hex must be exactly 8 hex digits");
+			if (!/^[0-9a-fA-F]{8}$/.test(n)) throw new c.AddressError("IPv4 hex must be exactly 8 hex digits");
 			let r = [];
 			for (let e = 0; e < 8; e += 2) r.push(parseInt(n.slice(e, e + 2), 16));
 			return new e(r.join("."));
 		}
 		static fromInteger(t) {
-			if (!Number.isInteger(t) || t < 0 || t > 4294967295) throw new o.AddressError("IPv4 integer must be in the range 0 to 2**32 - 1");
+			if (!Number.isInteger(t) || t < 0 || t > 4294967295) throw new c.AddressError("IPv4 integer must be in the range 0 to 2**32 - 1");
 			return e.fromHex(t.toString(16).padStart(8, "0"));
 		}
 		static fromArpa(t) {
-			let n = a.GROUPS * 4 - 1 + 3 + 14;
-			if (t.length > n) throw new o.AddressError(`in-addr.arpa names are at most ${n} characters.`);
+			let n = s.GROUPS * 4 - 1 + 3 + 14;
+			if (t.length > n) throw new c.AddressError(`in-addr.arpa names are at most ${n} characters.`);
 			let r = t.replace(/(\.in-addr\.arpa)?\.?$/i, "").split(".").reverse().join(".");
 			return new e(r);
 		}
 		toHex() {
-			return this.parsedAddress.map((e) => i.stringToPaddedHex(e)).join(":");
+			return this.parsedAddress.map((e) => o.stringToPaddedHex(e)).join(":");
 		}
 		toArray() {
 			return this.parsedAddress.map((e) => parseInt(e, 10));
 		}
 		toGroup6() {
 			let e = [], t = 0;
-			for (; t < a.GROUPS; t += 2) e.push(`${i.stringToPaddedHex(this.parsedAddress[t])}${i.stringToPaddedHex(this.parsedAddress[t + 1])}`);
+			for (; t < s.GROUPS; t += 2) e.push(`${o.stringToPaddedHex(this.parsedAddress[t])}${o.stringToPaddedHex(this.parsedAddress[t + 1])}`);
 			return e.join(":");
 		}
 		bigInt() {
-			return BigInt(`0x${this.parsedAddress.map((e) => i.stringToPaddedHex(e)).join("")}`);
+			return BigInt(`0x${this.parsedAddress.map((e) => o.stringToPaddedHex(e)).join("")}`);
 		}
 		_startAddress() {
-			return BigInt(`0b${this.mask() + "0".repeat(a.BITS - this.subnetMask)}`);
+			return BigInt(`0b${this.mask() + "0".repeat(s.BITS - this.subnetMask)}`);
 		}
 		startAddress() {
 			return e.fromBigInt(this._startAddress());
@@ -1486,16 +1473,16 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e.fromBigInt(this._startAddress() + t);
 		}
 		offset(t) {
-			return e.fromBigInt(i.offsetBigInt(this.bigInt(), t, a.BITS, "IPv4")).withSubnetMask(this.subnetMask);
+			return e.fromBigInt(o.offsetBigInt(this.bigInt(), t, s.BITS, "IPv4")).withSubnetMask(this.subnetMask);
 		}
 		nextNetwork() {
-			return e.fromBigInt(i.offsetBigInt(this._endAddress(), 1, a.BITS, "IPv4")).withSubnetMask(this.subnetMask);
+			return e.fromBigInt(o.offsetBigInt(this._endAddress(), 1, s.BITS, "IPv4")).withSubnetMask(this.subnetMask);
 		}
 		withSubnetMask(t) {
 			return new e(`${this.correctForm()}/${t}`);
 		}
 		_endAddress() {
-			return BigInt(`0b${this.mask() + "1".repeat(a.BITS - this.subnetMask)}`);
+			return BigInt(`0b${this.mask() + "1".repeat(s.BITS - this.subnetMask)}`);
 		}
 		endAddress() {
 			return e.fromBigInt(this._endAddress());
@@ -1505,23 +1492,23 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e.fromBigInt(this._endAddress() - t);
 		}
 		subnetMaskAddress() {
-			return e.fromBigInt(BigInt(`0b${"1".repeat(this.subnetMask)}${"0".repeat(a.BITS - this.subnetMask)}`));
+			return e.fromBigInt(BigInt(`0b${"1".repeat(this.subnetMask)}${"0".repeat(s.BITS - this.subnetMask)}`));
 		}
 		wildcardMask() {
-			return e.fromBigInt(BigInt(`0b${"0".repeat(this.subnetMask)}${"1".repeat(a.BITS - this.subnetMask)}`));
+			return e.fromBigInt(BigInt(`0b${"0".repeat(this.subnetMask)}${"1".repeat(s.BITS - this.subnetMask)}`));
 		}
 		networkForm() {
 			return `${this.startAddress().correctForm()}/${this.subnetMask}`;
 		}
 		static fromBigInt(t) {
-			if (t < BigInt(0) || t > BigInt(4294967295)) throw new o.AddressError("IPv4 BigInt must be in the range 0 to 2**32 - 1");
+			if (t < BigInt(0) || t > BigInt(4294967295)) throw new c.AddressError("IPv4 BigInt must be in the range 0 to 2**32 - 1");
 			return e.fromHex(t.toString(16).padStart(8, "0"));
 		}
 		static fromByteArray(e) {
-			return i.assertByteArray(e, 4, "IPv4", 0), this.fromUnsignedByteArray(e);
+			return o.assertByteArray(e, 4, "IPv4", 0), this.fromUnsignedByteArray(e);
 		}
 		static fromUnsignedByteArray(t) {
-			if (t.length !== 4) throw new o.AddressError("IPv4 addresses require exactly 4 bytes");
+			if (t.length !== 4) throw new c.AddressError("IPv4 addresses require exactly 4 bytes");
 			let n = t.join(".");
 			return new e(n);
 		}
@@ -1537,57 +1524,57 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e.omitSuffix ? t : `${t}.in-addr.arpa.`;
 		}
 		isMulticast() {
-			return this.isHostInSubnet(l);
-		}
-		isPrivate() {
-			return u.some((e) => this.isHostInSubnet(e));
-		}
-		isLoopback() {
 			return this.isHostInSubnet(d);
 		}
-		isLinkLocal() {
-			return this.isHostInSubnet(f);
+		isPrivate() {
+			return f.some((e) => this.isHostInSubnet(e));
 		}
-		isUnspecified() {
+		isLoopback() {
 			return this.isHostInSubnet(g);
 		}
-		isBroadcast() {
+		isLinkLocal() {
 			return this.isHostInSubnet(_);
 		}
-		isCGNAT() {
+		isUnspecified() {
 			return this.isHostInSubnet(v);
 		}
-		isDocumentation() {
-			return y.some((e) => this.isHostInSubnet(e));
+		isBroadcast() {
+			return this.isHostInSubnet(y);
 		}
-		isBenchmarking() {
+		isCGNAT() {
 			return this.isHostInSubnet(b);
 		}
+		isDocumentation() {
+			return x.some((e) => this.isHostInSubnet(e));
+		}
+		isBenchmarking() {
+			return this.isHostInSubnet(S);
+		}
 		isReserved() {
-			return this.isHostInSubnet(x);
+			return this.isHostInSubnet(C);
 		}
 		isGlobal() {
-			return !this.isMulticast() && i.isGloballyReachable.call(this, S);
+			return !this.isMulticast() && o.isGloballyReachable.call(this, w);
 		}
 		binaryZeroPad() {
-			return this._binaryZeroPad === void 0 && (this._binaryZeroPad = this.bigInt().toString(2).padStart(a.BITS, "0")), this._binaryZeroPad;
+			return this._binaryZeroPad === void 0 && (this._binaryZeroPad = this.bigInt().toString(2).padStart(s.BITS, "0")), this._binaryZeroPad;
 		}
 		groupForV6() {
 			let e = this.parsedAddress;
-			return this.correctForm().replace(a.RE_ADDRESS, `<span class="hover-group group-v4 group-6">${e.slice(0, 2).join(".")}</span>.<span class="hover-group group-v4 group-7">${e.slice(2, 4).join(".")}</span>`);
+			return this.correctForm().replace(s.RE_ADDRESS, `<span class="hover-group group-v4 group-6">${e.slice(0, 2).join(".")}</span>.<span class="hover-group group-v4 group-7">${e.slice(2, 4).join(".")}</span>`);
 		}
 	};
-	e.Address4 = c;
-	var l = new c("224.0.0.0/4"), u = [
-		new c("10.0.0.0/8"),
-		new c("172.16.0.0/12"),
-		new c("192.168.0.0/16")
-	], d = new c("127.0.0.0/8"), f = new c("169.254.0.0/16"), g = new c("0.0.0.0/32"), _ = new c("255.255.255.255/32"), v = new c("100.64.0.0/10"), y = [
-		new c("192.0.2.0/24"),
-		new c("198.51.100.0/24"),
-		new c("203.0.113.0/24")
-	], b = new c("198.18.0.0/15"), x = new c("240.0.0.0/4"), S = a.SPECIAL_PURPOSE.map(([e, , t]) => ({
-		subnet: new c(e),
+	e.Address4 = u;
+	var d = new u("224.0.0.0/4"), f = [
+		new u("10.0.0.0/8"),
+		new u("172.16.0.0/12"),
+		new u("192.168.0.0/16")
+	], g = new u("127.0.0.0/8"), _ = new u("169.254.0.0/16"), v = new u("0.0.0.0/32"), y = new u("255.255.255.255/32"), b = new u("100.64.0.0/10"), x = [
+		new u("192.0.2.0/24"),
+		new u("198.51.100.0/24"),
+		new u("203.0.113.0/24")
+	], S = new u("198.18.0.0/15"), C = new u("240.0.0.0/4"), w = s.SPECIAL_PURPOSE.map(([e, , t]) => ({
+		subnet: new u(e),
 		reachable: t
 	}));
 })), _ = /* @__PURE__ */ o(((e) => {
@@ -1782,8 +1769,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function o(e, t = 0) {
 		return e.split(":").map((e, n) => /group-v4/.test(e) ? e : `<span class="hover-group group-${n + t}">${i(e)}</span>`);
 	}
-})), y = /* @__PURE__ */ o(((e) => {
-	var t = e && e.__createBinding || (Object.create ? (function(e, t, n, r) {
+})), y = /* @__PURE__ */ o(((e, t, n) => {
+	var r = n && n.__createBinding || (Object.create ? (function(e, t, n, r) {
 		r === void 0 && (r = n);
 		var i = Object.getOwnPropertyDescriptor(t, n);
 		(!i || ("get" in i ? !t.__esModule : i.writable || i.configurable)) && (i = {
@@ -1794,50 +1781,50 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}), Object.defineProperty(e, r, i);
 	}) : (function(e, t, n, r) {
 		r === void 0 && (r = n), e[r] = t[n];
-	})), n = e && e.__setModuleDefault || (Object.create ? (function(e, t) {
+	})), i = n && n.__setModuleDefault || (Object.create ? (function(e, t) {
 		Object.defineProperty(e, "default", {
 			enumerable: !0,
 			value: t
 		});
 	}) : function(e, t) {
 		e.default = t;
-	}), r = e && e.__importStar || function(e) {
+	}), a = n && n.__importStar || function(e) {
 		if (e && e.__esModule) return e;
-		var r = {};
-		if (e != null) for (var i in e) i !== "default" && Object.prototype.hasOwnProperty.call(e, i) && t(r, e, i);
-		return n(r, e), r;
+		var t = {};
+		if (e != null) for (var n in e) n !== "default" && Object.prototype.hasOwnProperty.call(e, n) && r(t, e, n);
+		return i(t, e), t;
 	};
-	Object.defineProperty(e, "__esModule", { value: !0 }), e.ADDRESS_BOUNDARY = void 0, e.groupPossibilities = a, e.padGroup = o, e.simpleRegularExpression = s, e.possibleElisions = c;
-	var i = r(_());
-	function a(e) {
+	Object.defineProperty(e, "__esModule", { value: !0 }), e.ADDRESS_BOUNDARY = void 0, e.groupPossibilities = s, e.padGroup = c, e.simpleRegularExpression = l, e.possibleElisions = u;
+	var o = a(_());
+	function s(e) {
 		return `(${e.join("|")})`;
 	}
-	function o(e) {
+	function c(e) {
 		return e.length < 4 ? `0{0,${4 - e.length}}${e}` : e;
 	}
 	e.ADDRESS_BOUNDARY = "[^A-Fa-f0-9:]";
-	function s(e) {
+	function l(e) {
 		let t = [];
 		e.forEach((e, n) => {
 			parseInt(e, 16) === 0 && t.push(n);
 		});
 		let n = t.map((t) => e.map((e, n) => {
 			if (n === t) {
-				let t = n === 0 || n === i.GROUPS - 1 ? ":" : "";
-				return a([o(e), t]);
+				let t = n === 0 || n === o.GROUPS - 1 ? ":" : "";
+				return s([c(e), t]);
 			}
-			return o(e);
+			return c(e);
 		}).join(":"));
-		return n.push(e.map(o).join(":")), a(n);
+		return n.push(e.map(c).join(":")), s(n);
 	}
-	function c(e, t, n) {
-		let r = t ? "" : ":", i = n ? "" : ":", o = [];
-		!t && !n && o.push("::"), t && n && o.push(""), (n && !t || !n && t) && o.push(":"), o.push(`${r}(:0{1,4}){1,${e - 1}}`), o.push(`(0{1,4}:){1,${e - 1}}${i}`), o.push(`(0{1,4}:){${e - 1}}0{1,4}`);
-		for (let t = 1; t < e - 1; t++) for (let n = 1; n < e - t; n++) o.push(`(0{1,4}:){${n}}:(0{1,4}:){${e - n - t - 1}}0{1,4}`);
-		return a(o);
+	function u(e, t, n) {
+		let r = t ? "" : ":", i = n ? "" : ":", a = [];
+		!t && !n && a.push("::"), t && n && a.push(""), (n && !t || !n && t) && a.push(":"), a.push(`${r}(:0{1,4}){1,${e - 1}}`), a.push(`(0{1,4}:){1,${e - 1}}${i}`), a.push(`(0{1,4}:){${e - 1}}0{1,4}`);
+		for (let t = 1; t < e - 1; t++) for (let n = 1; n < e - t; n++) a.push(`(0{1,4}:){${n}}:(0{1,4}:){${e - n - t - 1}}0{1,4}`);
+		return s(a);
 	}
-})), b = /* @__PURE__ */ o(((e) => {
-	var t = e && e.__createBinding || (Object.create ? (function(e, t, n, r) {
+})), b = /* @__PURE__ */ o(((e, t, n) => {
+	var r = n && n.__createBinding || (Object.create ? (function(e, t, n, r) {
 		r === void 0 && (r = n);
 		var i = Object.getOwnPropertyDescriptor(t, n);
 		(!i || ("get" in i ? !t.__esModule : i.writable || i.configurable)) && (i = {
@@ -1848,56 +1835,56 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}), Object.defineProperty(e, r, i);
 	}) : (function(e, t, n, r) {
 		r === void 0 && (r = n), e[r] = t[n];
-	})), n = e && e.__setModuleDefault || (Object.create ? (function(e, t) {
+	})), i = n && n.__setModuleDefault || (Object.create ? (function(e, t) {
 		Object.defineProperty(e, "default", {
 			enumerable: !0,
 			value: t
 		});
 	}) : function(e, t) {
 		e.default = t;
-	}), r = e && e.__importStar || function(e) {
+	}), a = n && n.__importStar || function(e) {
 		if (e && e.__esModule) return e;
-		var r = {};
-		if (e != null) for (var i in e) i !== "default" && Object.prototype.hasOwnProperty.call(e, i) && t(r, e, i);
-		return n(r, e), r;
+		var t = {};
+		if (e != null) for (var n in e) n !== "default" && Object.prototype.hasOwnProperty.call(e, n) && r(t, e, n);
+		return i(t, e), t;
 	};
 	Object.defineProperty(e, "__esModule", { value: !0 }), e.Address6 = void 0;
-	var i = r(m()), a = r(h()), o = r(_()), s = r(v()), c = g(), l = y(), u = p(), d = m(), f = i.isCorrect(o.BITS);
-	function b(e) {
+	var o = a(m()), s = a(h()), c = a(_()), l = a(v()), u = g(), d = y(), f = p(), b = m(), x = o.isCorrect(c.BITS);
+	function S(e) {
 		if (!e) throw Error("Assertion failed.");
 	}
-	function x(e) {
+	function C(e) {
 		let t = /(\d+)(\d{3})/;
 		for (; t.test(e);) e = e.replace(t, "$1,$2");
 		return e;
 	}
-	function S(e) {
+	function w(e) {
 		return e = e.replace(/^(0{1,})([1-9]+)$/, "<span class=\"parse-error\">$1</span>$2"), e = e.replace(/^(0{1,})(0)$/, "<span class=\"parse-error\">$1</span>$2"), e;
 	}
-	function C(e, t) {
+	function T(e, t) {
 		let n = [], r = [], i = 0;
 		for (; i < e.length; i++) i < t[0] ? n.push(e[i]) : i > t[1] && r.push(e[i]);
 		return n.concat(["compact"]).concat(r);
 	}
-	function w(e) {
+	function E(e) {
 		return parseInt(e, 16).toString(16).padStart(4, "0");
 	}
-	function T(e) {
+	function D(e) {
 		return e & 255;
 	}
-	var E = class e {
+	var O = class e {
 		constructor(e, t) {
-			this.addressMinusSuffix = "", this.parsedSubnet = "", this.subnet = "/128", this.subnetMask = 128, this.v4 = !1, this.zone = "", this.isInSubnet = i.isInSubnet, this.isHostInSubnet = i.isHostInSubnet, this.isCorrect = f, this.groups = t === void 0 ? o.GROUPS : t, this.address = e;
-			let n = o.RE_SUBNET_STRING.exec(e);
+			this.addressMinusSuffix = "", this.parsedSubnet = "", this.subnet = "/128", this.subnetMask = 128, this.v4 = !1, this.zone = "", this.isInSubnet = o.isInSubnet, this.isHostInSubnet = o.isHostInSubnet, this.isCorrect = x, this.groups = t === void 0 ? c.GROUPS : t, this.address = e;
+			let n = c.RE_SUBNET_STRING.exec(e);
 			if (n) {
-				if (this.parsedSubnet = n[0].replace("/", ""), this.subnetMask = parseInt(this.parsedSubnet, 10), this.subnet = `/${this.subnetMask}`, Number.isNaN(this.subnetMask) || this.subnetMask < 0 || this.subnetMask > o.BITS) throw new u.AddressError("Invalid subnet mask.");
-				e = e.replace(o.RE_SUBNET_STRING, "");
+				if (this.parsedSubnet = n[0].replace("/", ""), this.subnetMask = parseInt(this.parsedSubnet, 10), this.subnet = `/${this.subnetMask}`, Number.isNaN(this.subnetMask) || this.subnetMask < 0 || this.subnetMask > c.BITS) throw new f.AddressError("Invalid subnet mask.");
+				e = e.replace(c.RE_SUBNET_STRING, "");
 			}
-			if (/\//.test(e)) throw new u.AddressError("Invalid subnet mask.");
+			if (/\//.test(e)) throw new f.AddressError("Invalid subnet mask.");
 			let r = e.indexOf("%");
 			r !== -1 && /^.*$/.test(e.slice(r)) && (this.zone = e.slice(r), e = e.slice(0, r));
-			let a = this.groups * 5 + 5;
-			if (e.length > a) throw new u.AddressError(`IPv6 addresses are at most ${a} characters.`);
+			let i = this.groups * 5 + 5;
+			if (e.length > i) throw new f.AddressError(`IPv6 addresses are at most ${i} characters.`);
 			this.addressMinusSuffix = e, this.parsedAddress = this.parse(this.addressMinusSuffix);
 		}
 		static isValid(t) {
@@ -1908,22 +1895,22 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			}
 		}
 		static fromBigInt(t) {
-			if (t < BigInt(0) || t > (BigInt(1) << BigInt(o.BITS)) - BigInt(1)) throw new u.AddressError("IPv6 BigInt must be in the range 0 to 2**128 - 1");
+			if (t < BigInt(0) || t > (BigInt(1) << BigInt(c.BITS)) - BigInt(1)) throw new f.AddressError("IPv6 BigInt must be in the range 0 to 2**128 - 1");
 			let n = t.toString(16).padStart(32, "0"), r = [];
-			for (let e = 0; e < o.GROUPS; e++) r.push(n.slice(e * 4, (e + 1) * 4));
+			for (let e = 0; e < c.GROUPS; e++) r.push(n.slice(e * 4, (e + 1) * 4));
 			return new e(r.join(":"));
 		}
 		static fromURL(t) {
-			let n, r = null, i, a, s = t.replace(/^[a-z][a-z0-9+.-]*:\/\//i, "");
-			if (s.indexOf("[") !== -1 && s.indexOf("]:") !== -1) {
-				if (a = "failed to parse address with port", i = o.RE_URL_WITH_PORT.exec(s), i === null) return {
+			let n, r = null, i, a, o = t.replace(/^[a-z][a-z0-9+.-]*:\/\//i, "");
+			if (o.indexOf("[") !== -1 && o.indexOf("]:") !== -1) {
+				if (a = "failed to parse address with port", i = c.RE_URL_WITH_PORT.exec(o), i === null) return {
 					error: a,
 					address: null,
 					port: null
 				};
 				n = i[1], r = i[2];
 			} else {
-				if (a = "failed to parse address from URL", i = o.RE_URL.exec(s), i === null) return {
+				if (a = "failed to parse address from URL", i = c.RE_URL.exec(o), i === null) return {
 					error: a,
 					address: null,
 					port: null
@@ -1931,9 +1918,9 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				n = i[1] ?? i[2];
 			}
 			r ? (r = parseInt(r, 10), (r < 0 || r > 65535) && (r = null)) : r = null;
-			let c;
+			let s;
 			try {
-				c = new e(n);
+				s = new e(n);
 			} catch {
 				return {
 					error: a,
@@ -1942,49 +1929,49 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				};
 			}
 			return {
-				address: c,
+				address: s,
 				port: r
 			};
 		}
 		static fromAddressAndMask(t, n) {
-			let r = i.prefixLengthFromMask(new e(n).bigInt(), o.BITS);
+			let r = o.prefixLengthFromMask(new e(n).bigInt(), c.BITS);
 			return new e(`${t}/${r}`);
 		}
 		static fromAddressAndWildcardMask(t, n) {
-			let r = new e(n).bigInt() ^ (BigInt(1) << BigInt(o.BITS)) - BigInt(1), a = i.prefixLengthFromMask(r, o.BITS);
-			return new e(`${t}/${a}`);
+			let r = new e(n).bigInt() ^ (BigInt(1) << BigInt(c.BITS)) - BigInt(1), i = o.prefixLengthFromMask(r, c.BITS);
+			return new e(`${t}/${i}`);
 		}
 		static fromWildcard(t) {
-			if (t.includes("%") || t.includes("/")) throw new u.AddressError("Wildcard pattern must not include a zone or CIDR suffix");
+			if (t.includes("%") || t.includes("/")) throw new f.AddressError("Wildcard pattern must not include a zone or CIDR suffix");
 			let n = t.split("::");
-			if (n.length > 2) throw new u.AddressError("Wildcard pattern cannot contain more than one '::'");
+			if (n.length > 2) throw new f.AddressError("Wildcard pattern cannot contain more than one '::'");
 			let r;
 			if (n.length === 2) {
-				let e = n[0] === "" ? [] : n[0].split(":"), t = n[1] === "" ? [] : n[1].split(":"), i = o.GROUPS - e.length - t.length;
-				if (i < 1) throw new u.AddressError("Wildcard pattern with '::' has too many groups");
+				let e = n[0] === "" ? [] : n[0].split(":"), t = n[1] === "" ? [] : n[1].split(":"), i = c.GROUPS - e.length - t.length;
+				if (i < 1) throw new f.AddressError("Wildcard pattern with '::' has too many groups");
 				r = [
 					...e,
 					...Array(i).fill("0"),
 					...t
 				];
 			} else r = t.split(":");
-			if (r.length !== o.GROUPS) throw new u.AddressError("Wildcard pattern must have 8 groups");
+			if (r.length !== c.GROUPS) throw new f.AddressError("Wildcard pattern must have 8 groups");
 			let i = -1;
 			for (let e = 0; e < r.length; e++) if (r[e] === "*") i === -1 && (i = e);
-			else if (i !== -1) throw new u.AddressError("Wildcard `*` must only appear in trailing groups (e.g. `2001:db8:*:*:*:*:*:*`)");
-			let a = i === -1 ? 0 : r.length - i, s = r.map((e) => e === "*" ? "0" : e), c = o.BITS - a * 16;
-			return new e(`${s.join(":")}/${c}`);
+			else if (i !== -1) throw new f.AddressError("Wildcard `*` must only appear in trailing groups (e.g. `2001:db8:*:*:*:*:*:*`)");
+			let a = i === -1 ? 0 : r.length - i, o = r.map((e) => e === "*" ? "0" : e), s = c.BITS - a * 16;
+			return new e(`${o.join(":")}/${s}`);
 		}
 		static fromAddress4(t) {
-			let n = new c.Address4(t), r = o.BITS - (a.BITS - n.subnetMask);
+			let n = new u.Address4(t), r = c.BITS - (s.BITS - n.subnetMask);
 			return new e(`::ffff:${n.correctForm()}/${r}`);
 		}
 		static fromArpa(t) {
 			let n = t.replace(/(\.ip6\.arpa)?\.?$/i, "");
-			if (!/^[0-9a-f](\.[0-9a-f]){0,31}$/i.test(n)) throw new u.AddressError("Invalid 'ip6.arpa' form.");
-			let r = n.split(".").reverse(), i = r.length * 4, a = r.join("").padEnd(32, "0"), s = [];
-			for (let e = 0; e < o.GROUPS; e++) s.push(a.slice(e * 4, (e + 1) * 4));
-			return new e(`${s.join(":")}/${i}`);
+			if (!/^[0-9a-f](\.[0-9a-f]){0,31}$/i.test(n)) throw new f.AddressError("Invalid 'ip6.arpa' form.");
+			let r = n.split(".").reverse(), i = r.length * 4, a = r.join("").padEnd(32, "0"), o = [];
+			for (let e = 0; e < c.GROUPS; e++) o.push(a.slice(e * 4, (e + 1) * 4));
+			return new e(`${o.join(":")}/${i}`);
 		}
 		microsoftTranscription() {
 			return `${this.correctForm().replace(/:/g, "-")}.ipv6-literal.net`;
@@ -1993,11 +1980,11 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return this.getBitsBase2(0, e);
 		}
 		possibleSubnets(e = 128) {
-			let t = o.BITS - this.subnetMask - Math.abs(e - o.BITS);
-			return t < 0 ? "0" : x((BigInt("2") ** BigInt(t)).toString(10));
+			let t = c.BITS - this.subnetMask - Math.abs(e - c.BITS);
+			return t < 0 ? "0" : C((BigInt("2") ** BigInt(t)).toString(10));
 		}
 		_startAddress() {
-			return BigInt(`0b${this.mask() + "0".repeat(o.BITS - this.subnetMask)}`);
+			return BigInt(`0b${this.mask() + "0".repeat(c.BITS - this.subnetMask)}`);
 		}
 		startAddress() {
 			return e.fromBigInt(this._startAddress());
@@ -2007,7 +1994,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e.fromBigInt(this._startAddress() + t);
 		}
 		_endAddress() {
-			return BigInt(`0b${this.mask() + "1".repeat(o.BITS - this.subnetMask)}`);
+			return BigInt(`0b${this.mask() + "1".repeat(c.BITS - this.subnetMask)}`);
 		}
 		endAddress() {
 			return e.fromBigInt(this._endAddress());
@@ -2017,30 +2004,30 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e.fromBigInt(this._endAddress() - t);
 		}
 		offset(t) {
-			return e.fromBigInt(i.offsetBigInt(this.bigInt(), t, o.BITS, "IPv6")).withSubnetMask(this.subnetMask);
+			return e.fromBigInt(o.offsetBigInt(this.bigInt(), t, c.BITS, "IPv6")).withSubnetMask(this.subnetMask);
 		}
 		nextNetwork() {
-			return e.fromBigInt(i.offsetBigInt(this._endAddress(), 1, o.BITS, "IPv6")).withSubnetMask(this.subnetMask);
+			return e.fromBigInt(o.offsetBigInt(this._endAddress(), 1, c.BITS, "IPv6")).withSubnetMask(this.subnetMask);
 		}
 		withSubnetMask(t) {
 			return new e(`${this.correctForm()}/${t}`);
 		}
 		subnetMaskAddress() {
-			return e.fromBigInt(BigInt(`0b${"1".repeat(this.subnetMask)}${"0".repeat(o.BITS - this.subnetMask)}`));
+			return e.fromBigInt(BigInt(`0b${"1".repeat(this.subnetMask)}${"0".repeat(c.BITS - this.subnetMask)}`));
 		}
 		wildcardMask() {
-			return e.fromBigInt(BigInt(`0b${"0".repeat(this.subnetMask)}${"1".repeat(o.BITS - this.subnetMask)}`));
+			return e.fromBigInt(BigInt(`0b${"0".repeat(this.subnetMask)}${"1".repeat(c.BITS - this.subnetMask)}`));
 		}
 		networkForm() {
 			return `${this.startAddress().correctForm()}/${this.subnetMask}`;
 		}
 		getScope() {
 			let e = this.getType();
-			return e === "Multicast" || e.startsWith("Multicast ") ? o.SCOPES[parseInt(this.getBits(12, 16).toString(10), 10)] || "Unknown" : e === "Link-local unicast" || e === "Loopback" ? "Link local" : e === "Unspecified" ? "Unknown" : "Global";
+			return e === "Multicast" || e.startsWith("Multicast ") ? c.SCOPES[parseInt(this.getBits(12, 16).toString(10), 10)] || "Unknown" : e === "Link-local unicast" || e === "Loopback" ? "Link local" : e === "Unspecified" ? "Unknown" : "Global";
 		}
 		getType() {
-			for (let e = 0; e < D.length; e++) {
-				let t = D[e];
+			for (let e = 0; e < k.length; e++) {
+				let t = k[e];
 				if (this.isHostInSubnet(t[0])) return t[1];
 			}
 			return "Global unicast";
@@ -2057,7 +2044,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return this.getBits(e, t).toString(16).padStart(n / 4, "0");
 		}
 		getBitsPastSubnet() {
-			return this.getBitsBase2(this.subnetMask, o.BITS);
+			return this.getBitsBase2(this.subnetMask, c.BITS);
 		}
 		reverseForm(e) {
 			e ||= {};
@@ -2074,74 +2061,74 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			let i = r.map((e) => e[1] - e[0] + 1);
 			if (r.length > 0) {
 				let e = i.indexOf(Math.max(...i));
-				t = C(this.parsedAddress, r[e]);
+				t = T(this.parsedAddress, r[e]);
 			} else t = this.parsedAddress;
 			for (e = 0; e < t.length; e++) t[e] !== "compact" && (t[e] = parseInt(t[e], 16).toString(16));
 			let a = t.join(":");
 			return a = a.replace(/^compact$/, "::"), a = a.replace(/(^compact)|(compact$)/, ":"), a = a.replace(/compact/, ""), a;
 		}
 		binaryZeroPad() {
-			return this._binaryZeroPad === void 0 && (this._binaryZeroPad = this.bigInt().toString(2).padStart(o.BITS, "0")), this._binaryZeroPad;
+			return this._binaryZeroPad === void 0 && (this._binaryZeroPad = this.bigInt().toString(2).padStart(c.BITS, "0")), this._binaryZeroPad;
 		}
 		parse4in6(e) {
 			if (e.indexOf(".") === -1) return e;
 			let t = e.split(":"), n = t.slice(-1)[0], r = n.split(".");
-			if (r.length === a.GROUPS && r.every((e) => /^\d{1,3}$/.test(e)) && r.some((e) => /^0\d/.test(e))) {
-				let e = r.map(S).join("."), n = t.slice(0, -1).map(s.escapeHtml).join(":"), i = t.length > 1 ? ":" : "";
-				throw new u.AddressError("IPv4 addresses can't have leading zeroes.", `${n}${i}${e}`);
+			if (r.length === s.GROUPS && r.every((e) => /^\d{1,3}$/.test(e)) && r.some((e) => /^0\d/.test(e))) {
+				let e = r.map(w).join("."), n = t.slice(0, -1).map(l.escapeHtml).join(":"), i = t.length > 1 ? ":" : "";
+				throw new f.AddressError("IPv4 addresses can't have leading zeroes.", `${n}${i}${e}`);
 			}
-			let i = n.match(a.RE_ADDRESS);
+			let i = n.match(s.RE_ADDRESS);
 			if (i) {
 				this.parsedAddress4 = i[0];
 				let n = this.subnetMask >= 96 ? `/${this.subnetMask - 96}` : "";
-				this.address4 = new c.Address4(`${this.parsedAddress4}${n}`), this.v4 = !0, t[t.length - 1] = this.address4.toGroup6(), e = t.join(":");
+				this.address4 = new u.Address4(`${this.parsedAddress4}${n}`), this.v4 = !0, t[t.length - 1] = this.address4.toGroup6(), e = t.join(":");
 			}
 			return e;
 		}
 		parse(e) {
 			e = this.parse4in6(e);
-			let t = e.match(o.RE_BAD_CHARACTERS);
-			if (t) throw new u.AddressError(`Bad character${t.length > 1 ? "s" : ""} detected in address: ${t.join("")}`, e.replace(o.RE_BAD_CHARACTERS, (e) => `<span class="parse-error">${s.escapeHtml(e)}</span>`));
-			let n = e.match(o.RE_BAD_ADDRESS);
-			if (n) throw new u.AddressError(`Address failed regex: ${n.join("")}`, e.replace(o.RE_BAD_ADDRESS, "<span class=\"parse-error\">$1</span>"));
+			let t = e.match(c.RE_BAD_CHARACTERS);
+			if (t) throw new f.AddressError(`Bad character${t.length > 1 ? "s" : ""} detected in address: ${t.join("")}`, e.replace(c.RE_BAD_CHARACTERS, (e) => `<span class="parse-error">${l.escapeHtml(e)}</span>`));
+			let n = e.match(c.RE_BAD_ADDRESS);
+			if (n) throw new f.AddressError(`Address failed regex: ${n.join("")}`, e.replace(c.RE_BAD_ADDRESS, "<span class=\"parse-error\">$1</span>"));
 			let r = [], i = e.split("::");
 			if (i.length === 2) {
 				let e = i[0].split(":"), t = i[1].split(":");
 				e.length === 1 && e[0] === "" && (e = []), t.length === 1 && t[0] === "" && (t = []);
 				let n = this.groups - (e.length + t.length);
-				if (!n) throw new u.AddressError("Error parsing groups");
+				if (!n) throw new f.AddressError("Error parsing groups");
 				this.elidedGroups = n, this.elisionBegin = e.length, this.elisionEnd = e.length + this.elidedGroups, r = r.concat(e);
 				for (let e = 0; e < n; e++) r.push("0");
 				r = r.concat(t);
 			} else if (i.length === 1) r = e.split(":"), this.elidedGroups = 0;
-			else throw new u.AddressError("Too many :: groups found");
-			if (r = r.map((e) => parseInt(e, 16).toString(16)), r.length !== this.groups) throw new u.AddressError("Incorrect number of groups found");
+			else throw new f.AddressError("Too many :: groups found");
+			if (r = r.map((e) => parseInt(e, 16).toString(16)), r.length !== this.groups) throw new f.AddressError("Incorrect number of groups found");
 			return r;
 		}
 		canonicalForm() {
-			return this.parsedAddress.map(w).join(":");
+			return this.parsedAddress.map(E).join(":");
 		}
 		decimal() {
 			return this.parsedAddress.map((e) => parseInt(e, 16).toString(10).padStart(5, "0")).join(":");
 		}
 		bigInt() {
-			return BigInt(`0x${this.parsedAddress.map(w).join("")}`);
+			return BigInt(`0x${this.parsedAddress.map(E).join("")}`);
 		}
 		to4() {
 			let e = this.binaryZeroPad().split(""), t = BigInt(`0b${e.slice(96, 128).join("")}`).toString(16).padStart(8, "0");
 			if (this.subnetMask >= 96) {
 				let e = this.subnetMask - 96, n = [];
 				for (let e = 0; e < 8; e += 2) n.push(parseInt(t.slice(e, e + 2), 16));
-				return new c.Address4(`${n.join(".")}/${e}`);
+				return new u.Address4(`${n.join(".")}/${e}`);
 			}
-			return c.Address4.fromHex(t);
+			return u.Address4.fromHex(t);
 		}
 		to4in6() {
 			let t = this.to4(), n = new e(this.parsedAddress.slice(0, 6).join(":"), 6).correctForm(), r = "";
 			return /:$/.test(n) || (r = ":"), n + r + t.correctForm();
 		}
 		inspectTeredo() {
-			let e = this.getBitsBase16(0, 32), t = (this.getBits(80, 96) ^ BigInt("0xffff")).toString(), n = c.Address4.fromHex(this.getBitsBase16(32, 64)), r = this.getBits(96, 128), i = c.Address4.fromHex((r ^ BigInt("0xffffffff")).toString(16).padStart(8, "0")), a = this.getBitsBase2(64, 80), o = (0, d.testBit)(a, 15), s = (0, d.testBit)(a, 14), l = (0, d.testBit)(a, 8), u = (0, d.testBit)(a, 9), f = BigInt(`0b${a.slice(2, 6) + a.slice(8, 16)}`).toString(10);
+			let e = this.getBitsBase16(0, 32), t = (this.getBits(80, 96) ^ BigInt("0xffff")).toString(), n = u.Address4.fromHex(this.getBitsBase16(32, 64)), r = this.getBits(96, 128), i = u.Address4.fromHex((r ^ BigInt("0xffffffff")).toString(16).padStart(8, "0")), a = this.getBitsBase2(64, 80), o = (0, b.testBit)(a, 15), s = (0, b.testBit)(a, 14), c = (0, b.testBit)(a, 8), l = (0, b.testBit)(a, 9), d = BigInt(`0b${a.slice(2, 6) + a.slice(8, 16)}`).toString(10);
 			return {
 				prefix: `${e.slice(0, 4)}:${e.slice(4, 8)}`,
 				server4: n.address,
@@ -2150,15 +2137,15 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				coneNat: o,
 				microsoft: {
 					reserved: s,
-					universalLocal: u,
-					groupIndividual: l,
-					nonce: f
+					universalLocal: l,
+					groupIndividual: c,
+					nonce: d
 				},
 				udpPort: t
 			};
 		}
 		inspect6to4() {
-			let e = this.getBitsBase16(0, 16), t = c.Address4.fromHex(this.getBitsBase16(16, 48));
+			let e = this.getBitsBase16(0, 16), t = u.Address4.fromHex(this.getBitsBase16(16, 48));
 			return {
 				prefix: e.slice(0, 4),
 				gateway: t.address
@@ -2176,13 +2163,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return new e(t);
 		}
 		static fromAddress4Nat64(t, n = "64:ff9b::/96") {
-			let r = new c.Address4(t), i = new e(n), a = i.subnetMask;
-			if (a !== 32 && a !== 40 && a !== 48 && a !== 56 && a !== 64 && a !== 96) throw new u.AddressError("NAT64 prefix length must be 32, 40, 48, 56, 64, or 96");
-			let o = i.binaryZeroPad(), s = r.binaryZeroPad(), l;
-			if (a === 96) l = o.slice(0, 96) + s;
+			let r = new u.Address4(t), i = new e(n), a = i.subnetMask;
+			if (a !== 32 && a !== 40 && a !== 48 && a !== 56 && a !== 64 && a !== 96) throw new f.AddressError("NAT64 prefix length must be 32, 40, 48, 56, 64, or 96");
+			let o = i.binaryZeroPad(), s = r.binaryZeroPad(), c;
+			if (a === 96) c = o.slice(0, 96) + s;
 			else {
 				let e = 64 - a;
-				l = [
+				c = [
 					o.slice(0, a),
 					s.slice(0, e),
 					"00000000",
@@ -2190,13 +2177,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					"0".repeat(56 - (32 - e))
 				].join("");
 			}
-			let d = BigInt(`0b${l}`).toString(16).padStart(32, "0"), f = [];
-			for (let e = 0; e < 8; e++) f.push(d.slice(e * 4, (e + 1) * 4));
-			return new e(f.join(":"));
+			let l = BigInt(`0b${c}`).toString(16).padStart(32, "0"), d = [];
+			for (let e = 0; e < 8; e++) d.push(l.slice(e * 4, (e + 1) * 4));
+			return new e(d.join(":"));
 		}
 		toAddress4Nat64(t = "64:ff9b::/96") {
 			let n = new e(t), r = n.subnetMask;
-			if (r !== 32 && r !== 40 && r !== 48 && r !== 56 && r !== 64 && r !== 96) throw new u.AddressError("NAT64 prefix length must be 32, 40, 48, 56, 64, or 96");
+			if (r !== 32 && r !== 40 && r !== 48 && r !== 56 && r !== 64 && r !== 96) throw new f.AddressError("NAT64 prefix length must be 32, 40, 48, 56, 64, or 96");
 			if (!this.isHostInSubnet(n)) return null;
 			let i = this.binaryZeroPad(), a;
 			if (r === 96) a = i.slice(96, 128);
@@ -2206,23 +2193,23 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			}
 			let o = [];
 			for (let e = 0; e < 4; e++) o.push(parseInt(a.slice(e * 8, (e + 1) * 8), 2).toString());
-			return new c.Address4(o.join("."));
+			return new u.Address4(o.join("."));
 		}
 		toByteArray() {
-			let e = this.bigInt().toString(16).padStart(o.BITS / 4, "0"), t = [];
+			let e = this.bigInt().toString(16).padStart(c.BITS / 4, "0"), t = [];
 			for (let n = 0, r = e.length; n < r; n += 2) t.push(parseInt(e.substring(n, n + 2), 16));
 			return t;
 		}
 		toUnsignedByteArray() {
-			return this.toByteArray().map(T);
+			return this.toByteArray().map(D);
 		}
 		static fromByteArray(e) {
-			return i.assertByteArray(e, 16, "IPv6", -128), this.fromUnsignedByteArray(e.map(T));
+			return o.assertByteArray(e, 16, "IPv6", -128), this.fromUnsignedByteArray(e.map(D));
 		}
 		static fromUnsignedByteArray(t) {
-			i.assertByteArray(t, 16, "IPv6", 0);
-			let n = BigInt("256"), r = BigInt("0"), a = BigInt("1");
-			for (let e = t.length - 1; e >= 0; e--) r += a * BigInt(t[e].toString(10)), a *= n;
+			o.assertByteArray(t, 16, "IPv6", 0);
+			let n = BigInt("256"), r = BigInt("0"), i = BigInt("1");
+			for (let e = t.length - 1; e >= 0; e--) r += i * BigInt(t[e].toString(10)), i *= n;
 			return e.fromBigInt(r);
 		}
 		isCanonical() {
@@ -2230,7 +2217,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 		isLinkLocal() {
 			let e = this.embeddedIPv4();
-			return e ? e.isLinkLocal() : this.isHostInSubnet(te);
+			return e ? e.isLinkLocal() : this.isHostInSubnet(M);
 		}
 		isMulticast() {
 			let e = this.embeddedIPv4();
@@ -2242,27 +2229,27 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return this.v4;
 		}
 		isMapped4() {
-			return this.isHostInSubnet(P);
+			return this.isHostInSubnet(I);
 		}
 		embeddedIPv4() {
-			return this.isMapped4() || this.isHostInSubnet(ne) ? this.to4() : null;
+			return this.isMapped4() || this.isHostInSubnet(L) ? this.to4() : null;
 		}
 		isTeredo() {
-			return this.isHostInSubnet(ee);
+			return this.isHostInSubnet(A);
 		}
 		is6to4() {
-			return this.isHostInSubnet(O);
+			return this.isHostInSubnet(ee);
 		}
 		isLoopback() {
 			let e = this.embeddedIPv4();
 			return e ? e.isLoopback() : this.getType() === "Loopback";
 		}
 		isULA() {
-			return this.isHostInSubnet(k);
+			return this.isHostInSubnet(j);
 		}
 		isPrivate() {
 			let e = this.embeddedIPv4();
-			return e ? e.isPrivate() : this.isULA() || this.isHostInSubnet(re);
+			return e ? e.isPrivate() : this.isULA() || this.isHostInSubnet(ne);
 		}
 		isCGNAT() {
 			let e = this.embeddedIPv4();
@@ -2277,15 +2264,15 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return e ? e.isUnspecified() : this.getType() === "Unspecified";
 		}
 		isDocumentation() {
-			return A.some((e) => this.isHostInSubnet(e));
+			return N.some((e) => this.isHostInSubnet(e));
 		}
 		isBenchmarking() {
 			let e = this.embeddedIPv4();
-			return e ? e.isBenchmarking() : this.isHostInSubnet(j);
+			return e ? e.isBenchmarking() : this.isHostInSubnet(P);
 		}
 		isGlobal() {
 			let e = this.embeddedIPv4();
-			return e ? e.isGlobal() : this.isHostInSubnet(M) && i.isGloballyReachable.call(this, N);
+			return e ? e.isGlobal() : this.isHostInSubnet(F) && o.isGloballyReachable.call(this, te);
 		}
 		href(e) {
 			return e = e === void 0 ? "" : `:${e}`, `http://[${this.correctForm()}]${e}/`;
@@ -2294,33 +2281,33 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			e ||= {}, e.className === void 0 && (e.className = ""), e.prefix === void 0 && (e.prefix = "/#address="), e.v4 === void 0 && (e.v4 = !1);
 			let t = this.correctForm;
 			e.v4 && (t = this.to4in6);
-			let n = t.call(this), r = s.escapeHtml(`${e.prefix}${n}`), i = s.escapeHtml(n);
-			return e.className ? `<a href="${r}" class="${s.escapeHtml(e.className)}">${i}</a>` : `<a href="${r}">${i}</a>`;
+			let n = t.call(this), r = l.escapeHtml(`${e.prefix}${n}`), i = l.escapeHtml(n);
+			return e.className ? `<a href="${r}" class="${l.escapeHtml(e.className)}">${i}</a>` : `<a href="${r}">${i}</a>`;
 		}
 		group() {
-			if (this.elidedGroups === 0) return s.simpleGroup(this.addressMinusSuffix).join(":");
-			b(typeof this.elidedGroups == "number"), b(typeof this.elisionBegin == "number");
+			if (this.elidedGroups === 0) return l.simpleGroup(this.addressMinusSuffix).join(":");
+			S(typeof this.elidedGroups == "number"), S(typeof this.elisionBegin == "number");
 			let e = [], [t, n] = this.addressMinusSuffix.split("::");
-			t.length ? e.push(...s.simpleGroup(t)) : e.push("");
+			t.length ? e.push(...l.simpleGroup(t)) : e.push("");
 			let r = ["hover-group"];
 			for (let e = this.elisionBegin; e < this.elisionBegin + this.elidedGroups; e++) r.push(`group-${e}`);
-			return e.push(`<span class="${r.join(" ")}"></span>`), n.length ? e.push(...s.simpleGroup(n, this.elisionEnd)) : e.push(""), this.is4() && (b(this.address4 instanceof c.Address4), e.pop(), e.push(this.address4.groupForV6())), e.join(":");
+			return e.push(`<span class="${r.join(" ")}"></span>`), n.length ? e.push(...l.simpleGroup(n, this.elisionEnd)) : e.push(""), this.is4() && (S(this.address4 instanceof u.Address4), e.pop(), e.push(this.address4.groupForV6())), e.join(":");
 		}
 		regularExpressionString(t = !1) {
 			let n = [], r = new e(this.correctForm());
-			if (r.elidedGroups === 0) n.push((0, l.simpleRegularExpression)(r.parsedAddress));
-			else if (r.elidedGroups === o.GROUPS) n.push((0, l.possibleElisions)(o.GROUPS));
+			if (r.elidedGroups === 0) n.push((0, d.simpleRegularExpression)(r.parsedAddress));
+			else if (r.elidedGroups === c.GROUPS) n.push((0, d.possibleElisions)(c.GROUPS));
 			else {
 				let e = r.address.split("::");
-				e[0].length && n.push((0, l.simpleRegularExpression)(e[0].split(":"))), b(typeof r.elidedGroups == "number"), n.push((0, l.possibleElisions)(r.elidedGroups, e[0].length !== 0, e[1].length !== 0)), e[1].length && n.push((0, l.simpleRegularExpression)(e[1].split(":"))), n = [n.join(":")];
+				e[0].length && n.push((0, d.simpleRegularExpression)(e[0].split(":"))), S(typeof r.elidedGroups == "number"), n.push((0, d.possibleElisions)(r.elidedGroups, e[0].length !== 0, e[1].length !== 0)), e[1].length && n.push((0, d.simpleRegularExpression)(e[1].split(":"))), n = [n.join(":")];
 			}
 			return t || (n = [
 				"(?=^|",
-				l.ADDRESS_BOUNDARY,
+				d.ADDRESS_BOUNDARY,
 				"|[^\\w\\:])(",
 				...n,
 				")(?=[^\\w\\:]|",
-				l.ADDRESS_BOUNDARY,
+				d.ADDRESS_BOUNDARY,
 				"|$)"
 			]), n.join("");
 		}
@@ -2328,13 +2315,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return new RegExp(this.regularExpressionString(e), "i");
 		}
 	};
-	e.Address6 = E;
-	var D = Object.keys(o.TYPES).map((e) => [new E(e), o.TYPES[e]]), ee = new E("2001::/32"), O = new E("2002::/16"), k = new E("fc00::/7"), te = new E("fe80::/10"), A = [new E("2001:db8::/32"), new E("3fff::/20")], j = new E("2001:2::/48"), M = new E("2000::/3"), N = o.SPECIAL_PURPOSE.map(([e, , t]) => ({
-		subnet: new E(e),
+	e.Address6 = O;
+	var k = Object.keys(c.TYPES).map((e) => [new O(e), c.TYPES[e]]), A = new O("2001::/32"), ee = new O("2002::/16"), j = new O("fc00::/7"), M = new O("fe80::/10"), N = [new O("2001:db8::/32"), new O("3fff::/20")], P = new O("2001:2::/48"), F = new O("2000::/3"), te = c.SPECIAL_PURPOSE.map(([e, , t]) => ({
+		subnet: new O(e),
 		reachable: t
-	})), P = new E("::ffff:0:0/96"), ne = new E("64:ff9b::/96"), re = new E("64:ff9b:1::/48");
-})), x = /* @__PURE__ */ o(((e) => {
-	var t = e && e.__createBinding || (Object.create ? (function(e, t, n, r) {
+	})), I = new O("::ffff:0:0/96"), L = new O("64:ff9b::/96"), ne = new O("64:ff9b:1::/48");
+})), x = /* @__PURE__ */ o(((e, t, n) => {
+	var r = n && n.__createBinding || (Object.create ? (function(e, t, n, r) {
 		r === void 0 && (r = n);
 		var i = Object.getOwnPropertyDescriptor(t, n);
 		(!i || ("get" in i ? !t.__esModule : i.writable || i.configurable)) && (i = {
@@ -2345,46 +2332,46 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}), Object.defineProperty(e, r, i);
 	}) : (function(e, t, n, r) {
 		r === void 0 && (r = n), e[r] = t[n];
-	})), n = e && e.__setModuleDefault || (Object.create ? (function(e, t) {
+	})), i = n && n.__setModuleDefault || (Object.create ? (function(e, t) {
 		Object.defineProperty(e, "default", {
 			enumerable: !0,
 			value: t
 		});
 	}) : function(e, t) {
 		e.default = t;
-	}), r = e && e.__importStar || function(e) {
+	}), a = n && n.__importStar || function(e) {
 		if (e && e.__esModule) return e;
-		var r = {};
-		if (e != null) for (var i in e) i !== "default" && Object.prototype.hasOwnProperty.call(e, i) && t(r, e, i);
-		return n(r, e), r;
+		var t = {};
+		if (e != null) for (var n in e) n !== "default" && Object.prototype.hasOwnProperty.call(e, n) && r(t, e, n);
+		return i(t, e), t;
 	};
 	Object.defineProperty(e, "__esModule", { value: !0 }), e.v6 = e.AddressError = e.Address6 = e.Address4 = void 0;
-	var i = g();
+	var o = g();
 	Object.defineProperty(e, "Address4", {
 		enumerable: !0,
 		get: function() {
-			return i.Address4;
+			return o.Address4;
 		}
 	});
-	var a = b();
+	var s = b();
 	Object.defineProperty(e, "Address6", {
 		enumerable: !0,
 		get: function() {
-			return a.Address6;
+			return s.Address6;
 		}
 	});
-	var o = p();
+	var c = p();
 	Object.defineProperty(e, "AddressError", {
 		enumerable: !0,
 		get: function() {
-			return o.AddressError;
+			return c.AddressError;
 		}
-	}), e.v6 = { helpers: r(v()) };
+	}), e.v6 = { helpers: a(v()) };
 })), S = /* @__PURE__ */ l(f(), 1), C = /* @__PURE__ */ s({
-	LnaError: () => fe,
+	LnaError: () => ue,
 	__v: () => 1,
-	defaultOptions: () => pe,
-	detectLna: () => _e
+	defaultOptions: () => de,
+	detectLna: () => he
 }), w = x();
 function T(e, t) {
 	let n = e.toLowerCase();
@@ -2396,19 +2383,19 @@ function E(e) {
 function D(e) {
 	return e.isLoopback() ? "loopback" : e.isLinkLocal() || e.isULA() ? "local" : e.isMapped4() ? E(e.to4()) : e.is6to4() ? E(new w.Address4(e.inspect6to4().gateway)) : "public";
 }
-function ee(e, t) {
+function O(e, t) {
 	if (e === "loopback" && t !== "loopback" || e === "local" && t === "public") return !0;
 	if (t === "loopback" || e === "public" || e && t) return !1;
 }
-var O = {
+var k = {
 	edge: "Edg",
 	chrome: "Chrome",
 	firefox: "Firefox",
 	safari: "Safari"
 };
-function k(e, t, n) {
-	if (te() !== e) return !1;
-	let r = A(O[e]);
+function A(e, t, n) {
+	if (ee() !== e) return !1;
+	let r = j(k[e]);
 	if (!n) return !!r;
 	if (!r) return !1;
 	switch (t) {
@@ -2419,22 +2406,22 @@ function k(e, t, n) {
 		case ">": return r > n;
 	}
 }
-function te() {
-	if (A(O.edge)) return "edge";
-	if (A(O.chrome)) return "chrome";
-	if (A(O.firefox)) return "firefox";
-	if (A(O.safari)) return "safari";
+function ee() {
+	if (j(k.edge)) return "edge";
+	if (j(k.chrome)) return "chrome";
+	if (j(k.firefox)) return "firefox";
+	if (j(k.safari)) return "safari";
 }
-function A(e) {
+function j(e) {
 	let t = window.navigator.userAgent.match(RegExp(`${e}/([\\d.]+)`));
 	return t ? parseInt(t[1]) : null;
 }
-function j() {
+function M() {
 	let e = {};
-	return (k("edge", "<", 143) || k("chrome", "<", 142)) && (e.permissionsAreOptIn = !0), (k("chrome", "<", 147) || k("edge", "<", 147)) && (e.webSocketsUnrestricted = !0), k("firefox", "<", 154) && (e.webSocketsUnrestricted = !0), k("firefox", "<", 153) && (e.permissionsAreOptIn = !0), k("firefox", "<", 151) && (e.permissionsMayNotReflectUserInteraction = !0), e;
+	return (A("edge", "<", 143) || A("chrome", "<", 142)) && (e.permissionsAreOptIn = !0), (A("chrome", "<", 147) || A("edge", "<", 147)) && (e.webSocketsUnrestricted = !0), A("firefox", "<", 154) && (e.webSocketsUnrestricted = !0), A("firefox", "<", 153) && (e.permissionsAreOptIn = !0), A("firefox", "<", 151) && (e.permissionsMayNotReflectUserInteraction = !0), e;
 }
-var M = "local-network-access", N = "loopback-network", P = "local-network";
-async function ne(e) {
+var N = "local-network-access", P = "loopback-network", F = "local-network";
+async function te(e) {
 	if (!(navigator == null ? void 0 : navigator.permissions)?.query) return !1;
 	try {
 		return await navigator.permissions.query({ name: e }), !0;
@@ -2443,59 +2430,59 @@ async function ne(e) {
 		throw e;
 	}
 }
-var re = [
-	N,
+var I = [
 	P,
-	M
+	F,
+	N
 ];
-async function F() {
-	let e = Object.fromEntries(await Promise.all(re.map(async (e) => [e, await ne(e)]))), t = Object.entries(e).filter(([, e]) => e).map(([e]) => e), n = !!t.length;
+async function L() {
+	let e = Object.fromEntries(await Promise.all(I.map(async (e) => [e, await te(e)]))), t = Object.entries(e).filter(([, e]) => e).map(([e]) => e), n = !!t.length;
 	return {
 		PermissionNames: t,
-		LnaJointPermission: e[M],
-		LnaSplitPermissions: e[N] && e[P],
-		LnaPermissionsEffective: n && !j().permissionsAreOptIn
+		LnaJointPermission: e[N],
+		LnaSplitPermissions: e[P] && e[F],
+		LnaPermissionsEffective: n && !M().permissionsAreOptIn
 	};
 }
-async function ie(e) {
-	let t = await F();
+async function ne(e) {
+	let t = await L();
 	return t.LnaPermissionsEffective ? t.LnaSplitPermissions ? {
-		loopback: N,
-		local: P,
+		loopback: P,
+		local: F,
 		public: null
-	}[e] : M : null;
+	}[e] : N : null;
 }
-async function ae(e, t) {
-	if (!(await F()).LnaPermissionsEffective) return null;
-	let n = ee(e, t), r = e ? await ie(e) : void 0;
+async function re(e, t) {
+	if (!(await L()).LnaPermissionsEffective) return null;
+	let n = O(e, t), r = e ? await ne(e) : void 0;
 	if (n === !1 || r === null) return null;
 	if (n !== void 0) return r;
 }
-async function oe(e, t) {
-	return (t?.isWebSocket || e.protocol === "ws:" || e.protocol === "wss:") && j().webSocketsUnrestricted ? null : await ae(t?.overrides?.targetAddressSpace ?? T(e.hostname, t), t?.overrides?.originAddressSpace ?? T(window.location.hostname, t));
+async function ie(e, t) {
+	return (t?.isWebSocket || e.protocol === "ws:" || e.protocol === "wss:") && M().webSocketsUnrestricted ? null : await re(t?.overrides?.targetAddressSpace ?? T(e.hostname, t), t?.overrides?.originAddressSpace ?? T(window.location.hostname, t));
 }
-async function se(e, t) {
-	let n = await oe(e, t);
-	return n && await ce(n);
+async function ae(e, t) {
+	let n = await ie(e, t);
+	return n && await oe(n);
 }
-async function ce(e) {
-	return (await F()).PermissionNames.includes(e) ? await navigator.permissions.query({ name: e }) : null;
+async function oe(e) {
+	return (await L()).PermissionNames.includes(e) ? await navigator.permissions.query({ name: e }) : null;
 }
-async function le(e) {
-	return (await F()).PermissionNames.includes(e) ? (await ce(e)).state : null;
+async function se(e) {
+	return (await L()).PermissionNames.includes(e) ? (await oe(e)).state : null;
 }
-async function ue() {
-	return Object.fromEntries(await Promise.all(re.map(async (e) => [e, await le(e)])));
+async function ce() {
+	return Object.fromEntries(await Promise.all(I.map(async (e) => [e, await se(e)])));
 }
-function de(e, t) {
+function le(e, t) {
 	var n = {};
 	for (var r in e) Object.prototype.hasOwnProperty.call(e, r) && t.indexOf(r) < 0 && (n[r] = e[r]);
 	if (e != null && typeof Object.getOwnPropertySymbols == "function") for (var i = 0, r = Object.getOwnPropertySymbols(e); i < r.length; i++) t.indexOf(r[i]) < 0 && Object.prototype.propertyIsEnumerable.call(e, r[i]) && (n[r[i]] = e[r[i]]);
 	return n;
 }
-var fe = class e extends Error {
+var ue = class e extends Error {
 	constructor(t) {
-		var { cause: n } = t, r = de(t, ["cause"]);
+		var { cause: n } = t, r = le(t, ["cause"]);
 		super(r.denied ? "Local Network Access was denied" : "Local Network Access failed", { cause: n }), Object.setPrototypeOf(this, e.prototype), this.name = this.constructor.name, Object.assign(this, r);
 	}
 	static fromPermission(t, n) {
@@ -2520,112 +2507,111 @@ var fe = class e extends Error {
 			permission: t ?? void 0
 		});
 	}
-}, pe = { defaultAddressSpace: "public" };
-function me(e) {
-	return Object.assign(Object.assign({}, pe), e);
+}, de = { defaultAddressSpace: "public" };
+function fe(e) {
+	return Object.assign(Object.assign({}, de), e);
 }
-async function he(e, t, n) {
+async function pe(e, t, n) {
 	if (t) {
-		let e = await ge(t);
+		let e = await me(t);
 		if (e) return e;
 	}
-	return await se(e, n);
+	return await ae(e, n);
 }
-async function ge(e) {
+async function me(e) {
 	for (let [t, n] of Object.entries(e)) if (n === "prompt") {
-		let e = await ce(t);
+		let e = await oe(t);
 		if (!e) continue;
 		let n = e?.state;
 		if (n === "denied" || n === "granted") return e;
 	}
 }
-async function _e(e, t, n) {
-	let r = ye(e);
-	n = me(n);
-	let i = await ue();
+async function he(e, t, n) {
+	let r = _e(e);
+	n = fe(n);
+	let i = await ce();
 	try {
 		return await t(r);
 	} catch (e) {
-		throw (n?.isConnectionError ?? ((e) => !be(e, n)))(e) ? await ve({
+		throw (n?.isConnectionError ?? ((e) => !ve(e, n)))(e) ? await ge({
 			error: e,
 			url: r,
 			permissionStatesBefore: i
 		}, n) : e;
 	}
 }
-async function ve(e, t) {
-	let n = await he(e.url, e.permissionStatesBefore, me(t));
-	return fe.fromPermission(n, e.error);
+async function ge(e, t) {
+	let n = await pe(e.url, e.permissionStatesBefore, fe(t));
+	return ue.fromPermission(n, e.error);
 }
-function ye(e) {
+function _e(e) {
 	if (e instanceof URL || typeof e == "string") return new URL(e);
 	if (e instanceof Request) return new URL(e.url);
 	throw TypeError(`Invalid resource parameter type ${typeof e}`);
 }
-function be(e, t) {
-	return t?.isWebSocket === !0 ? Se(e) : xe(e) ?? Se(e);
+function ve(e, t) {
+	return t?.isWebSocket === !0 ? be(e) : ye(e) ?? be(e);
 }
-function xe(e) {
+function ye(e) {
 	return e instanceof DOMException || e instanceof TypeError && !!e.message.match(/Failed to parse URL|not a valid URL|is not supported/);
 }
-function Se(e) {
+function be(e) {
 	return e instanceof SyntaxError;
 }
-//#endregion
-//#region node_modules/qs-esm/lib/formats.js
-var Ce = String.prototype.replace, we = /%20/g, I = {
+// node_modules/qs-esm/lib/formats.js
+var xe = String.prototype.replace, Se = /%20/g, Ce = {
 	RFC1738: "RFC1738",
 	RFC3986: "RFC3986"
-}, L = {
+}, we = {
 	RFC1738: function(e) {
-		return Ce.call(e, we, "+");
+		return xe.call(e, Se, "+");
 	},
 	RFC3986: function(e) {
 		return String(e);
 	}
-}, Te = I.RFC1738;
-I.RFC3986;
-var Ee = I.RFC3986, R = Object.prototype.hasOwnProperty, z = Array.isArray, B = /* @__PURE__ */ new WeakMap(), De = function(e, t) {
-	return B.set(e, t), e;
+}, Te = Ce.RFC1738;
+Ce.RFC3986;
+var Ee = Ce.RFC3986, De = Object.prototype.hasOwnProperty, R = Array.isArray, z = /* @__PURE__ */ new WeakMap(), Oe = function(e, t) {
+	return z.set(e, t), e;
 };
-function V(e) {
-	return B.has(e);
+function B(e) {
+	return z.has(e);
 }
-var H = function(e) {
-	return B.get(e);
-}, Oe = function(e, t) {
-	B.set(e, t);
-}, U = (function() {
+var V = function(e) {
+	return z.get(e);
+}, ke = function(e, t) {
+	z.set(e, t);
+}, H = (function() {
 	let e = [];
 	for (let t = 0; t < 256; ++t) e.push("%" + ((t < 16 ? "0" : "") + t.toString(16)).toUpperCase());
 	return e;
-})(), ke = function(e) {
+})(), Ae = function(e) {
 	for (; e.length > 1;) {
 		let t = e.pop(), n = t.obj[t.prop];
-		if (z(n)) {
+		if (R(n)) {
 			let e = [];
 			for (let t = 0; t < n.length; ++t) n[t] !== void 0 && e.push(n[t]);
 			t.obj[t.prop] = e;
 		}
 	}
-}, Ae = function(e, t) {
+}, je = function(e, t) {
 	let n = t && t.plainObjects ? Object.create(null) : {};
 	for (let t = 0; t < e.length; ++t) e[t] !== void 0 && (n[t] = e[t]);
 	return n;
-}, je = function e(t, n, r) {
+}, Me = function e(t, n, r) {
 	if (!n) return t;
 	if (typeof n != "object") {
-		if (z(t)) t.push(n);
+		if (R(t)) t.push(n);
 		else if (t && typeof t == "object") {
-			if (V(t)) {
-				var i = H(t) + 1;
-				t[i] = n, Oe(t, i);
-			} else (r && (r.plainObjects || r.allowPrototypes) || !R.call(Object.prototype, n)) && (t[n] = !0);
+			if (B(t)) {
+				var i = V(t) + 1;
+				t[i] = n, ke(t, i);
+			} else (r && (r.plainObjects || r.allowPrototypes) || !De.call(Object.prototype, n)) && (t[n] = !0);
 		} else return [t, n];
 		return t;
 	}
 	if (!t || typeof t != "object") {
-		if (V(n)) {
+		if (B(n)) {
 			for (var a = Object.keys(n), o = r && r.plainObjects ? {
 				__proto__: null,
 				0: t
@@ -2633,21 +2619,21 @@ var H = function(e) {
 				var c = parseInt(a[s], 10);
 				o[c + 1] = n[a[s]];
 			}
-			return De(o, H(n) + 1);
+			return Oe(o, V(n) + 1);
 		}
 		return [t].concat(n);
 	}
 	let l = t;
-	return z(t) && !z(n) && (l = Ae(t, r)), z(t) && z(n) ? (n.forEach(function(n, i) {
-		if (R.call(t, i)) {
+	return R(t) && !R(n) && (l = je(t, r)), R(t) && R(n) ? (n.forEach(function(n, i) {
+		if (De.call(t, i)) {
 			let a = t[i];
 			a && typeof a == "object" && n && typeof n == "object" ? t[i] = e(a, n, r) : t.push(n);
 		} else t[i] = n;
 	}), t) : Object.keys(n).reduce(function(t, i) {
 		let a = n[i];
-		return t[i] = R.call(t, i) ? e(t[i], a, r) : a, t;
+		return t[i] = De.call(t, i) ? e(t[i], a, r) : a, t;
 	}, l);
-}, Me = function(e, t, n) {
+}, Ne = function(e, t, n) {
 	let r = e.replace(/\+/g, " ");
 	if (n === "iso-8859-1") return r.replace(/%[0-9a-f]{2}/gi, unescape);
 	try {
@@ -2655,39 +2641,23 @@ var H = function(e) {
 	} catch {
 		return r;
 	}
-}, Ne = 1024, Pe = function(e, t, n, r, i) {
+}, Pe = 1024, Fe = function(e, t, n, r, i) {
 	if (e.length === 0) return e;
 	let a = e;
 	if (typeof e == "symbol" ? a = Symbol.prototype.toString.call(e) : typeof e != "string" && (a = String(e)), n === "iso-8859-1") return escape(a).replace(/%u[0-9a-f]{4}/gi, function(e) {
 		return "%26%23" + parseInt(e.slice(2), 16) + "%3B";
 	});
 	let o = "";
-	for (let e = 0; e < a.length; e += Ne) {
-		let t = a.length >= Ne ? a.slice(e, e + Ne) : a, n = [];
+	for (let e = 0; e < a.length; e += Pe) {
+		let t = a.length >= Pe ? a.slice(e, e + Pe) : a, n = [];
 		for (let e = 0; e < t.length; ++e) {
 			let r = t.charCodeAt(e);
-			if (r === 45 || r === 46 || r === 95 || r === 126 || r >= 48 && r <= 57 || r >= 65 && r <= 90 || r >= 97 && r <= 122 || i === Te && (r === 40 || r === 41)) {
-				n[n.length] = t.charAt(e);
-				continue;
-			}
-			if (r < 128) {
-				n[n.length] = U[r];
-				continue;
-			}
-			if (r < 2048) {
-				n[n.length] = U[192 | r >> 6] + U[128 | r & 63];
-				continue;
-			}
-			if (r < 55296 || r >= 57344) {
-				n[n.length] = U[224 | r >> 12] + U[128 | r >> 6 & 63] + U[128 | r & 63];
-				continue;
-			}
-			e += 1, r = 65536 + ((r & 1023) << 10 | t.charCodeAt(e) & 1023), n[n.length] = U[240 | r >> 18] + U[128 | r >> 12 & 63] + U[128 | r >> 6 & 63] + U[128 | r & 63];
+			r === 45 || r === 46 || r === 95 || r === 126 || r >= 48 && r <= 57 || r >= 65 && r <= 90 || r >= 97 && r <= 122 || i === Te && (r === 40 || r === 41) ? n[n.length] = t.charAt(e) : r < 128 ? n[n.length] = H[r] : r < 2048 ? n[n.length] = H[192 | r >> 6] + H[128 | r & 63] : r < 55296 || r >= 57344 ? n[n.length] = H[224 | r >> 12] + H[128 | r >> 6 & 63] + H[128 | r & 63] : (e += 1, r = 65536 + ((r & 1023) << 10 | t.charCodeAt(e) & 1023), n[n.length] = H[240 | r >> 18] + H[128 | r >> 12 & 63] + H[128 | r >> 6 & 63] + H[128 | r & 63]);
 		}
 		o += n.join("");
 	}
 	return o;
-}, Fe = function(e) {
+}, Ie = function(e) {
 	let t = [{
 		obj: { o: e },
 		prop: "o"
@@ -2702,26 +2672,26 @@ var H = function(e) {
 			}), n.push(o));
 		}
 	}
-	return ke(t), e;
-}, Ie = function(e) {
-	return Object.prototype.toString.call(e) === "[object RegExp]";
+	return Ae(t), e;
 }, Le = function(e) {
+	return Object.prototype.toString.call(e) === "[object RegExp]";
+}, Re = function(e) {
 	return !e || typeof e != "object" ? !1 : !!(e.constructor && e.constructor.isBuffer && e.constructor.isBuffer(e));
-}, Re = function(e, t, n, r) {
-	if (V(e)) {
-		var i = H(e) + 1;
-		return e[i] = t, Oe(e, i), e;
+}, ze = function(e, t, n, r) {
+	if (B(e)) {
+		var i = V(e) + 1;
+		return e[i] = t, ke(e, i), e;
 	}
 	var a = [].concat(e, t);
-	return a.length > n ? De(Ae(a, { plainObjects: r }), a.length - 1) : a;
-}, ze = function(e, t) {
-	if (z(e)) {
+	return a.length > n ? Oe(je(a, { plainObjects: r }), a.length - 1) : a;
+}, Be = function(e, t) {
+	if (R(e)) {
 		let n = [];
 		for (let r = 0; r < e.length; r += 1) n.push(t(e[r]));
 		return n;
 	}
 	return t(e);
-}, Be = Object.prototype.hasOwnProperty, Ve = {
+}, Ve = Object.prototype.hasOwnProperty, He = {
 	brackets: function(e) {
 		return e + "[]";
 	},
@@ -2732,9 +2702,9 @@ var H = function(e) {
 	repeat: function(e) {
 		return e;
 	}
-}, W = Array.isArray, He = Array.prototype.push, Ue = function(e, t) {
-	He.apply(e, W(t) ? t : [t]);
-}, We = Date.prototype.toISOString, Ge = Ee, G = {
+}, U = Array.isArray, Ue = Array.prototype.push, We = function(e, t) {
+	Ue.apply(e, U(t) ? t : [t]);
+}, Ge = Date.prototype.toISOString, Ke = Ee, W = {
 	addQueryPrefix: !1,
 	allowDots: !1,
 	allowEmptyArrays: !1,
@@ -2744,112 +2714,111 @@ var H = function(e) {
 	delimiter: "&",
 	encode: !0,
 	encodeDotInKeys: !1,
-	encoder: Pe,
+	encoder: Fe,
 	encodeValuesOnly: !1,
-	format: Ge,
-	formatter: L[Ge],
+	format: Ke,
+	formatter: we[Ke],
 	indices: !1,
 	serializeDate: function(e) {
-		return We.call(e);
+		return Ge.call(e);
 	},
 	skipNulls: !1,
 	strictNullHandling: !1
-}, Ke = function(e) {
+}, qe = function(e) {
 	return typeof e == "string" || typeof e == "number" || typeof e == "boolean" || typeof e == "symbol" || typeof e == "bigint";
-}, qe = {}, Je = function(e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _) {
+}, Je = {}, Ye = function(e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _) {
 	let v = e, y = _, b = 0, x = !1;
-	for (; (y = y.get(qe)) !== void 0 && !x;) {
+	for (; (y = y.get(Je)) !== void 0 && !x;) {
 		let t = y.get(e);
 		if (b += 1, t !== void 0) {
 			if (t === b) throw RangeError("Cyclic object value");
 			x = !0;
 		}
-		y.get(qe) === void 0 && (b = 0);
+		y.get(Je) === void 0 && (b = 0);
 	}
-	if (typeof l == "function" ? v = l(t, v) : v instanceof Date ? v = f(v) : n === "comma" && W(v) && (v = ze(v, function(e) {
+	if (typeof l == "function" ? v = l(t, v) : v instanceof Date ? v = f(v) : n === "comma" && U(v) && (v = Be(v, function(e) {
 		return e instanceof Date ? f(e) : e;
 	})), v === null) {
-		if (a) return c && !h ? c(t, G.encoder, g, "key", p) : t;
+		if (a) return c && !h ? c(t, W.encoder, g, "key", p) : t;
 		v = "";
 	}
-	if (Ke(v) || Le(v)) return c ? [m(h ? t : c(t, G.encoder, g, "key", p)) + "=" + m(c(v, G.encoder, g, "value", p))] : [m(t) + "=" + m(String(v))];
+	if (qe(v) || Re(v)) return c ? [m(h ? t : c(t, W.encoder, g, "key", p)) + "=" + m(c(v, W.encoder, g, "value", p))] : [m(t) + "=" + m(String(v))];
 	let S = [];
 	if (v === void 0) return S;
 	let C;
-	if (n === "comma" && W(v)) h && c && (v = ze(v, c)), C = [{ value: v.length > 0 ? v.join(",") || null : void 0 }];
-	else if (W(l)) C = l;
+	if (n === "comma" && U(v)) h && c && (v = Be(v, c)), C = [{ value: v.length > 0 ? v.join(",") || null : void 0 }];
+	else if (U(l)) C = l;
 	else {
 		let e = Object.keys(v);
 		C = u ? e.sort(u) : e;
 	}
-	let w = s ? t.replace(/\./g, "%2E") : t, T = r && W(v) && v.length === 1 ? w + "[]" : w;
-	if (i && W(v) && v.length === 0) return T + "[]";
+	let w = s ? t.replace(/\./g, "%2E") : t, T = r && U(v) && v.length === 1 ? w + "[]" : w;
+	if (i && U(v) && v.length === 0) return T + "[]";
 	for (let t = 0; t < C.length; ++t) {
 		let y = C[t], x = typeof y == "object" && y.value !== void 0 ? y.value : v[y];
 		if (o && x === null) continue;
-		let w = d && s ? y.replace(/\./g, "%2E") : y, E = W(v) ? typeof n == "function" ? n(T, w) : T : T + (d ? "." + w : "[" + w + "]");
+		let w = d && s ? y.replace(/\./g, "%2E") : y, E = U(v) ? typeof n == "function" ? n(T, w) : T : T + (d ? "." + w : "[" + w + "]");
 		_.set(e, b);
 		let D = /* @__PURE__ */ new WeakMap();
-		D.set(qe, _), Ue(S, Je(x, E, n, r, i, a, o, s, n === "comma" && h && W(v) ? null : c, l, u, d, f, p, m, h, g, D));
+		D.set(Je, _), We(S, Ye(x, E, n, r, i, a, o, s, n === "comma" && h && U(v) ? null : c, l, u, d, f, p, m, h, g, D));
 	}
 	return S;
-}, Ye = function(e) {
-	if (!e) return G;
+}, Xe = function(e) {
+	if (!e) return W;
 	if (e.allowEmptyArrays !== void 0 && typeof e.allowEmptyArrays != "boolean") throw TypeError("`allowEmptyArrays` option can only be `true` or `false`, when provided");
 	if (e.encodeDotInKeys !== void 0 && typeof e.encodeDotInKeys != "boolean") throw TypeError("`encodeDotInKeys` option can only be `true` or `false`, when provided");
 	if (e.encoder !== null && e.encoder !== void 0 && typeof e.encoder != "function") throw TypeError("Encoder has to be a function.");
-	let t = e.charset || G.charset;
+	let t = e.charset || W.charset;
 	if (e.charset !== void 0 && e.charset !== "utf-8" && e.charset !== "iso-8859-1") throw TypeError("The charset option must be either utf-8, iso-8859-1, or undefined");
 	let n = Ee;
 	if (e.format !== void 0) {
-		if (!Be.call(L, e.format)) throw TypeError("Unknown format option provided.");
+		if (!Ve.call(we, e.format)) throw TypeError("Unknown format option provided.");
 		n = e.format;
 	}
-	let r = L[n], i = G.filter;
-	(typeof e.filter == "function" || W(e.filter)) && (i = e.filter);
+	let r = we[n], i = W.filter;
+	(typeof e.filter == "function" || U(e.filter)) && (i = e.filter);
 	let a;
-	if (a = e.arrayFormat in Ve ? e.arrayFormat : "indices" in e ? e.indices ? "indices" : "repeat" : G.arrayFormat, "commaRoundTrip" in e && typeof e.commaRoundTrip != "boolean") throw TypeError("`commaRoundTrip` must be a boolean, or absent");
-	let o = e.allowDots === void 0 ? e.encodeDotInKeys === !0 || G.allowDots : !!e.allowDots;
+	if (a = e.arrayFormat in He ? e.arrayFormat : "indices" in e ? e.indices ? "indices" : "repeat" : W.arrayFormat, "commaRoundTrip" in e && typeof e.commaRoundTrip != "boolean") throw TypeError("`commaRoundTrip` must be a boolean, or absent");
+	let o = e.allowDots === void 0 ? e.encodeDotInKeys === !0 || W.allowDots : !!e.allowDots;
 	return {
-		addQueryPrefix: typeof e.addQueryPrefix == "boolean" ? e.addQueryPrefix : G.addQueryPrefix,
+		addQueryPrefix: typeof e.addQueryPrefix == "boolean" ? e.addQueryPrefix : W.addQueryPrefix,
 		allowDots: o,
-		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : G.allowEmptyArrays,
+		allowEmptyArrays: typeof e.allowEmptyArrays == "boolean" ? !!e.allowEmptyArrays : W.allowEmptyArrays,
 		arrayFormat: a,
 		charset: t,
-		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : G.charsetSentinel,
+		charsetSentinel: typeof e.charsetSentinel == "boolean" ? e.charsetSentinel : W.charsetSentinel,
 		commaRoundTrip: e.commaRoundTrip,
-		delimiter: e.delimiter === void 0 ? G.delimiter : e.delimiter,
-		encode: typeof e.encode == "boolean" ? e.encode : G.encode,
-		encodeDotInKeys: typeof e.encodeDotInKeys == "boolean" ? e.encodeDotInKeys : G.encodeDotInKeys,
-		encoder: typeof e.encoder == "function" ? e.encoder : G.encoder,
-		encodeValuesOnly: typeof e.encodeValuesOnly == "boolean" ? e.encodeValuesOnly : G.encodeValuesOnly,
+		delimiter: e.delimiter === void 0 ? W.delimiter : e.delimiter,
+		encode: typeof e.encode == "boolean" ? e.encode : W.encode,
+		encodeDotInKeys: typeof e.encodeDotInKeys == "boolean" ? e.encodeDotInKeys : W.encodeDotInKeys,
+		encoder: typeof e.encoder == "function" ? e.encoder : W.encoder,
+		encodeValuesOnly: typeof e.encodeValuesOnly == "boolean" ? e.encodeValuesOnly : W.encodeValuesOnly,
 		filter: i,
 		format: n,
 		formatter: r,
-		serializeDate: typeof e.serializeDate == "function" ? e.serializeDate : G.serializeDate,
-		skipNulls: typeof e.skipNulls == "boolean" ? e.skipNulls : G.skipNulls,
+		serializeDate: typeof e.serializeDate == "function" ? e.serializeDate : W.serializeDate,
+		skipNulls: typeof e.skipNulls == "boolean" ? e.skipNulls : W.skipNulls,
 		sort: typeof e.sort == "function" ? e.sort : null,
-		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : G.strictNullHandling
+		strictNullHandling: typeof e.strictNullHandling == "boolean" ? e.strictNullHandling : W.strictNullHandling
 	};
 };
-function Xe(e, t) {
-	let n = e, r = Ye(t), i, a;
-	typeof r.filter == "function" ? (a = r.filter, n = a("", n)) : W(r.filter) && (a = r.filter, i = a);
+function Ze(e, t) {
+	let n = e, r = Xe(t), i, a;
+	typeof r.filter == "function" ? (a = r.filter, n = a("", n)) : U(r.filter) && (a = r.filter, i = a);
 	let o = [];
 	if (typeof n != "object" || !n) return "";
-	let s = Ve[r.arrayFormat], c = s === "comma" && r.commaRoundTrip;
+	let s = He[r.arrayFormat], c = s === "comma" && r.commaRoundTrip;
 	i ||= Object.keys(n), r.sort && i.sort(r.sort);
 	let l = /* @__PURE__ */ new WeakMap();
 	for (let e = 0; e < i.length; ++e) {
 		let t = i[e];
-		r.skipNulls && n[t] === null || Ue(o, Je(n[t], t, s, c, r.allowEmptyArrays, r.strictNullHandling, r.skipNulls, r.encodeDotInKeys, r.encode ? r.encoder : null, r.filter, r.sort, r.allowDots, r.serializeDate, r.format, r.formatter, r.encodeValuesOnly, r.charset, l));
+		r.skipNulls && n[t] === null || We(o, Ye(n[t], t, s, c, r.allowEmptyArrays, r.strictNullHandling, r.skipNulls, r.encodeDotInKeys, r.encode ? r.encoder : null, r.filter, r.sort, r.allowDots, r.serializeDate, r.format, r.formatter, r.encodeValuesOnly, r.charset, l));
 	}
 	let u = o.join(r.delimiter), d = r.addQueryPrefix === !0 ? "?" : "";
 	return r.charsetSentinel && (r.charset === "iso-8859-1" ? d += "utf8=%26%2310003%3B&" : d += "utf8=%E2%9C%93&"), u.length > 0 ? d + u : "";
 }
-//#endregion
-//#region node_modules/qs-esm/lib/parse.js
-var Ze = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
+// node_modules/qs-esm/lib/parse.js
+var G = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
 	allowDots: !1,
 	allowEmptyArrays: !1,
 	allowPrototypes: !1,
@@ -2859,7 +2828,7 @@ var Ze = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
 	charsetSentinel: !1,
 	comma: !1,
 	decodeDotInKeys: !1,
-	decoder: Me,
+	decoder: Ne,
 	delimiter: "&",
 	depth: 5,
 	duplicates: "combine",
@@ -2881,18 +2850,18 @@ var Ze = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
 	for (s = 0; s < a.length; ++s) {
 		if (s === o) continue;
 		let e = a[s], r = e.indexOf("]="), i = r === -1 ? e.indexOf("=") : r + 1, l, u;
-		i === -1 ? (l = t.decoder(e, K.decoder, c, "key"), u = t.strictNullHandling ? null : "") : (l = t.decoder(e.slice(0, i), K.decoder, c, "key"), u = ze(et(e.slice(i + 1), t), function(e) {
+		i === -1 ? (l = t.decoder(e, K.decoder, c, "key"), u = t.strictNullHandling ? null : "") : (l = t.decoder(e.slice(0, i), K.decoder, c, "key"), u = Be(et(e.slice(i + 1), t), function(e) {
 			return t.decoder(e, K.decoder, c, "value");
 		})), u && t.interpretNumericEntities && c === "iso-8859-1" && (u = $e(u)), e.indexOf("[]=") > -1 && (u = Qe(u) ? [u] : u);
-		let d = Ze.call(n, l);
-		d && t.duplicates === "combine" ? n[l] = Re(n[l], u, t.arrayLimit, t.plainObjects) : (!d || t.duplicates === "last") && (n[l] = u);
+		let d = G.call(n, l);
+		d && t.duplicates === "combine" ? n[l] = ze(n[l], u, t.arrayLimit, t.plainObjects) : d && t.duplicates !== "last" || (n[l] = u);
 	}
 	return n;
 }, it = function(e, t, n, r) {
 	let i = r ? t : et(t, n);
 	for (let t = e.length - 1; t >= 0; --t) {
 		let r, a = e[t];
-		if (a === "[]" && n.parseArrays) r = V(i) ? i : n.allowEmptyArrays && (i === "" || n.strictNullHandling && i === null) ? [] : Re([], i, n.arrayLimit, n.plainObjects);
+		if (a === "[]" && n.parseArrays) r = B(i) ? i : n.allowEmptyArrays && (i === "" || n.strictNullHandling && i === null) ? [] : ze([], i, n.arrayLimit, n.plainObjects);
 		else {
 			r = n.plainObjects ? Object.create(null) : {};
 			let e = a.charAt(0) === "[" && a.charAt(a.length - 1) === "]" ? a.slice(1, -1) : a, t = n.decodeDotInKeys ? e.replace(/%2E/g, ".") : e, o = parseInt(t, 10);
@@ -2905,12 +2874,12 @@ var Ze = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
 	if (!e) return;
 	let i = n.allowDots ? e.replace(/\.([^.[]+)/g, "[$1]") : e, a = /(\[[^[\]]*])/, o = /(\[[^[\]]*])/g, s = n.depth > 0 && a.exec(i), c = s ? i.slice(0, s.index) : i, l = [];
 	if (c) {
-		if (!n.plainObjects && Ze.call(Object.prototype, c) && !n.allowPrototypes) return;
+		if (!n.plainObjects && G.call(Object.prototype, c) && !n.allowPrototypes) return;
 		l.push(c);
 	}
 	let u = 0;
 	for (; n.depth > 0 && (s = o.exec(i)) !== null && u < n.depth;) {
-		if (u += 1, !n.plainObjects && Ze.call(Object.prototype, s[1].slice(1, -1)) && !n.allowPrototypes) return;
+		if (u += 1, !n.plainObjects && G.call(Object.prototype, s[1].slice(1, -1)) && !n.allowPrototypes) return;
 		l.push(s[1]);
 	}
 	return s && l.push("[" + i.slice(s.index) + "]"), it(l, t, n, r);
@@ -2933,7 +2902,7 @@ var Ze = Object.prototype.hasOwnProperty, Qe = Array.isArray, K = {
 		comma: typeof e.comma == "boolean" ? e.comma : K.comma,
 		decodeDotInKeys: typeof e.decodeDotInKeys == "boolean" ? e.decodeDotInKeys : K.decodeDotInKeys,
 		decoder: typeof e.decoder == "function" ? e.decoder : K.decoder,
-		delimiter: typeof e.delimiter == "string" || Ie(e.delimiter) ? e.delimiter : K.delimiter,
+		delimiter: typeof e.delimiter == "string" || Le(e.delimiter) ? e.delimiter : K.delimiter,
 		depth: typeof e.depth == "number" || e.depth === !1 ? +e.depth : K.depth,
 		duplicates: n,
 		ignoreQueryPrefix: e.ignoreQueryPrefix === !0,
@@ -2950,12 +2919,11 @@ function st(e, t) {
 	let r = typeof e == "string" ? rt(e, n) : e, i = n.plainObjects ? Object.create(null) : {}, a = Object.keys(r);
 	for (let t = 0; t < a.length; ++t) {
 		let o = a[t], s = at(o, r[o], n, typeof e == "string");
-		i = je(i, s, n);
+		i = Me(i, s, n);
 	}
-	return n.allowSparse === !0 ? i : Fe(i);
+	return n.allowSparse === !0 ? i : Ie(i);
 }
-//#endregion
-//#region node_modules/ziggy-js/dist/index.js
+// node_modules/ziggy-js/dist/index.js
 var ct = class {
 	constructor(e, t, n) {
 		this.name = e, this.definition = t, this.bindings = t.bindings ?? {}, this.wheres = t.wheres ?? {}, this.config = n;
@@ -3056,7 +3024,7 @@ var pt = class extends String {
 	}
 	toString() {
 		let e = Object.keys(this._params).filter((e) => !this._route.parameterSegments.some(({ name: t }) => t === e)).filter((e) => e !== "_query").reduce((e, t) => J(J({}, e), {}, { [t]: this._params[t] }), {});
-		return this._route.compile(this._params) + Xe(J(J({}, e), this._params._query), {
+		return this._route.compile(this._params) + Ze(J(J({}, e), this._params._query), {
 			addQueryPrefix: !0,
 			arrayFormat: "indices",
 			encodeValuesOnly: !0,
@@ -3130,8 +3098,7 @@ function mt(e, t, n, r) {
 	let i = new pt(e, t, n, r);
 	return e ? i.toString() : i;
 }
-//#endregion
-//#region resources/js/QzTrayCertificateError.ts
+// resources/js/QzTrayCertificateError.ts
 var ht = class extends Error {
 	code;
 	status;
@@ -3261,8 +3228,7 @@ var ht = class extends Error {
 		this.connectionRequest !== null && await this.connectionRequest.catch(() => void 0), this.isConnected() && await S.default.websocket.disconnect();
 	}
 };
-//#endregion
-//#region resources/js/detectZplEncoding.ts
+// resources/js/detectZplEncoding.ts
 function vt(e) {
 	let t = e.join(""), n = {
 		27: "windows-1252",
@@ -3282,8 +3248,7 @@ function vt(e) {
 	}
 	return r.size === 1 ? [...r][0] : "UTF-8";
 }
-//#endregion
-//#region resources/js/QzTrayPrinters.ts
+// resources/js/QzTrayPrinters.ts
 var yt = class {
 	connection;
 	constructor(e) {
@@ -3442,8 +3407,7 @@ var yt = class {
 		return this.printers.printPdf(e, t, n);
 	}
 }, xt = new URL("zebrash.wasm", import.meta.url).href;
-//#endregion
-//#region resources/js/printDocumentFiles.ts
+// resources/js/printDocumentFiles.ts
 async function X(e, t) {
 	let n = new URL(e, typeof document > "u" ? void 0 : document.baseURI);
 	if (![
@@ -3463,8 +3427,7 @@ function St(e) {
 	for (let n of e) t += String.fromCharCode(n);
 	return btoa(t);
 }
-//#endregion
-//#region resources/js/renderZpl.ts
+// resources/js/renderZpl.ts
 var Z = null, Q = null;
 async function Ct(e, t = {}) {
 	if (typeof e != "string" || e.trim() === "") throw TypeError("Provide a nonempty ZPL string to render.");
@@ -3480,7 +3443,7 @@ async function Ct(e, t = {}) {
 	if (!Number.isInteger(a)) throw RangeError("dpmm must be a positive integer.");
 	let { renderAll: o = !1, grayscaleOutput: s = !1, enableInvertedLabels: c = !1 } = t;
 	if (typeof o != "boolean" || typeof s != "boolean" || typeof c != "boolean") throw TypeError("ZPL rendering flags must be boolean values.");
-	Z === null && (Q = n, Z = import("./index.external.esm-Bcwt_wNA.js").then(async ({ init: e }) => {
+	Z === null && (Q = n, Z = import("./index.external.esm-DI4DJdTn.js").then(async ({ init: e }) => {
 		let t = await X(n);
 		return e({ wasmModule: await WebAssembly.compile(t) });
 	}).catch((e) => {
@@ -3499,8 +3462,7 @@ async function Ct(e, t = {}) {
 	if (d === "") throw Error("The ZPL renderer did not produce a PNG image.");
 	return `data:image/png;base64,${d}`;
 }
-//#endregion
-//#region resources/js/escposImage.ts
+// resources/js/escposImage.ts
 function wt(e) {
 	if (typeof e != "object" || !e) throw TypeError("ESC/POS payload parts must be strings, bytes, or Base64 raw images.");
 	let t = e;
@@ -3615,8 +3577,7 @@ async function Tt(e) {
 		30
 	], b), y;
 }
-//#endregion
-//#region resources/js/renderEscpos.ts
+// resources/js/renderEscpos.ts
 var Et = {
 	CP850: "cp850",
 	CP437: "cp437",
@@ -3624,7 +3585,7 @@ var Et = {
 	"Windows-1252": "windows1252"
 };
 function Dt() {
-	return Promise.all([import("./receipt-printer-renderer.esm-BEpqN9y1.js"), import("./codepage-encoder-DUs3fjHS.js")]);
+	return Promise.all([import("./receipt-printer-renderer.esm-PMSqQR1L.js"), import("./codepage-encoder-Bn07Wijy.js")]);
 }
 var Ot = null;
 async function kt(e, t = {}) {
@@ -3669,13 +3630,11 @@ async function kt(e, t = {}) {
 	}
 	return a ? _ : _[0];
 }
-//#endregion
-//#region node_modules/pdfjs-dist/build/pdf.worker.min.mjs?url&no-inline
+// node_modules/pdfjs-dist/build/pdf.worker.min.mjs?url&no-inline
 var At = new URL("pdf.worker.min.mjs", import.meta.url).href;
-//#endregion
-//#region resources/js/renderPdf.ts
+// resources/js/renderPdf.ts
 function jt() {
-	return Promise.all([import("./pdf-CT97BrCZ.js"), import("./pdfAssets-J30hfZGN.js")]).then(([e, t]) => (e.GlobalWorkerOptions.workerSrc = At, {
+	return Promise.all([import("./pdf-DREBPvVc.js"), import("./pdfAssets-CtjmjoUf.js")]).then(([e, t]) => (e.GlobalWorkerOptions.workerSrc = At, {
 		pdfjs: e,
 		assets: t
 	}));
@@ -3783,8 +3742,7 @@ async function Pt(e, t = {}) {
 		await d.destroy();
 	}
 }
-//#endregion
-//#region resources/js/renderPrintRequest.ts
+// resources/js/renderPrintRequest.ts
 async function Ft(e, t, n) {
 	if (t === "file") return X(e, n);
 	if (t === "base64") try {
@@ -3811,7 +3769,7 @@ function It(e) {
 	return t;
 }
 async function Lt(e, t) {
-	let { default: n } = await import("./codepage-encoder-DUs3fjHS.js"), r = t.toLowerCase().replace(/[-_]/g, ""), i = n.getEncodings().find((e) => e === r);
+	let { default: n } = await import("./codepage-encoder-Bn07Wijy.js"), r = t.toLowerCase().replace(/[-_]/g, ""), i = n.getEncodings().find((e) => e === r);
 	if (i === void 0) return new TextDecoder(t, { fatal: !0 }).decode(e);
 	let a = n.getCodepoints(i, !0), o = "";
 	for (let t of e) o += String.fromCodePoint(t < 128 ? t : a[t]);
@@ -3885,8 +3843,7 @@ async function Rt(e, t = {}) {
 		renderAll: !0
 	});
 }
-//#endregion
-//#region resources/js/preparePrintDocument.ts
+// resources/js/preparePrintDocument.ts
 async function zt(e, t = {}) {
 	let n = structuredClone(e), r = n.flavor === "file" || n.type === "pdf" && n.flavor === void 0, i = async (e) => St(await X(e, t.requestInit));
 	if (typeof n.payload == "string") return r ? {
@@ -3915,8 +3872,6 @@ async function zt(e, t = {}) {
 		payload: a
 	};
 }
-//#endregion
-//#region resources/js/index.ts
+// resources/js/index.ts
 var Bt = bt.getInstance();
-//#endregion
 export { bt as QzTray, bt as QzTrayConnector, ht as QzTrayCertificateError, Y as QzTraySigningError, Bt as default, Bt as qztray, zt as preparePrintDocument, kt as renderEscpos, Pt as renderPdf, Rt as renderPrintRequest, Ct as renderZpl };

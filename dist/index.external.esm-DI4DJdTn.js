@@ -1,4 +1,4 @@
-//#region node_modules/zpl-renderer-js/dist/index.external.esm.js
+// node_modules/zpl-renderer-js/dist/index.external.esm.js
 (() => {
 	let e = () => {
 		let e = /* @__PURE__ */ Error("not implemented");
@@ -22,11 +22,7 @@
 				return i != -1 && (console.log(t.substring(0, i)), t = t.substring(i + 1)), r.length;
 			},
 			write(t, n, r, i, a, o) {
-				if (r !== 0 || i !== n.length || a !== null) {
-					o(e());
-					return;
-				}
-				o(null, this.writeSync(t, n));
+				r !== 0 || i !== n.length || a !== null ? o(e()) : o(null, this.writeSync(t, n));
 			},
 			chmod(t, n, r) {
 				r(e());
@@ -429,5 +425,4 @@ function o(e) {
 		return t;
 	})(), a;
 }
-//#endregion
 export { o as init };

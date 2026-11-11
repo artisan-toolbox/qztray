@@ -1,4 +1,4 @@
-//#region node_modules/@point-of-sale/receipt-printer-renderer/dist/receipt-printer-renderer.esm.js
+// node_modules/@point-of-sale/receipt-printer-renderer/dist/receipt-printer-renderer.esm.js
 function e(e) {
 	let t = `P4\n${e.width} ${e.height}\n`, n = new Uint8Array(t.length + e.data.length);
 	for (let e = 0; e < t.length; e++) n[e] = t.charCodeAt(e);
@@ -11882,9 +11882,7 @@ function mt(e) {
 			let r = t === "A" ? "B" : "A", i = pt(e.value, r);
 			if (i < 0) return null;
 			n.push(dt[r]), n.push(i), t = r;
-			continue;
-		}
-		n.push(s);
+		} else n.push(s);
 	}
 	return n.length > 1 ? {
 		codes: n,
@@ -16891,9 +16889,7 @@ var Xn = class {
 				top: 1 / 0,
 				y: 0
 			};
-			return;
-		}
-		this.#b && (this.#b = null, this.#m = this.#z(), this.#X());
+		} else this.#b && (this.#b = null, this.#m = this.#z(), this.#X());
 	}
 	pageArea(e) {
 		if (!e) return;
@@ -19545,9 +19541,7 @@ var $ = class e {
 				(t === 0 || t >= 3 && t <= 90) && (this.#g.rows = t), (n === 0 || n >= 1 && n <= 30) && (this.#g.columns = n);
 			}
 			e[1] === 49 && e[2] <= 8 && (this.#g.errorLevel = e[2]), e[1] === 50 && e[2] >= 2 && e[2] <= 8 && (this.#g.moduleWidth = e[2]), e[1] === 51 && e[2] >= 2 && e[2] <= 8 && (this.#g.rowHeight = e[2]);
-			return;
-		}
-		if (e[0] === 68 && e.length >= 3) this.#g.data = e.slice(3, 3 + e[1] + 256 * e[2]);
+		} else if (e[0] === 68 && e.length >= 3) this.#g.data = e.slice(3, 3 + e[1] + 256 * e[2]);
 		else if (e[0] === 80) {
 			if (!this.#t.pdf417()) return void this.#A("pdf417");
 			this.#e.pdf417({
@@ -19855,5 +19849,4 @@ var $ = class e {
 		return this.#t.layout(e);
 	}
 };
-//#endregion
 export { Er as EscPosRenderer, Wr as ReceiptPrinterRenderer, Wr as default, $ as StarPrntRenderer, _ as pieces, h as rasterize, c as stitch, o as toImageData, e as toPbm, a as toPng };
