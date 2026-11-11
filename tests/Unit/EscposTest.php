@@ -5,6 +5,7 @@ declare(strict_types=1);
 use ArtisanToolbox\QzTrayConnector\Escpos;
 use Illuminate\Support\Facades\File;
 use Mike42\Escpos\CapabilityProfile;
+use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\Printer;
 
 it('generates exact UTF-8 encoded receipt bytes and stable base64 snapshots', function () {
@@ -82,16 +83,13 @@ it('rejects invalid layout and printer options', function () {
 });
 
 it('encodes QZ-compatible image strips and horizontal rules', function () {
-    $path = tempnam(sys_get_temp_dir(), 'qz-image-');
-    file_put_contents($path, "P1\n1 1\n1\n");
+    $path = dirname(__DIR__).'/Fixtures/black-pixel.png';
+    $image = EscposImage::load($path, false, ['native']);
+    expect($image->toColumnFormat(true))->toBe(["\x80\0\0"]);
 
-    try {
-        $receipt = Escpos::create()->image($path)->horizontalRule(2, 6);
-        expect($receipt->bytes())->toStartWith("\x1b@\x1b*\x21\x08\x00")
-            ->and($receipt->bytes())->toEndWith("\x1bJ\x18\x1b*\x21\x02\x00\0\0\x3f\0\0\x3f");
-    } finally {
-        File::delete($path);
-    }
+    $receipt = Escpos::create()->image($path)->horizontalRule(2, 6);
+    expect($receipt->bytes())->toBe("\x1b@\x1b*\x21\x08\x00\x80".str_repeat("\0", 23)
+        ."\x1bJ\x18\x1b*\x21\x02\x00\0\0\x3f\0\0\x3f");
 });
 
 it('rejects images whose padded width exceeds the ESC/POS command limit without appending bytes', function (int $width) {

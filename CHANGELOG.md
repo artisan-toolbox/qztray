@@ -18,6 +18,7 @@
 
 ### Fixes
 
+- Use a PNG fixture with a recognized filename extension for ESC/POS image tests, and verify the native PHP decoder explicitly. Preserve exact command-stream assertions on Windows without GD or Imagick.
 - Keep Laravel Framework and Testbench in development requirements when preparing CI dependency lanes, preserving production-autoload isolation.
 - Validate image header widths before decoding supported formats, so oversized ESC/POS images produce the package validation error even under stricter ImageMagick resource limits. Preserve the receipt buffer after invalid or missing image files.
 
