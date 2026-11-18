@@ -58,16 +58,14 @@ Read before executing:
 ## Examples
 
 ```ts
-import qztray, { preparePrintDocument, renderPdf, renderPrintRequest } from '@artisan-toolbox/qztray';
+import qztray, { preparePrintDocument, renderPrintRequest } from '@artisan-toolbox/qztray';
 
-const selectedPrinter = 'Receipt printer';
 const receiptBase64 = 'G0BIZWxsbyB3b3JsZAo=';
-const printers = await qztray.getPrinters();
-await qztray.printZpl(selectedPrinter, '^XA^CI28^FO20,20^FDHello^FS^XZ');
-const image = await renderPdf('/reports/42.pdf');
 const document = await preparePrintDocument({ type: 'escpos', flavor: 'base64', payload: receiptBase64 });
 const pages = await renderPrintRequest(document, { escpos: { widthDots: 576 } });
-await qztray.print({ ...document, printer: selectedPrinter });
+async function printApprovedReceipt(selectedPrinter: string) {
+    await qztray.print({ ...document, printer: selectedPrinter });
+}
 ```
 
 ```php
@@ -83,6 +81,8 @@ $receipt = Escpos::create(['columns' => 48])
     })
     ->feed()->cut()->render();
 ```
+
+Show the PNG pages and let the user choose a printer before calling `printApprovedReceipt`. Preparing and rendering the receipt does not connect to QZ Tray.
 
 The PHP example returns Base64 receipt commands for JSON transport. It does not print or contact QZ Tray.
 

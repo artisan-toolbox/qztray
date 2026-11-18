@@ -5,8 +5,15 @@ declare(strict_types=1);
 use ArtisanToolbox\QzTrayConnector\QzTrayConnector;
 use Symfony\Component\Process\Process;
 
+const PRODUCTION_AUTOLOAD_COMMAND = [
+    PHP_BINARY,
+    '-d',
+    'auto_prepend_file=none',
+    __DIR__.'/../Fixtures/production-autoload.php',
+];
+
 it('loads its PHP service with only declared production dependency autoloaders', function () {
-    $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php']);
+    $process = new Process(PRODUCTION_AUTOLOAD_COMMAND);
     $process->run();
 
     expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
@@ -14,7 +21,7 @@ it('loads its PHP service with only declared production dependency autoloaders',
 });
 
 it('loads declared support helpers without framework helpers or optional dependencies', function () {
-    $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php', 'helpers']);
+    $process = new Process([...PRODUCTION_AUTOLOAD_COMMAND, 'helpers']);
     $process->run();
 
     expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())
@@ -27,7 +34,7 @@ it('loads declared support helpers without framework helpers or optional depende
 });
 
 it('explains the optional dependency when generating ESC/POS without it', function () {
-    $process = new Process([PHP_BINARY, dirname(__DIR__).'/Fixtures/production-autoload.php', 'escpos']);
+    $process = new Process([...PRODUCTION_AUTOLOAD_COMMAND, 'escpos']);
     $process->run();
 
     expect($process->isSuccessful())->toBeTrue($process->getOutput().$process->getErrorOutput())

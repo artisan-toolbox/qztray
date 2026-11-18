@@ -42,6 +42,8 @@ Compatibility and migration:
 
 ## [Unreleased]
 
+- Show receipt preparation and preview separately from user-approved printer submission in the Boost skill.
+
 ### Features
 
 - Generate ESC/POS receipts on the server with the memory-only `Escpos` writer, configurable columns, page motion units, and capability profiles. Fluent layout, image, style, page, QR, feed, and cut helpers expose exact bytes or Base64 snapshots. Access the complete upstream printer API through a callback.
@@ -53,6 +55,7 @@ Compatibility and migration:
 
 - Use a PNG fixture with a recognized filename extension for ESC/POS image tests, and verify the native PHP decoder explicitly. Preserve exact command-stream assertions on Windows without GD or Imagick.
 - Keep Laravel Framework and Testbench in development requirements when preparing CI dependency lanes, preserving production-autoload isolation.
+- Disable PHP's `auto_prepend_file` in production dependency test subprocesses to prevent Laravel Herd's autoloader from loading first.
 - Validate image header widths before decoding supported formats, so oversized ESC/POS images produce the package validation error even under stricter ImageMagick resource limits. Preserve the receipt buffer after invalid or missing image files.
 
 - Honor Composer-declared helper files and Illuminate components replaced by Laravel Framework in production-dependency isolation tests. Keep optional ESC/POS and undeclared Foundation helpers absent while verifying the installation hint, and include subprocess output in failure diagnostics.
