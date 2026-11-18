@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0] - 2026-11-18
+
+### Maintenance
+
+- **Separate Boost receipt preview from printer submit** (`5026127`)
+  Includes the changes introduced by commit 5026127: chore(boost): separate Boost receipt preview from printer submit.
+
 ## [1.4.0] - 2026-11-11
 
 ### Features
