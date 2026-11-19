@@ -21,10 +21,11 @@ class QzTrayConnector implements BeforeVersioning, Versionable, WithReadmeHead
             ->withLogo(src: 'logo/qztray-icon.svg', alt: '', width: 88)
             ->withTitle('QZ Tray Connector')
             ->withDescription('Connect Laravel applications to local printers and preview ZPL labels, ESC/POS receipts, and PDFs.')
+            ->addBadge(Badge::releaseVersion('https://github.com/artisan-toolbox/qztray/releases'))
             ->addBadge(Badge::make(
-                link: 'https://github.com/artisan-toolbox/qztray/releases',
-                imgSrc: 'https://img.shields.io/github/v/release/artisan-toolbox/qztray?label=Release&style=flat-square',
-                imgAlt: 'Release',
+                link: 'https://packagist.org/packages/artisan-toolbox/qztray',
+                imgSrc: 'https://img.shields.io/badge/Packagist-F28D1A?style=flat-square&logo=packagist&logoColor=white',
+                imgAlt: 'Packagist',
             ))
             ->addBadge(Badge::make(
                 link: 'https://atb.dev.br/packages/qztray/compatibility/',

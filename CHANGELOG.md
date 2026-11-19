@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Let Composer select a compatible Ziggy version in the README installation command.
+
 ## [1.5.0] - 2026-11-18
 
 ### Maintenance
