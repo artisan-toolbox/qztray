@@ -50,7 +50,7 @@ return [
             RunsPhpStanCheck::class,
         ],
         'pest' => [
-            'parallel' => env('MAINTAINER_PEST_PARALLEL', false),
+            'parallel' => env('MAINTAINER_PEST_PARALLEL', true),
         ],
         'phpstan' => [
             'memory_limit' => env('MAINTAINER_PHPSTAN_MEMORY_LIMIT', '2G'),
