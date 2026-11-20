@@ -3,112 +3,126 @@ name: tests
 on:
   push:
     branches:
-      - 1.x
       - '*.x'
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && 'latest' || github.sha }}
   cancel-in-progress: true
 
 jobs:
   frontend-distribution:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Composer frontend distribution
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm ci --no-fund
       - name: Verify the tracked distribution
         run: |
           npm run build
           npm run check:dist
       - name: Set up consumer Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20.19.0'
+          package-manager-cache: false
       - name: Verify distributed entry points on Node.js 20
         run: |
           node tests/Fixtures/lna-browser.mjs dist/index.js
           node tests/Fixtures/lna-browser.mjs dist/index.cjs
 
   frontend-compatibility:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         node: ['22.18.0', '24.11.0']
+        include:
+          - os: ubuntu-latest
+            runner: ubuntu-24.04
+          - os: windows-latest
+            runner: windows-2025
     name: Frontend - Node ${{ matrix.node }} - ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
           cache: npm
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm ci --no-fund
       - name: Validate frontend compatibility
+        shell: bash
         run: |
           npm run check
           npm run test
           npm run build
 
   tests:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.5]
-        laravel: [13.*]
         stability: [prefer-lowest, prefer-stable]
         include:
-          - laravel: 13.*
-            testbench: 11.*
+          - os: ubuntu-latest
+            runner: ubuntu-24.04
+          - os: windows-latest
+            runner: windows-2025
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L13.* - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+      - name: Set up CI dependencies
+        uses: artisan-toolbox/maintainer@498f5f8723cbed3d24af0ba90870ca26010db4df # 1.14.2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
-          ini-values: error_reporting=E_ALL
-          tools: composer:v2
-          coverage: none
+          php-extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
+          composer-mode: ${{ matrix.stability }}
+          composer-validation: no-check-lock
+          composer-scripts: 'false'
 
-      - name: Install dependencies
+      - name: Discover Testbench packages
+        run: composer run prepare
+
+      - name: Run PHP checks
+        if: runner.os != 'Windows'
+        run: composer test
+
+      - name: Run PHP checks on Windows
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          composer require "artisan-toolbox/core:1.x-dev" --no-interaction --no-update
-          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
-          composer run prepare
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install frontend dependencies
-        run: npm ci
-
-      - name: Run configured quality checks
-        run: php vendor/bin/maintainer quality:check --no-interaction
+          composer analyse
+          composer lint:check
+          composer test:types
+          php vendor/bin/pest

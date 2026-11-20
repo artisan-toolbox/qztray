@@ -35,7 +35,7 @@
   "scripts": {
     "build": "vp build",
     "dev": "vp dev",
-    "test": "vp test",
+    "test": "vp test run",
     "check": "vp check && npm run typecheck",
     "check:fix": "vp check --fix",
     "typecheck": "tsc --noEmit",

@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+- Use the Maintainer 1.14.2 root action for PHP and Composer setup across the compatibility matrix.
+- Let Larastan 3.12.1 or later in the 3.x series select PHPStan with the Windows Turbo PHPDoc fix.
 - Let Composer select a compatible Ziggy version in the README installation command.
+- Use a 2 GB PHPStan limit and reject incomplete reports from `composer test:types`.
+- Validate released Core versions in the PHP matrix and run frontend checks only in their dedicated jobs. `npm test` runs once and returns the test result.
 
 ## [1.5.0] - 2026-11-18
 
