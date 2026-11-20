@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.1] - 2026-11-20
+
+### Continuous Integration
+
+- **Separate PHP and frontend CI and enforce complete type coverage** (`e4160f9`)
+  Run frontend checks in dedicated jobs, and make `npm test` run once and return the test result instead of watching for changes. Frontend CI pins `actions/setup-node` to v7.1.0, installs dependencies with `npm ci --no-fund`, runs compatibility checks in Bash, and disables package-manager caching for the Node 20.19.0 distribution smoke test. The PHP 8.5 and Laravel 13 matrix uses the Maintainer 1.14.2 action to set up PHP and Composer in both `prefer-lowest` and `prefer-stable` modes, skips lock-file validation, and disables Composer scripts during setup. It tests against released Core versions without injecting Core, Laravel, or Testbench constraints or installing Node dependencies. The workflow supports manual runs, cancels superseded pull request runs without canceling runs for distinct push commits, and retains push coverage for `1.x` through `*.x`. It pins runners to Ubuntu 24.04 and Windows Server 2025, sets 15-minute frontend and 20-minute PHP timeouts, disables checkout credential persistence, and lets all PHP matrix jobs finish even if one fails. The package raises its minimum Core and Maintainer versions to 1.4.1 and 1.14.3, respectively. Development dependencies now require Larastan 3.12.1 or later within 3.x and let it resolve PHPStan, allowing a version with the Windows Turbo PHPDoc fix. `composer analyse` gives PHPStan 2 GB of memory. `composer test:types` now uses a wrapper that forwards CLI arguments, runs Pest without caching and with a 512 MB memory limit, and requires both 100% type coverage and a JSON report that includes every PHP source file under `src/` except Blade templates. It lists omitted files, exits with status 1, and cleans up the temporary report directory. A regression test verifies that a successful Pest exit and 100% coverage for the reported files cannot hide an omitted source file. Maintainer configuration adds environment overrides for the AI models used for commit messages, release type suggestions, release notes, and changelog updates, all defaulting to `gpt-6.2-sol`. It also adds local feedback and project locale settings, defaults the project locale to English, and points the release configuration to `tests.yml`.
+
+### Maintenance
+
+- **Refresh README badges and let Composer resolve Ziggy** (`bb0a6fd`)
+  Replace the dynamic GitHub release badge in the managed README header with an explicit version badge that still links to GitHub Releases, and add a badge linking to the package on Packagist. Header tests verify the badge links and that prerelease hyphens are escaped correctly in Shields.io URLs. The documented install command is now `composer require artisan-toolbox/qztray tightenco/ziggy`, which drops the explicit Ziggy `^2.0` constraint so Composer can select a compatible version. The npm installation step is unchanged. Setup instructions now tell users to enable PHP OpenSSL and consult the compatibility guide, while the badges still show the PHP 8.5 and Laravel 13 requirements. The printing and preview features are no longer described as specific to 1.x. These documentation changes do not alter runtime behavior or dependency manifests.
+
 ## Unreleased
 
 - Use the Maintainer 1.14.2 root action for PHP and Composer setup across the compatibility matrix.
