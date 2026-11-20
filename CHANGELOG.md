@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.2] - 2026-11-20
+
+### Continuous Integration
+
+- **Test QZ Tray on PHP 8.6** (`e3b70f2`)
+  Add PHP 8.6 alongside PHP 8.5 to the Ubuntu and Windows test matrix and update the Maintainer setup action from 1.14.2 to 1.14.4. Replace OS-specific checks with the same strict, non-interactive Maintainer command for PHPStan, Pint, and Pest on every runner, then run `composer test:types` in a separate step. This expands CI coverage without changing the package’s PHP requirements.
+
+### Maintenance
+
+- **Run Pest in parallel by default on non-Windows systems** (`7d0ac24`)
+  Enable parallel Pest execution with two processes by default on non-Windows systems and keep serial execution as the Windows default. Override these defaults with `MAINTAINER_PEST_PARALLEL` and `MAINTAINER_PEST_PROCESSES`. Update `composer test` to require the installed `vendor/bin/maintainer` executable and run strict, non-interactive PHPStan, Pint, and Pest checks through it before running `composer test:types`. Remove the standalone Vue type check from Maintainer’s default check list while retaining the explicit type-check step in `composer test`. Cap Vitest at four workers and document the test workflow changes in the unreleased notes.
+
 ## [1.5.1] - 2026-11-20
 
 ### Continuous Integration
