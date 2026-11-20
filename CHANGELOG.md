@@ -14,6 +14,8 @@
 
 ## Unreleased
 
+- Use Maintainer 1.14.3 for PHP quality checks. Use two Pest processes on Unix and up to four Vitest workers.
+
 - Use the Maintainer 1.14.2 root action for PHP and Composer setup across the compatibility matrix.
 - Let Larastan 3.12.1 or later in the 3.x series select PHPStan with the Windows Turbo PHPDoc fix.
 - Let Composer select a compatible Ziggy version in the README installation command.
@@ -68,6 +70,8 @@ Compatibility and migration:
   Updated maintainer/contact information across the repository documentation, including changing the security vulnerability reporting email in .github/SECURITY.md from allan@wss.group to contact@atb.dev.br, and refreshing related public documentation/badge links to use the atb.dev.br domain. This is a metadata/documentation-only change intended to ensure users and security reporters reach the correct contact channel and to keep URLs current; it does not introduce application behavior or API changes.
 
 ## [Unreleased]
+
+- Test PHP 8.5 and 8.6 in CI with the Maintainer 1.14.4 setup action.
 
 - Show receipt preparation and preview separately from user-approved printer submission in the Boost skill.
 

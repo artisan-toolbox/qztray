@@ -86,7 +86,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        php: [8.5]
+        php: ['8.5', '8.6']
         stability: [prefer-lowest, prefer-stable]
         include:
           - os: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up CI dependencies
-        uses: artisan-toolbox/maintainer@498f5f8723cbed3d24af0ba90870ca26010db4df # 1.14.2
+        uses: artisan-toolbox/maintainer@c46eefa9d82cdfcd53c83c06c810ca2d3b0c7c33 # 1.14.4
         with:
           php-version: ${{ matrix.php }}
           php-extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
@@ -114,15 +114,8 @@ jobs:
       - name: Discover Testbench packages
         run: composer run prepare
 
-      - name: Run PHP checks
-        if: runner.os != 'Windows'
-        run: composer test
+      - name: Check PHP quality
+        run: php vendor/bin/maintainer quality:check --no-interaction --strict --tool=phpstan --tool=pint --tool=pest
 
-      - name: Run PHP checks on Windows
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          composer analyse
-          composer lint:check
-          composer test:types
-          php vendor/bin/pest
+      - name: Verify PHP type coverage
+        run: composer test:types

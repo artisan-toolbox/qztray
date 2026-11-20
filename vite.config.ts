@@ -60,6 +60,7 @@ export default defineConfig({
         },
     },
     test: {
+        maxWorkers: 4,
         server: { deps: { external: [/zpl-renderer-js\/dist\/index\.external\.(esm|cjs)\.js$/] } },
         include: ['tests/Frontend/**/*.test.ts'],
     },
